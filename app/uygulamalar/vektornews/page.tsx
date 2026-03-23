@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function VektorNewsPage() {
   return (
     <section className="container-main page-content-template pb-20 pt-6">
@@ -11,13 +13,23 @@ export default function VektorNewsPage() {
         }}
       >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,106,0,0.24),transparent_32%),radial-gradient(circle_at_bottom_left,rgba(59,130,246,0.16),transparent_30%)]" />
-        <div className="relative max-w-2xl">
-          <span className="inline-flex rounded-full border border-orange-400/30 bg-orange-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-orange-200">
-            Proje Uygulaması
-          </span>
-          <p className="mt-4 text-xl font-black leading-tight text-white sm:text-2xl">
-            VektörNEWS, içerik ve haber akışını mobil deneyime taşıyan hafif ve okunabilir bir uygulama fikridir.
-          </p>
+        <div className="relative">
+          <div className="flex items-start justify-between gap-3">
+            <span className="inline-flex rounded-full border border-orange-400/30 bg-orange-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-orange-200">
+              Proje Uygulaması
+            </span>
+            <Link
+              href="/vektornews_privacy_policy"
+              className="inline-flex items-center rounded-full border border-orange-300/40 bg-orange-500/90 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-orange-400"
+            >
+              Gizlilik Politikası
+            </Link>
+          </div>
+          <div className="max-w-2xl">
+            <p className="mt-4 text-xl font-black leading-tight text-white sm:text-2xl">
+              VektörNEWS, içerik ve haber akışını mobil deneyime taşıyan hafif ve okunabilir bir uygulama fikridir.
+            </p>
+          </div>
         </div>
       </div>
 
