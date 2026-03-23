@@ -8,6 +8,7 @@ const siteUrl = "https://www.vektorhub.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
+  applicationName: "VektörHUB",
   title: {
     default: "VektörHUB | İş Geliştirme ve Dijital Çözümler",
     template: "%s | VektörHUB",
@@ -26,6 +27,14 @@ export const metadata: Metadata = {
   ],
   alternates: {
     canonical: "/",
+  },
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/logo.png", type: "image/png", sizes: "512x512" },
+    ],
+    apple: [{ url: "/logo.png", sizes: "512x512", type: "image/png" }],
+    shortcut: ["/favicon.ico"],
   },
   openGraph: {
     type: "website",
@@ -65,17 +74,47 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const localBusinessSchema = {
+  const organizationSchema = {
     "@context": "https://schema.org",
-    "@type": "ProfessionalService",
-    name: "VektörHUB",
-    url: siteUrl,
-    email: "info@vektorhub.com",
-    telephone: "+90 533 385 05 72",
-    areaServed: "TR",
-    description:
-      "Küçük ve orta ölçekli işletmeler için web sitesi, mobil uygulama ve dijital görünürlük çözümleri sunan dijital hizmet merkezi.",
-    sameAs: [siteUrl],
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": `${siteUrl}/#organization`,
+        name: "VektörHUB",
+        url: siteUrl,
+        logo: {
+          "@type": "ImageObject",
+          url: `${siteUrl}/logo.png`,
+        },
+        image: `${siteUrl}/logo.png`,
+        sameAs: [siteUrl],
+      },
+      {
+        "@type": "ProfessionalService",
+        "@id": `${siteUrl}/#business`,
+        name: "VektörHUB",
+        url: siteUrl,
+        email: "info@vektorhub.com",
+        telephone: "+90 533 385 05 72",
+        areaServed: "TR",
+        image: `${siteUrl}/logo.png`,
+        description:
+          "Küçük ve orta ölçekli işletmeler için web sitesi, mobil uygulama ve dijital görünürlük çözümleri sunan dijital hizmet merkezi.",
+        brand: {
+          "@id": `${siteUrl}/#organization`,
+        },
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${siteUrl}/#website`,
+        url: siteUrl,
+        name: "VektörHUB",
+        publisher: {
+          "@id": `${siteUrl}/#organization`,
+        },
+        inLanguage: "tr-TR",
+      },
+    ],
   };
 
   return (
@@ -84,7 +123,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script
           type="application/ld+json"
           // JSON-LD enables rich results and clearer business understanding for search engines.
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessSchema) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
         />
         <ScrollToTop />
         <div className="min-h-screen bg-[radial-gradient(circle_at_top,rgba(255,106,0,0.15),transparent_30%),linear-gradient(180deg,#0b1220_0%,#09101c_100%)]">
