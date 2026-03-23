@@ -1,3 +1,14 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "İletişim",
+  description:
+    "VektörHUB iletişim bilgileri, dijital ofis yaklaşımı ve proje görüşmeleri için resmi erişim kanalları.",
+  alternates: {
+    canonical: "/iletisim",
+  },
+};
+
 export default function IletisimPage() {
   return (
     <section className="container-main page-content-template py-20">

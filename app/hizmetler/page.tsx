@@ -1,4 +1,14 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Hizmetler",
+  description:
+    "KOBİ'ler için web sitesi, dijital görünüm, tanıtım desteği ve ihtiyaca uygun özel dijital çözümler.",
+  alternates: {
+    canonical: "/hizmetler",
+  },
+};
 
 const servicePages = [
   {

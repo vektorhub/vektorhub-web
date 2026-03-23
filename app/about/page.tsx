@@ -1,3 +1,14 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Hakkımızda",
+  description:
+    "VektörHUB'un iş geliştirme ve dijital çözümler yaklaşımını, çalışma modelini ve proje vizyonunu inceleyin.",
+  alternates: {
+    canonical: "/about",
+  },
+};
+
 export default function AboutPage() {
   return (
     <section className="container-main page-content-template py-20">
