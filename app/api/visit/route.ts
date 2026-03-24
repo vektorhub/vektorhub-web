@@ -1,41 +1,46 @@
 import { NextResponse } from "next/server";
 
-const COUNTER_NAMESPACE = "vektorhub_web";
-const COUNTER_KEY = "site_visits";
+const VISIT_COOKIE = "vh_visit_count";
+let inMemoryCount = 0;
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-type CountApiResponse = {
-  value?: number;
-};
+function parseCookieCount(value: string | undefined) {
+  const parsed = Number(value ?? "0");
+  return Number.isFinite(parsed) && parsed >= 0 ? Math.trunc(parsed) : 0;
+}
 
-export async function GET() {
-  try {
-    const response = await fetch(
-      `https://api.countapi.xyz/hit/${COUNTER_NAMESPACE}/${COUNTER_KEY}`,
-      {
-        cache: "no-store",
-      }
-    );
+export async function GET(request: Request) {
+  const cookieHeader = request.headers.get("cookie") ?? "";
+  const rawCookie = cookieHeader
+    .split(";")
+    .map((part) => part.trim())
+    .find((part) => part.startsWith(`${VISIT_COOKIE}=`))
+    ?.split("=")[1];
 
-    if (!response.ok) {
-      return NextResponse.json({ value: null }, { status: 502 });
-    }
+  const cookieCount = parseCookieCount(rawCookie);
+  const baseCount = Math.max(cookieCount, inMemoryCount);
+  const nextCount = baseCount + 1;
 
-    const data = (await response.json()) as CountApiResponse;
+  inMemoryCount = nextCount;
 
-    return NextResponse.json(
-      {
-        value: typeof data.value === "number" ? data.value : null,
+  const response = NextResponse.json(
+    { value: nextCount },
+    {
+      headers: {
+        "Cache-Control": "no-store, max-age=0",
       },
-      {
-        headers: {
-          "Cache-Control": "no-store, max-age=0",
-        },
-      }
-    );
-  } catch {
-    return NextResponse.json({ value: null }, { status: 500 });
-  }
+    }
+  );
+
+  response.cookies.set(VISIT_COOKIE, String(nextCount), {
+    path: "/",
+    httpOnly: false,
+    secure: true,
+    sameSite: "lax",
+    maxAge: 60 * 60 * 24 * 365,
+  });
+
+  return response;
 }
