@@ -3,13 +3,15 @@
 import { useEffect, useState } from "react";
 
 const LOCAL_COUNTER_KEY = "vektorhub-local-visit-count";
+const TAB_VISIT_FLAG = "vektorhub-tab-visit-counted";
+const TAB_LAST_COUNT = "vektorhub-tab-last-count";
 
 type CountApiResponse = {
   value?: number;
 };
 
 function formatCount(value: number) {
-  return new Intl.NumberFormat("tr-TR").format(value);
+  return Math.max(0, Math.trunc(value)).toString().padStart(4, "0");
 }
 
 export function VisitorCounter() {
@@ -18,14 +20,36 @@ export function VisitorCounter() {
   useEffect(() => {
     let isActive = true;
 
-    const increaseLocalCounter = () => {
+    const getLocalCounter = () => {
       const current = Number(localStorage.getItem(LOCAL_COUNTER_KEY) ?? "0");
-      const next = Number.isFinite(current) ? current + 1 : 1;
+      return Number.isFinite(current) && current > 0 ? Math.trunc(current) : 0;
+    };
+
+    const increaseLocalCounter = () => {
+      const next = getLocalCounter() + 1;
       localStorage.setItem(LOCAL_COUNTER_KEY, String(next));
       return next;
     };
 
     const updateCounter = async () => {
+      const alreadyCountedInThisTab = sessionStorage.getItem(TAB_VISIT_FLAG) === "1";
+
+      if (alreadyCountedInThisTab) {
+        const tabCachedCount = Number(sessionStorage.getItem(TAB_LAST_COUNT) ?? "0");
+
+        if (!isActive) {
+          return;
+        }
+
+        if (Number.isFinite(tabCachedCount) && tabCachedCount > 0) {
+          setCount(Math.trunc(tabCachedCount));
+          return;
+        }
+
+        setCount(getLocalCounter() || null);
+        return;
+      }
+
       try {
         const response = await fetch("/api/visit", {
           cache: "no-store",
@@ -41,18 +65,26 @@ export function VisitorCounter() {
           return;
         }
 
+        let resolvedCount: number;
+
         if (typeof data.value === "number") {
-          setCount(data.value);
-          return;
+          resolvedCount = data.value;
+        } else {
+          resolvedCount = increaseLocalCounter();
         }
 
-        setCount(increaseLocalCounter());
+        setCount(resolvedCount);
+        sessionStorage.setItem(TAB_VISIT_FLAG, "1");
+        sessionStorage.setItem(TAB_LAST_COUNT, String(resolvedCount));
       } catch {
         if (!isActive) {
           return;
         }
 
-        setCount(increaseLocalCounter());
+        const fallbackCount = increaseLocalCounter();
+        setCount(fallbackCount);
+        sessionStorage.setItem(TAB_VISIT_FLAG, "1");
+        sessionStorage.setItem(TAB_LAST_COUNT, String(fallbackCount));
       }
     };
 
@@ -69,12 +101,12 @@ export function VisitorCounter() {
   }, []);
 
   return (
-    <div className="pointer-events-none fixed bottom-4 right-3 z-[55] sm:bottom-5 sm:right-5">
-      <div className="rounded-2xl border border-orange-300/25 bg-[#0d1626]/88 px-3 py-2 shadow-[0_14px_36px_rgba(0,0,0,0.3)] backdrop-blur-md">
-        <div className="text-[9px] font-semibold uppercase tracking-[0.16em] text-orange-200/90">
+    <div className="pointer-events-none fixed bottom-3 right-2 z-[55] sm:bottom-4 sm:right-4">
+      <div className="rounded-xl border border-orange-300/20 bg-[#0d1626]/78 px-2.5 py-1.5 shadow-[0_10px_24px_rgba(0,0,0,0.24)] backdrop-blur-md">
+        <div className="text-[8px] font-semibold uppercase tracking-[0.14em] text-orange-200/85">
           Ziyaret
         </div>
-        <div className="mt-0.5 text-right text-sm font-black leading-none text-white">
+        <div className="mt-0.5 text-right text-[12px] font-bold leading-none text-white/95">
           {count === null ? "--" : formatCount(count)}
         </div>
       </div>
