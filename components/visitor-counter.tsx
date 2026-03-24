@@ -1,10 +1,10 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const COUNTER_NAMESPACE = "vektorhub_web";
 const COUNTER_KEY = "site_visits";
-const SESSION_FLAG = "vektorhub-visit-counted";
 
 type CountApiResponse = {
   value?: number;
@@ -16,15 +16,13 @@ function formatCount(value: number) {
 
 export function VisitorCounter() {
   const [count, setCount] = useState<number | null>(null);
+  const pathname = usePathname();
 
   useEffect(() => {
     let isActive = true;
 
     const updateCounter = async () => {
-      const hasCountedThisSession = sessionStorage.getItem(SESSION_FLAG) === "1";
-      const endpoint = hasCountedThisSession
-        ? `https://api.countapi.xyz/get/${COUNTER_NAMESPACE}/${COUNTER_KEY}`
-        : `https://api.countapi.xyz/hit/${COUNTER_NAMESPACE}/${COUNTER_KEY}`;
+      const endpoint = `https://api.countapi.xyz/hit/${COUNTER_NAMESPACE}/${COUNTER_KEY}`;
 
       const response = await fetch(endpoint, {
         cache: "no-store",
@@ -40,10 +38,6 @@ export function VisitorCounter() {
         return;
       }
 
-      if (!hasCountedThisSession) {
-        sessionStorage.setItem(SESSION_FLAG, "1");
-      }
-
       setCount(data.value);
     };
 
@@ -57,7 +51,7 @@ export function VisitorCounter() {
     return () => {
       isActive = false;
     };
-  }, []);
+  }, [pathname]);
 
   return (
     <div className="pointer-events-none fixed bottom-4 right-3 z-[55] sm:bottom-5 sm:right-5">
