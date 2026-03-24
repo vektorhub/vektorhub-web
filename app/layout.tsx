@@ -3,6 +3,7 @@ import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
 import { AnnouncementBar } from "@/components/announcement-bar";
 import { ScrollToTop } from "@/components/scroll-to-top";
+import { VisitorCounter } from "@/components/visitor-counter";
 
 const siteUrl = "https://www.vektorhub.com";
 
@@ -125,6 +126,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           // JSON-LD enables rich results and clearer business understanding for search engines.
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
         />
+        <VisitorCounter />
         <ScrollToTop />
         <div className="min-h-screen bg-[radial-gradient(circle_at_top,rgba(255,106,0,0.15),transparent_30%),linear-gradient(180deg,#0b1220_0%,#09101c_100%)]">
           <SiteHeader />
