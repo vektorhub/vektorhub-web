@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 
+const LOCAL_COUNTER_KEY = "vektorhub-local-visit-count";
+
 type CountApiResponse = {
   value?: number;
 };
@@ -16,22 +18,42 @@ export function VisitorCounter() {
   useEffect(() => {
     let isActive = true;
 
+    const increaseLocalCounter = () => {
+      const current = Number(localStorage.getItem(LOCAL_COUNTER_KEY) ?? "0");
+      const next = Number.isFinite(current) ? current + 1 : 1;
+      localStorage.setItem(LOCAL_COUNTER_KEY, String(next));
+      return next;
+    };
+
     const updateCounter = async () => {
-      const response = await fetch("/api/visit", {
-        cache: "no-store",
-      });
+      try {
+        const response = await fetch("/api/visit", {
+          cache: "no-store",
+        });
 
-      if (!response.ok) {
-        return;
+        if (!response.ok) {
+          throw new Error("visit-api-not-ok");
+        }
+
+        const data = (await response.json()) as CountApiResponse;
+
+        if (!isActive) {
+          return;
+        }
+
+        if (typeof data.value === "number") {
+          setCount(data.value);
+          return;
+        }
+
+        setCount(increaseLocalCounter());
+      } catch {
+        if (!isActive) {
+          return;
+        }
+
+        setCount(increaseLocalCounter());
       }
-
-      const data = (await response.json()) as CountApiResponse;
-
-      if (!isActive || typeof data.value !== "number") {
-        return;
-      }
-
-      setCount(data.value);
     };
 
     updateCounter().catch(() => {
