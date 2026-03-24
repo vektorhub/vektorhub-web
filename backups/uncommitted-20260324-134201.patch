@@ -1,0 +1,11 @@
+diff --git a/components/site-footer.tsx b/components/site-footer.tsx
+index 1c330ef..ce5cd05 100644
+--- a/components/site-footer.tsx
++++ b/components/site-footer.tsx
+@@ -34,4 +34,4 @@ export function SiteFooter() {
+       </div>
+     </footer>
+   );
+-}
++}
+\ No newline at end of file
