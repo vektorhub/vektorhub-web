@@ -1,10 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-
-const COUNTER_NAMESPACE = "vektorhub_web";
-const COUNTER_KEY = "site_visits";
 
 type CountApiResponse = {
   value?: number;
@@ -16,15 +12,12 @@ function formatCount(value: number) {
 
 export function VisitorCounter() {
   const [count, setCount] = useState<number | null>(null);
-  const pathname = usePathname();
 
   useEffect(() => {
     let isActive = true;
 
     const updateCounter = async () => {
-      const endpoint = `https://api.countapi.xyz/hit/${COUNTER_NAMESPACE}/${COUNTER_KEY}`;
-
-      const response = await fetch(endpoint, {
+      const response = await fetch("/api/visit", {
         cache: "no-store",
       });
 
@@ -51,7 +44,7 @@ export function VisitorCounter() {
     return () => {
       isActive = false;
     };
-  }, [pathname]);
+  }, []);
 
   return (
     <div className="pointer-events-none fixed bottom-4 right-3 z-[55] sm:bottom-5 sm:right-5">
