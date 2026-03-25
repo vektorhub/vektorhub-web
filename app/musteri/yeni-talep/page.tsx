@@ -5,10 +5,13 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 type ServiceArea =
-  | "Web sitesi ve dijital görünüm"
-  | "Mobil uygulama"
-  | "Dijital tanıtım ve içerik"
-  | "Özel çözüm talebi";
+  | "Web Sitesi Tasarımı"
+  | "Google & SEO Çalışmaları"
+  | "Sosyal Medya Yönetimi"
+  | "Dijital Reklam Yönetimi"
+  | "Mobil Uygulama Geliştirme"
+  | "İş Geliştirme Danışmanlığı"
+  | "Logo Tasarımı";
 
 type SessionCustomer = {
   id: string;
@@ -17,10 +20,13 @@ type SessionCustomer = {
 };
 
 const SERVICE_OPTIONS: ServiceArea[] = [
-  "Web sitesi ve dijital görünüm",
-  "Mobil uygulama",
-  "Dijital tanıtım ve içerik",
-  "Özel çözüm talebi",
+  "Web Sitesi Tasarımı",
+  "Google & SEO Çalışmaları",
+  "Sosyal Medya Yönetimi",
+  "Dijital Reklam Yönetimi",
+  "Mobil Uygulama Geliştirme",
+  "İş Geliştirme Danışmanlığı",
+  "Logo Tasarımı",
 ];
 
 export default function MusteriYeniTalepPage() {

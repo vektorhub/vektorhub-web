@@ -9,10 +9,13 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 const SERVICE_AREAS = new Set([
-  "Web sitesi ve dijital görünüm",
-  "Mobil uygulama",
-  "Dijital tanıtım ve içerik",
-  "Özel çözüm talebi",
+  "Web Sitesi Tasarımı",
+  "Google & SEO Çalışmaları",
+  "Sosyal Medya Yönetimi",
+  "Dijital Reklam Yönetimi",
+  "Mobil Uygulama Geliştirme",
+  "İş Geliştirme Danışmanlığı",
+  "Logo Tasarımı",
 ]);
 
 const ipHits = new Map<string, number[]>();
