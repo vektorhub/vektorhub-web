@@ -493,7 +493,7 @@ export async function withdrawCustomerApplication(
   const updatedAt = new Date().toISOString();
   const note =
     reason?.trim()
-      ? `MÃ¼ÅŸteri tarafÄ±ndan geri Ã§ekildi. Not: ${reason.trim()}`
+      ? `Müşteri tarafından geri çekildi. Not: ${reason.trim()}`
       : "MÃ¼ÅŸteri tarafÄ±ndan geri Ã§ekildi.";
 
   await docRef.update({

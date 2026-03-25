@@ -76,6 +76,24 @@ const SERVICE_SHOWCASE = [
   },
 ];
 
+const PORTAL_MODULES = [
+  {
+    title: "Teklif Merkezi",
+    text: "Hazırlanan teklifleri tek alanda görmek, revizyon notlarını izlemek ve onay sürecini net yönetmek için kurgulandı.",
+    badge: "Hazır altyapı",
+  },
+  {
+    title: "Belge ve Dosya Alanı",
+    text: "Sözleşme, teslim notu, yüklenen dökümanlar ve süreç dosyaları aynı akış içinde toplanacak şekilde planlandı.",
+    badge: "Merkezi arşiv",
+  },
+  {
+    title: "Ödeme ve Tahsilat",
+    text: "Ödeme adımları, işlem geçmişi ve ileride gelecek sanal POS akışı için güvenli bir müşteri yüzeyi hazırlandı.",
+    badge: "Kademeli açılım",
+  },
+];
+
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString("tr-TR", {
     day: "2-digit",
@@ -447,7 +465,7 @@ export default function MusteriPanelPage() {
                     </div>
                     <h2 className="mt-2 text-2xl font-black text-white">Portal içi çalışma modülleri</h2>
                   </div>
-                  <div className="text-xs text-white/52">Şimdilik keşif ve yönlendirme merkezi</div>
+                  <div className="text-xs text-white/52">Aktif ekranlar ve sıradaki modüller</div>
                 </div>
 
                 <div className="mt-5 grid gap-3 sm:grid-cols-2">
@@ -465,15 +483,21 @@ export default function MusteriPanelPage() {
                   ))}
                 </div>
 
-                <div className="mt-5 rounded-[24px] border border-white/10 bg-white/[0.03] p-4">
-                  <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-orange-300">
-                    <CircleDollarSign className="h-4 w-4" />
-                    Sonraki Genişleme
-                  </div>
-                  <p className="mt-3 text-sm leading-7 text-white/66">
-                    Bu alan ilerleyen aşamada teklif, ödeme, onay, belge ve sanal POS akışlarını tek merkezde
-                    toplayacak şekilde büyütülebilir. Şimdilik süreç takibi ve yönlendirme omurgası hazır.
-                  </p>
+                <div className="mt-5 grid gap-3 xl:grid-cols-3">
+                  {PORTAL_MODULES.map((item) => (
+                    <div
+                      key={item.title}
+                      className="rounded-[24px] border border-white/10 bg-white/[0.03] p-4"
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="text-sm font-black text-white">{item.title}</div>
+                        <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-orange-200">
+                          {item.badge}
+                        </span>
+                      </div>
+                      <p className="mt-3 text-[13px] leading-6 text-white/66">{item.text}</p>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -551,6 +575,29 @@ export default function MusteriPanelPage() {
               </div>
 
               <div className="grid gap-5">
+                <div className="rounded-[30px] border border-white/10 bg-[linear-gradient(160deg,rgba(13,19,32,0.98),rgba(11,18,30,0.96))] p-5 shadow-[0_24px_60px_rgba(0,0,0,0.24)]">
+                  <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-orange-300">
+                    <CircleDollarSign className="h-4 w-4" />
+                    Teklif ve Ödeme Akışı
+                  </div>
+                  <div className="mt-4 grid gap-3">
+                    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                      <div className="text-sm font-black text-white">Hazırlanan teklifler</div>
+                      <p className="mt-2 text-sm leading-6 text-white/64">
+                        Teklif aşamasındaki işler detay ekranlarında ilerliyor. Bu alan bir sonraki turda teklif
+                        kartları, revizyon notları ve onay aksiyonlarıyla dolacak.
+                      </p>
+                    </div>
+                    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                      <div className="text-sm font-black text-white">Ödeme hazırlığı</div>
+                      <p className="mt-2 text-sm leading-6 text-white/64">
+                        Tahsilat, ödeme geçmişi ve sanal POS adımları için müşteri tarafı yüzeyi bu panelde
+                        merkezi şekilde çalışacak biçimde kurgulandı.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="rounded-[30px] border border-white/10 bg-[linear-gradient(160deg,rgba(13,19,32,0.98),rgba(11,18,30,0.96))] p-5 shadow-[0_24px_60px_rgba(0,0,0,0.24)]">
                   <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-orange-300">
                     <Bell className="h-4 w-4" />
