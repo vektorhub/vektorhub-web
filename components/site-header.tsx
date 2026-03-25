@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Menu, UserCircle2, X, ChevronRight } from "lucide-react";
 
@@ -41,6 +42,7 @@ export function SiteHeader() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [hoveredMenu, setHoveredMenu] = useState<string | null>(null);
+  const pathname = usePathname();
   const today = new Date();
   const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
   const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
@@ -71,6 +73,11 @@ export function SiteHeader() {
       delete document.body.dataset.leftSidebar;
     };
   }, [sidebarOpen]);
+
+  useEffect(() => {
+    // Route degisince mobil menuyu kapatip gecisin anlasilmasini saglar.
+    setMobileOpen(false);
+  }, [pathname]);
 
   return (
     <header className="sticky top-0 z-50">
