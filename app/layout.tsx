@@ -31,10 +31,11 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
+      { url: "/icon", type: "image/png", sizes: "512x512" },
       { url: "/favicon.ico?v=20260324", sizes: "any" },
       { url: "/favicon.png?v=20260324", type: "image/png", sizes: "512x512" },
     ],
-    apple: [{ url: "/apple-touch-icon.png?v=20260324", sizes: "512x512", type: "image/png" }],
+    apple: [{ url: "/apple-icon", sizes: "512x512", type: "image/png" }],
     shortcut: ["/favicon.ico?v=20260324"],
   },
   openGraph: {
@@ -121,9 +122,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="tr">
       <head>
+        <link rel="icon" type="image/png" href="/icon" />
         <link rel="icon" href="/favicon.ico?v=20260324" sizes="any" />
         <link rel="icon" type="image/png" href="/favicon.png?v=20260324" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=20260324" />
+        <link rel="apple-touch-icon" href="/apple-icon" />
       </head>
       <body className="bg-[#0b1220] text-white antialiased">
         <script
