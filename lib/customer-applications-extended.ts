@@ -96,6 +96,33 @@ export async function markMessageAsRead(
     });
 }
 
+export async function markMessagesAsReadBySender(
+  applicationId: string,
+  senderType: "admin" | "customer"
+): Promise<void> {
+  const db = getAdminDb();
+  const snapshot = await db
+    .collection("customer_applications")
+    .doc(applicationId)
+    .collection("messages")
+    .where("senderType", "==", senderType)
+    .where("readAt", "==", null)
+    .get();
+
+  if (snapshot.empty) {
+    return;
+  }
+
+  const batch = db.batch();
+  const readAt = new Date().toISOString();
+
+  for (const doc of snapshot.docs) {
+    batch.update(doc.ref, { readAt });
+  }
+
+  await batch.commit();
+}
+
 export async function uploadDocument(
   applicationId: string,
   fileName: string,

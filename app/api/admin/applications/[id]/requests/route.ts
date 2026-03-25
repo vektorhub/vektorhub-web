@@ -8,7 +8,7 @@ export const revalidate = 0;
 type CustomerRequest = {
   id: string;
   applicationId: string;
-  type: "add_note" | "change_status" | "request_document";
+  type: "add_note" | "change_status" | "request_document" | "cancel_application";
   data: Record<string, string>;
   createdAt: string;
   status: "pending" | "completed" | "rejected";
@@ -97,33 +97,37 @@ export async function PATCH(
     }
 
     const db = getAdminDb();
-    const reqRef = db
-      .collection("customer_applications")
-      .doc(id)
-      .collection("requests")
-      .doc(requestId);
+    const appRef = db.collection("customer_applications").doc(id);
+    const reqRef = appRef.collection("requests").doc(requestId);
 
     const reqSnap = await reqRef.get();
     if (!reqSnap.exists) {
       return NextResponse.json({ message: "Aksiyon talebi bulunamadı." }, { status: 404 });
     }
 
+    const requestData = reqSnap.data() as CustomerRequest;
+    const updatedAt = new Date().toISOString();
+
     await reqRef.update({
       status,
       adminResponse,
-      updatedAt: new Date().toISOString(),
+      updatedAt,
     });
 
-    await db
-      .collection("customer_applications")
-      .doc(id)
-      .collection("activity_log")
-      .add({
-        type: "admin_request_review",
-        actor: session.adminId,
-        details: { requestId, status, adminResponse },
-        createdAt: new Date().toISOString(),
+    if (status === "completed" && requestData.type === "cancel_application") {
+      await appRef.update({
+        status: "İptal Edildi",
+        note: adminResponse || "Müşteri talebi üzerine süreç iptal edildi.",
+        updatedAt,
       });
+    }
+
+    await appRef.collection("activity_log").add({
+      type: "admin_request_review",
+      actor: session.adminId,
+      details: { requestId, status, adminResponse, requestType: requestData.type },
+      createdAt: updatedAt,
+    });
 
     return NextResponse.json({ ok: true });
   } catch (error) {

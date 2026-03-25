@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
-import { completeCustomerInvite } from "@/lib/customer-accounts";
+import {
+  completeCustomerInvite,
+  type CustomerOfficialProfile,
+} from "@/lib/customer-accounts";
 import {
   getCustomerCookieName,
   getCustomerSessionMaxAge,
@@ -15,33 +18,50 @@ export async function POST(request: Request) {
       token?: string;
       fullName?: string;
       password?: string;
+      profile?: CustomerOfficialProfile;
     };
 
     const account = await completeCustomerInvite(
       body.token ?? "",
       body.password ?? "",
-      body.fullName
+      body.fullName,
+      body.profile
     );
 
-    const token = makeCustomerSessionToken(account.id, account.email);
-    const response = NextResponse.json({
+    if (account.status === "active") {
+      const token = makeCustomerSessionToken(account.id, account.email);
+      const response = NextResponse.json({
+        ok: true,
+        status: account.status,
+        customer: {
+          id: account.id,
+          email: account.email,
+          fullName: account.fullName,
+        },
+      });
+
+      response.cookies.set(getCustomerCookieName(), token, {
+        httpOnly: true,
+        secure: shouldUseSecureCookies(request.url),
+        sameSite: "lax",
+        path: "/",
+        maxAge: getCustomerSessionMaxAge(),
+      });
+
+      return response;
+    }
+
+    return NextResponse.json({
       ok: true,
+      status: account.status,
       customer: {
         id: account.id,
         email: account.email,
         fullName: account.fullName,
       },
+      message:
+        "Resmi müşteri kaydınız alındı. Yönetici onayı tamamlandıktan sonra portal girişiniz aktifleşecektir.",
     });
-
-    response.cookies.set(getCustomerCookieName(), token, {
-      httpOnly: true,
-      secure: shouldUseSecureCookies(request.url),
-      sameSite: "lax",
-      path: "/",
-      maxAge: getCustomerSessionMaxAge(),
-    });
-
-    return response;
   } catch (error) {
     const message = error instanceof Error ? error.message : "Hesap oluşturulamadı.";
     return NextResponse.json({ message }, { status: 400 });

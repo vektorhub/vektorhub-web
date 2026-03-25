@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { getAdminCookieName, verifyAdminSessionToken } from "../../../../../../lib/admin-session";
-import { createMessage, getMessages } from "@/lib/customer-applications-extended";
+import {
+  createMessage,
+  getMessages,
+  markMessagesAsReadBySender,
+} from "@/lib/customer-applications-extended";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -24,6 +28,7 @@ export async function GET(
     }
 
     const messages = await getMessages(id);
+    await markMessagesAsReadBySender(id, "customer");
     return NextResponse.json({ messages }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Mesajlar alınamadı.";

@@ -32,7 +32,10 @@ export async function POST(request: Request) {
     const nowMs = Date.now();
     const ip = getClientIp(request);
     if (isRateLimited(ip, nowMs)) {
-      return NextResponse.json({ message: "Çok fazla giriş denemesi. Lütfen tekrar deneyin." }, { status: 429 });
+      return NextResponse.json(
+        { message: "Çok fazla giriş denemesi. Lütfen tekrar deneyin." },
+        { status: 429 }
+      );
     }
 
     const body = (await request.json()) as {

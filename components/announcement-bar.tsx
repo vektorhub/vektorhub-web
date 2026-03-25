@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { VisitorCounterInline } from "@/components/visitor-counter";
 
@@ -133,6 +134,11 @@ const projectApps = [
 ];
 
 export function AnnouncementBar() {
+  const pathname = usePathname();
+  const isCustomerWorkspace =
+    pathname.startsWith("/musteri/panel") || pathname.startsWith("/musteri/yeni-talep");
+  const isAdminWorkspace = pathname.startsWith("/admin") && pathname !== "/admin/giris";
+  const isWorkspaceMode = isCustomerWorkspace || isAdminWorkspace;
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
@@ -164,6 +170,11 @@ export function AnnouncementBar() {
   }, []);
 
   useEffect(() => {
+    if (isWorkspaceMode) {
+      setSidebarVisible(false);
+      return;
+    }
+
     setSidebarVisible(document.body.dataset.leftSidebar !== "collapsed");
 
     const handleSidebarChange = (event: Event) => {
@@ -176,7 +187,7 @@ export function AnnouncementBar() {
     return () => {
       window.removeEventListener("left-sidebar-change", handleSidebarChange as EventListener);
     };
-  }, []);
+  }, [isWorkspaceMode]);
 
   useEffect(() => {
     if (!selectedItem) {
@@ -383,6 +394,10 @@ export function AnnouncementBar() {
       }
     };
   }, [isMobile, selectedItem]);
+
+  if (isWorkspaceMode) {
+    return null;
+  }
 
   return (
     <>

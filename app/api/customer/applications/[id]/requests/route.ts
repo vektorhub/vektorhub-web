@@ -9,7 +9,7 @@ export const revalidate = 0;
 export type CustomerRequest = {
   id: string;
   applicationId: string;
-  type: "add_note" | "change_status" | "request_document";
+  type: "add_note" | "change_status" | "request_document" | "cancel_application";
   data: Record<string, string>;
   createdAt: string;
   status: "pending" | "completed" | "rejected";
@@ -18,10 +18,7 @@ export type CustomerRequest = {
 
 async function verifyOwnership(applicationId: string, customerId: string, customerEmail?: string) {
   const db = getAdminDb();
-  const appSnap = await db
-    .collection("customer_applications")
-    .doc(applicationId)
-    .get();
+  const appSnap = await db.collection("customer_applications").doc(applicationId).get();
 
   if (!appSnap.exists) {
     throw new Error("Talep bulunamadı.");
@@ -74,7 +71,7 @@ export async function GET(
     const requests = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
-    } as CustomerRequest));
+    })) as CustomerRequest[];
 
     return NextResponse.json({ requests }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
@@ -111,12 +108,10 @@ export async function POST(
     const body = await request.json();
     const { type, data } = body;
 
-    // Validate request type
-    if (!["add_note", "change_status", "request_document"].includes(type)) {
+    if (!["add_note", "change_status", "request_document", "cancel_application"].includes(type)) {
       return NextResponse.json({ message: "Geçersiz istek türü." }, { status: 400 });
     }
 
-    // Validate data based on type
     if (type === "add_note" && (!data?.note || data.note.trim().length === 0)) {
       return NextResponse.json({ message: "Not boş olamaz." }, { status: 400 });
     }
@@ -129,7 +124,10 @@ export async function POST(
       return NextResponse.json({ message: "Sebep gerekli." }, { status: 400 });
     }
 
-    // Create request in Firestore
+    if (type === "cancel_application" && !data?.reason) {
+      return NextResponse.json({ message: "İptal sebebi gerekli." }, { status: 400 });
+    }
+
     const db = getAdminDb();
     const docRef = db
       .collection("customer_applications")
@@ -151,7 +149,6 @@ export async function POST(
 
     await docRef.set(customerRequest);
 
-    // Log action
     await db
       .collection("customer_applications")
       .doc(id)

@@ -1,9 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { X, AlertCircle, CheckCircle2 } from "lucide-react";
+import { AlertCircle, CheckCircle2, X } from "lucide-react";
 
-type QuickActionType = "add_note" | "change_status" | "request_document" | null;
+type QuickActionType =
+  | "add_note"
+  | "change_status"
+  | "request_document"
+  | "cancel_application"
+  | "withdraw"
+  | null;
 
 interface QuickActionsDialogProps {
   applicationId: string;
@@ -25,10 +31,10 @@ export function QuickActionsDialog({
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
-  // Form states
   const [noteText, setNoteText] = useState("");
   const [proposedStatus, setProposedStatus] = useState("");
   const [documentReason, setDocumentReason] = useState("");
+  const [cancelReason, setCancelReason] = useState("");
 
   const statusOptions = [
     "Başvuru Alındı",
@@ -37,10 +43,14 @@ export function QuickActionsDialog({
     "Tamamlandı",
   ];
 
+  const canWithdrawDirectly = currentStatus === "Başvuru Alındı";
+  const isClosed = currentStatus === "Tamamlandı" || currentStatus === "İptal Edildi";
+
   const resetForms = () => {
     setNoteText("");
     setProposedStatus("");
     setDocumentReason("");
+    setCancelReason("");
     setError("");
     setSuccess(false);
   };
@@ -61,6 +71,56 @@ export function QuickActionsDialog({
     setError("");
 
     try {
+      if (activeAction === "withdraw") {
+        const res = await fetch(`/api/customer/applications/${applicationId}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "withdraw",
+            reason: cancelReason,
+          }),
+        });
+
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({}));
+          throw new Error(errorData.message || "Başvuru geri çekilemedi.");
+        }
+
+        setSuccess(true);
+        setTimeout(() => {
+          onSuccess();
+          handleCloseDialog();
+        }, 1400);
+        return;
+      }
+
+      if (activeAction === "cancel_application") {
+        if (!cancelReason.trim()) {
+          throw new Error("Lütfen iptal sebebini kısaca yazın.");
+        }
+
+        const res = await fetch(`/api/customer/applications/${applicationId}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "cancel_request",
+            reason: cancelReason,
+          }),
+        });
+
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({}));
+          throw new Error(errorData.message || "İptal talebi oluşturulamadı.");
+        }
+
+        setSuccess(true);
+        setTimeout(() => {
+          onSuccess();
+          handleCloseDialog();
+        }, 1400);
+        return;
+      }
+
       const data: Record<string, string> = {};
       let type: "add_note" | "change_status" | "request_document" = "add_note";
 
@@ -72,11 +132,11 @@ export function QuickActionsDialog({
         data.note = noteText;
       } else if (activeAction === "change_status") {
         if (!proposedStatus) {
-          throw new Error("Yeni durum seçini.");
+          throw new Error("Yeni durum seçin.");
         }
         type = "change_status";
         data.proposedStatus = proposedStatus;
-        data.reason = "Durum değişikliği talebinde bulunulmuştur.";
+        data.reason = "Durum değişikliği talebinde bulunuldu.";
       } else if (activeAction === "request_document") {
         if (!documentReason.trim()) {
           throw new Error("Sebep boş olamaz.");
@@ -85,17 +145,14 @@ export function QuickActionsDialog({
         data.reason = documentReason;
       }
 
-      const res = await fetch(
-        `/api/customer/applications/${applicationId}/requests`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ type, data }),
-        }
-      );
+      const res = await fetch(`/api/customer/applications/${applicationId}/requests`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type, data }),
+      });
 
       if (!res.ok) {
-        const errorData = await res.json();
+        const errorData = await res.json().catch(() => ({}));
         throw new Error(errorData.message || "İstek gönderilemedi.");
       }
 
@@ -103,7 +160,7 @@ export function QuickActionsDialog({
       setTimeout(() => {
         onSuccess();
         handleCloseDialog();
-      }, 2000);
+      }, 1400);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Hata oluştu.");
     } finally {
@@ -114,70 +171,83 @@ export function QuickActionsDialog({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-slate-800 border border-slate-700 rounded-[20px] max-w-2xl w-full max-h-96 overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-slate-700">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="max-h-[32rem] w-full max-w-2xl overflow-y-auto rounded-[20px] border border-slate-700 bg-slate-800">
+        <div className="flex items-center justify-between border-b border-slate-700 p-6">
           <h2 className="text-xl font-bold text-white">
             {!activeAction ? "Hızlı Aksiyonlar" : "Talep Gönder"}
           </h2>
           <button
             onClick={handleCloseDialog}
-            className="p-1 hover:bg-slate-700 rounded-lg transition"
+            className="rounded-lg p-1 transition hover:bg-slate-700"
           >
             <X size={24} className="text-white" />
           </button>
         </div>
 
-        {/* Content */}
         <div className="p-6">
           {!activeAction ? (
-            // Action Selection
             <div className="space-y-3">
               <button
                 onClick={() => setActiveAction("add_note")}
-                className="w-full p-4 rounded-lg border border-slate-600 hover:border-blue-500 hover:bg-blue-500/10 transition text-left"
+                className="w-full rounded-lg border border-slate-600 p-4 text-left transition hover:border-blue-500 hover:bg-blue-500/10"
               >
-                <div className="font-semibold text-white mb-1">📝 Not Ekle</div>
+                <div className="mb-1 font-semibold text-white">Not Ekle</div>
                 <div className="text-sm text-slate-400">
-                  İlerleme, sorun veya gözlemleriniz hakkında not bırakın
+                  Süreçle ilgili gözlemlerinizi veya ek bilginizi iletin.
                 </div>
               </button>
 
               <button
                 onClick={() => setActiveAction("change_status")}
-                className="w-full p-4 rounded-lg border border-slate-600 hover:border-orange-500 hover:bg-orange-500/10 transition text-left"
+                className="w-full rounded-lg border border-slate-600 p-4 text-left transition hover:border-orange-500 hover:bg-orange-500/10"
               >
-                <div className="font-semibold text-white mb-1">
-                  🔄 Durum Değiştir Talep Et
-                </div>
+                <div className="mb-1 font-semibold text-white">Durum Güncelleme Talebi</div>
                 <div className="text-sm text-slate-400">
-                  Talebin durumunun değiştirilmesini isteyin
+                  Süreç durumunda farklı bir aşama gerektiğini düşünüyorsanız iletin.
                 </div>
               </button>
 
               <button
                 onClick={() => setActiveAction("request_document")}
-                className="w-full p-4 rounded-lg border border-slate-600 hover:border-emerald-500 hover:bg-emerald-500/10 transition text-left"
+                className="w-full rounded-lg border border-slate-600 p-4 text-left transition hover:border-emerald-500 hover:bg-emerald-500/10"
               >
-                <div className="font-semibold text-white mb-1">📄 Doküman Talep Et</div>
+                <div className="mb-1 font-semibold text-white">Doküman Talebi</div>
                 <div className="text-sm text-slate-400">
-                  Gerekli belgeler veya dokümanları isteme hakkında bilgi verin
+                  Belge, dosya veya döküman ihtiyacınızı buradan bildirin.
                 </div>
               </button>
+
+              {!isClosed ? (
+                <button
+                  onClick={() =>
+                    setActiveAction(canWithdrawDirectly ? "withdraw" : "cancel_application")
+                  }
+                  className="w-full rounded-lg border border-rose-500/40 p-4 text-left transition hover:border-rose-400 hover:bg-rose-500/10"
+                >
+                  <div className="mb-1 font-semibold text-white">
+                    {canWithdrawDirectly ? "Başvuruyu Geri Çek" : "İptal Talebi Oluştur"}
+                  </div>
+                  <div className="text-sm text-slate-400">
+                    {canWithdrawDirectly
+                      ? "Henüz ilk aşamadaki başvurunuzu doğrudan geri çekebilirsiniz."
+                      : "İlerleyen aşamadaki kayıtlar için iptal talebi oluşturabilirsiniz."}
+                  </div>
+                </button>
+              ) : null}
             </div>
           ) : success ? (
-            // Success State
-            <div className="text-center py-8">
-              <CheckCircle2 size={48} className="mx-auto text-emerald-400 mb-4" />
-              <p className="text-lg font-semibold text-white mb-2">Başarılı!</p>
-              <p className="text-slate-400">İsteğiniz gönderildi. Ekibimiz en kısa zamanda yanıt verecektir.</p>
+            <div className="py-8 text-center">
+              <CheckCircle2 size={48} className="mx-auto mb-4 text-emerald-400" />
+              <p className="mb-2 text-lg font-semibold text-white">İşlem alındı</p>
+              <p className="text-slate-400">
+                Talebiniz başarıyla kaydedildi. Panel verileri güncelleniyor.
+              </p>
             </div>
           ) : (
-            // Form Display
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
-                <div className="flex gap-3 p-4 rounded-lg bg-red-500/10 border border-red-500/50 text-red-200">
+                <div className="flex gap-3 rounded-lg border border-red-500/50 bg-red-500/10 p-4 text-red-200">
                   <AlertCircle size={20} className="flex-shrink-0" />
                   <p className="text-sm">{error}</p>
                 </div>
@@ -185,14 +255,12 @@ export function QuickActionsDialog({
 
               {activeAction === "add_note" && (
                 <div>
-                  <label className="block text-sm font-medium text-white mb-2">
-                    Notunuz
-                  </label>
+                  <label className="mb-2 block text-sm font-medium text-white">Notunuz</label>
                   <textarea
                     value={noteText}
                     onChange={(e) => setNoteText(e.target.value)}
                     placeholder="Lütfen notunuzu yazın..."
-                    className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 resize-none"
+                    className="w-full resize-none rounded-lg border border-slate-600 bg-slate-700 px-4 py-3 text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
                     rows={4}
                   />
                 </div>
@@ -200,19 +268,17 @@ export function QuickActionsDialog({
 
               {activeAction === "change_status" && (
                 <div>
-                  <label className="block text-sm font-medium text-white mb-2">
-                    Önerilen Yeni Durum
-                  </label>
+                  <label className="mb-2 block text-sm font-medium text-white">Önerilen yeni durum</label>
                   <select
                     value={proposedStatus}
                     onChange={(e) => setProposedStatus(e.target.value)}
-                    className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-orange-500"
+                    className="w-full rounded-lg border border-slate-600 bg-slate-700 px-4 py-3 text-white focus:border-orange-500 focus:outline-none"
                   >
-                    <option value="">-- Durum Seçin --</option>
+                    <option value="">-- Durum seçin --</option>
                     {statusOptions.map((status) => (
                       <option key={status} value={status} disabled={status === currentStatus}>
                         {status}
-                        {status === currentStatus && " (Mevcut)"}
+                        {status === currentStatus ? " (Mevcut)" : ""}
                       </option>
                     ))}
                   </select>
@@ -221,33 +287,51 @@ export function QuickActionsDialog({
 
               {activeAction === "request_document" && (
                 <div>
-                  <label className="block text-sm font-medium text-white mb-2">
-                    Hangi dokümanları istediğinizi açıklayın
+                  <label className="mb-2 block text-sm font-medium text-white">
+                    Hangi doküman gerektiğini yazın
                   </label>
                   <textarea
                     value={documentReason}
                     onChange={(e) => setDocumentReason(e.target.value)}
-                    placeholder="Örn: Projenizin teknik şartnamesi, özgeçmişler, vs..."
-                    className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 resize-none"
+                    placeholder="Örn: teklif PDF'i, sözleşme taslağı, teknik içerik..."
+                    className="w-full resize-none rounded-lg border border-slate-600 bg-slate-700 px-4 py-3 text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none"
                     rows={4}
                   />
                 </div>
               )}
 
-              {/* Action Buttons */}
+              {(activeAction === "cancel_application" || activeAction === "withdraw") && (
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-white">
+                    {activeAction === "withdraw" ? "Geri çekme notu" : "İptal talebi notu"}
+                  </label>
+                  <textarea
+                    value={cancelReason}
+                    onChange={(e) => setCancelReason(e.target.value)}
+                    placeholder={
+                      activeAction === "withdraw"
+                        ? "İsterseniz kısa bir not bırakabilirsiniz."
+                        : "İptal talebinizin sebebini kısaca yazın."
+                    }
+                    className="w-full resize-none rounded-lg border border-slate-600 bg-slate-700 px-4 py-3 text-white placeholder-slate-500 focus:border-rose-500 focus:outline-none"
+                    rows={4}
+                  />
+                </div>
+              )}
+
               <div className="flex gap-3 pt-4">
                 <button
                   type="button"
                   onClick={handleCloseAction}
                   disabled={loading}
-                  className="flex-1 px-4 py-2 rounded-lg border border-slate-600 text-white hover:bg-slate-700 transition disabled:opacity-50"
+                  className="flex-1 rounded-lg border border-slate-600 px-4 py-2 text-white transition hover:bg-slate-700 disabled:opacity-50"
                 >
                   Geri
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:bg-slate-700 text-white font-semibold transition"
+                  className="flex-1 rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white transition hover:bg-blue-700 disabled:bg-slate-700"
                 >
                   {loading ? "Gönderiliyor..." : "Gönder"}
                 </button>

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ChevronRight, Menu, UserCircle2, X } from "lucide-react";
+import { ChevronRight, Menu, MessageCircleMore, UserCircle2, X } from "lucide-react";
 
 const navItems = [
   { href: "/", label: "Ana Sayfa" },
@@ -34,6 +34,10 @@ export function SiteHeader() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [hoveredMenu, setHoveredMenu] = useState<string | null>(null);
   const pathname = usePathname();
+  const isCustomerWorkspace =
+    pathname.startsWith("/musteri/panel") || pathname.startsWith("/musteri/yeni-talep");
+  const isAdminWorkspace = pathname.startsWith("/admin") && pathname !== "/admin/giris";
+  const isWorkspaceMode = isCustomerWorkspace || isAdminWorkspace;
   const today = new Date();
   const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
   const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
@@ -53,17 +57,29 @@ export function SiteHeader() {
   }
 
   useEffect(() => {
-    document.body.dataset.leftSidebar = sidebarOpen ? "open" : "collapsed";
-    window.dispatchEvent(
-      new CustomEvent("left-sidebar-change", {
-        detail: { open: sidebarOpen },
-      })
-    );
+    if (isWorkspaceMode) {
+      document.body.dataset.portalWorkspace = "active";
+      document.body.dataset.leftSidebar = "collapsed";
+      window.dispatchEvent(
+        new CustomEvent("left-sidebar-change", {
+          detail: { open: false },
+        })
+      );
+    } else {
+      delete document.body.dataset.portalWorkspace;
+      document.body.dataset.leftSidebar = sidebarOpen ? "open" : "collapsed";
+      window.dispatchEvent(
+        new CustomEvent("left-sidebar-change", {
+          detail: { open: sidebarOpen },
+        })
+      );
+    }
 
     return () => {
       delete document.body.dataset.leftSidebar;
+      delete document.body.dataset.portalWorkspace;
     };
-  }, [sidebarOpen]);
+  }, [isWorkspaceMode, sidebarOpen]);
 
   useEffect(() => {
     setMobileOpen(false);
@@ -74,15 +90,20 @@ export function SiteHeader() {
       <div
         className="relative overflow-hidden border-b border-white/8 backdrop-blur-md"
         style={{
-          backgroundImage:
-            "linear-gradient(rgba(7,16,29,0.55), rgba(7,16,29,0.55)), url('/header-flow.png')",
-          backgroundSize: "cover",
+          backgroundImage: isWorkspaceMode
+            ? "linear-gradient(180deg, rgba(9,16,28,0.96), rgba(10,17,29,0.92))"
+            : "linear-gradient(rgba(7,16,29,0.55), rgba(7,16,29,0.55)), url('/header-flow.png')",
+          backgroundSize: isWorkspaceMode ? "auto" : "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
-          backgroundBlendMode: "overlay",
+          backgroundBlendMode: isWorkspaceMode ? "normal" : "overlay",
         }}
       >
-        <div className="container-main flex min-h-[92px] items-center justify-between gap-3 py-3 sm:min-h-[104px] sm:py-4 lg:min-h-[120px] lg:items-end lg:justify-end lg:gap-4">
+        <div className={`container-main flex items-center justify-between gap-3 ${
+          isWorkspaceMode
+            ? "min-h-[68px] py-2 sm:min-h-[72px] sm:py-2.5 lg:min-h-[76px]"
+            : "min-h-[92px] py-3 sm:min-h-[104px] sm:py-4 lg:min-h-[120px] lg:items-end lg:justify-end lg:gap-4"
+        }`}>
           <Link
             href="/"
             className="flex min-w-0 items-center gap-3 text-left lg:absolute lg:left-2 lg:top-4"
@@ -115,18 +136,22 @@ export function SiteHeader() {
           </div>
         </div>
 
-        <Link
-          href="/musteri-girisi"
-          className="header-login-glow absolute bottom-3 right-2 hidden isolate w-[9.6rem] items-center justify-center gap-2 overflow-hidden rounded-full border border-orange-300/30 bg-[linear-gradient(135deg,rgba(255,106,0,0.92),rgba(255,140,56,0.82))] px-3 py-1.5 text-[11px] font-semibold text-white shadow-[0_16px_36px_rgba(255,106,0,0.32)] transition hover:scale-[1.02] hover:border-orange-200/40 hover:shadow-[0_18px_40px_rgba(255,106,0,0.4)] md:flex"
+        {!isWorkspaceMode && (
+        <a
+          href="https://wa.me/905333850572"
+          target="_blank"
+          rel="noreferrer"
+          aria-label="WhatsApp ile iletişime geç"
+          title="WhatsApp"
+          className="absolute bottom-3 right-2 hidden h-8 w-8 items-center justify-center rounded-full border border-emerald-300/25 bg-[linear-gradient(135deg,rgba(16,185,129,0.92),rgba(5,150,105,0.84))] text-white shadow-[0_14px_30px_rgba(16,185,129,0.26)] transition duration-300 hover:-translate-y-0.5 hover:scale-[1.05] hover:border-emerald-200/40 hover:shadow-[0_18px_36px_rgba(16,185,129,0.34)] md:flex"
         >
-          <span aria-hidden className="header-login-energy absolute inset-0 rounded-full" />
-          <span className="relative z-10 flex h-5 w-5 items-center justify-center rounded-full border border-white/18 bg-white/14 text-white">
-            <UserCircle2 className="h-3 w-3" />
-          </span>
-          <span className="relative z-10 tracking-[0.02em]">Müşteri Girişi</span>
-        </Link>
+          <MessageCircleMore className="h-4 w-4" />
+        </a>
+        )}
 
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-[linear-gradient(180deg,rgba(7,16,29,0)_0%,rgba(11,18,32,0.1)_22%,rgba(11,18,32,0.24)_44%,rgba(11,18,32,0.45)_66%,rgba(11,18,32,0.7)_84%,rgba(11,18,32,0.96)_100%)] sm:h-16 lg:h-20" />
+        {!isWorkspaceMode && (
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-[linear-gradient(180deg,rgba(7,16,29,0)_0%,rgba(11,18,32,0.1)_22%,rgba(11,18,32,0.24)_44%,rgba(11,18,32,0.45)_66%,rgba(11,18,32,0.7)_84%,rgba(11,18,32,0.96)_100%)] sm:h-16 lg:h-20" />
+        )}
       </div>
 
       {mobileOpen && (
@@ -148,12 +173,13 @@ export function SiteHeader() {
               className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-orange-500 px-4 py-3 font-semibold text-white"
             >
               <UserCircle2 className="h-4 w-4" />
-              Müşteri Girişi
+              Müşteri Portalı
             </Link>
           </div>
         </div>
       )}
 
+      {!isWorkspaceMode && (
       <aside
         className={`fixed left-2 z-40 hidden w-[9.75rem] flex-col rounded-[1.4rem] border border-white/8 bg-[linear-gradient(180deg,rgba(11,22,36,0.94),rgba(8,17,29,0.98))] p-2 shadow-[0_24px_60px_rgba(0,0,0,0.3)] transition-transform duration-300 ease-in-out lg:flex ${
           sidebarOpen ? "translate-x-0" : "-translate-x-40"
@@ -232,6 +258,17 @@ export function SiteHeader() {
           </nav>
         </div>
 
+        <Link
+          href="/musteri-girisi"
+          className="header-login-glow mt-3 isolate flex items-center justify-center gap-2 overflow-hidden rounded-[1rem] border border-orange-300/30 bg-[linear-gradient(135deg,rgba(255,106,0,0.92),rgba(255,140,56,0.82))] px-3 py-2 text-[11px] font-semibold text-white shadow-[0_16px_36px_rgba(255,106,0,0.28)] transition hover:scale-[1.01] hover:border-orange-200/40 hover:shadow-[0_18px_40px_rgba(255,106,0,0.36)]"
+        >
+          <span aria-hidden className="header-login-energy absolute inset-0 rounded-[1rem]" />
+          <span className="relative z-10 flex h-6 w-6 items-center justify-center rounded-full border border-white/18 bg-white/14 text-white">
+            <UserCircle2 className="h-3.5 w-3.5" />
+          </span>
+          <span className="relative z-10 tracking-[0.02em]">Müşteri Portalı</span>
+        </Link>
+
         <div className="mt-3 rounded-[1rem] border border-white/8 bg-[linear-gradient(180deg,rgba(8,17,29,0.96),rgba(7,14,23,0.98))] p-2">
           <div className="mb-2">
             <div className="text-[9px] font-semibold uppercase tracking-[0.16em] text-orange-300/85">
@@ -268,8 +305,9 @@ export function SiteHeader() {
           </div>
         </div>
       </aside>
+      )}
 
-      {!sidebarOpen && (
+      {!isWorkspaceMode && !sidebarOpen && (
         <button
           type="button"
           onClick={() => setSidebarOpen(true)}

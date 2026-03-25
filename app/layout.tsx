@@ -139,7 +139,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <SiteHeader />
           <AnnouncementBar />
           <main className="layout-main relative flex justify-center lg:pl-0 lg:pr-0">
-            <div className="layout-main-shell w-full max-w-[72rem] bg-[#181c22]/80 rounded-2xl shadow-2xl p-6 mt-2 mb-10 lg:mx-[9rem]">
+            <div className="layout-main-shell w-full max-w-[72rem] bg-[#181c22]/80 rounded-2xl shadow-2xl p-6 mt-0 mb-10 lg:mx-[9rem]">
               {children}
             </div>
           </main>

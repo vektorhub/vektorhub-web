@@ -63,7 +63,7 @@ export default function VektorNewsPage() {
             href="https://play.google.com/apps/internaltest/4700731647694572874"
             target="_blank"
             rel="noreferrer"
-            className="group inline-flex min-w-[15rem] items-center gap-3 rounded-[1.4rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.025))] px-4 py-3 shadow-[0_16px_34px_rgba(0,0,0,0.2)] transition hover:border-orange-300/30 hover:bg-white/[0.08]"
+            className="group inline-flex w-full items-center gap-3 rounded-[1.4rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.025))] px-4 py-3 shadow-[0_16px_34px_rgba(0,0,0,0.2)] transition hover:border-orange-300/30 hover:bg-white/[0.08] sm:min-w-[15rem] sm:w-auto"
           >
             <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/8">
               <svg viewBox="0 0 24 24" className="h-7 w-7" aria-hidden="true">

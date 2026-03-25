@@ -464,6 +464,61 @@ export async function updateApplicationStatus(
   });
 }
 
+export async function withdrawCustomerApplication(
+  id: string,
+  customerId: string,
+  customerEmail: string,
+  reason?: string
+) {
+  const db = getAdminDb();
+  const docRef = db.collection(COLLECTION).doc(id);
+  const snap = await docRef.get();
+
+  if (!snap.exists) {
+    throw new Error("Talep bulunamadÄ±.");
+  }
+
+  const record = snap.data() as CustomerApplicationRecord;
+  const ownsById = !!record.customerId && record.customerId === customerId;
+  const ownsByEmail = record.email.trim().toLowerCase() === customerEmail.trim().toLowerCase();
+
+  if (!ownsById && !ownsByEmail) {
+    throw new Error("Bu kayÄ±t Ã¼zerinde iÅŸlem yapma yetkiniz yok.");
+  }
+
+  if (String(record.status) !== "BaÅŸvuru AlÄ±ndÄ±") {
+    throw new Error("Bu kayÄ±t doÄŸrudan geri Ã§ekilemez.");
+  }
+
+  const updatedAt = new Date().toISOString();
+  const note =
+    reason?.trim()
+      ? `MÃ¼ÅŸteri tarafÄ±ndan geri Ã§ekildi. Not: ${reason.trim()}`
+      : "MÃ¼ÅŸteri tarafÄ±ndan geri Ã§ekildi.";
+
+  await docRef.update({
+    status: "Ä°ptal Edildi",
+    note,
+    updatedAt,
+  });
+
+  await docRef.collection("activity_log").add({
+    type: "customer_withdraw",
+    actor: customerEmail,
+    details: {
+      reason: reason?.trim() ?? "",
+    },
+    createdAt: updatedAt,
+  });
+
+  return {
+    id: record.id,
+    status: "Ä°ptal Edildi",
+    note,
+    updatedAt,
+  };
+}
+
 async function deleteSubcollectionDocs(applicationId: string, subcollection: string) {
   const db = getAdminDb();
   const colRef = db.collection(COLLECTION).doc(applicationId).collection(subcollection);
@@ -509,4 +564,3 @@ export async function deleteApplicationWithChildren(id: string) {
     serviceArea: record.serviceArea,
   };
 }
-

@@ -41,13 +41,14 @@ function MusteriGirisContent() {
 
   return (
     <section className="container-main page-content-template pb-20 pt-10">
-      <div className="mx-auto max-w-lg rounded-[32px] border border-white/10 bg-[#0f1725]/90 p-8">
-        <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-orange-300">
-          Müşteri Hesabı
+      <div className="mx-auto max-w-xl rounded-[32px] border border-white/10 bg-[#0f1725]/90 p-8">
+        <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-300">
+          Aktif Müşteri Girişi
         </div>
         <h1 className="mt-3 text-3xl font-black text-white">Panele Giriş</h1>
         <p className="mt-3 text-sm leading-7 text-white/62">
-          Hesabınız davet ile açıldıysa e-posta ve şifrenizle giriş yapabilirsiniz.
+          Bu ekran yalnızca davet, resmi kayıt ve yönetici onayı tamamlanmış müşteriler içindir.
+          Hesabınız henüz onay bekliyorsa giriş yerine süreç ekranından durumunuzu takip edin.
         </p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
@@ -73,9 +74,9 @@ function MusteriGirisContent() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-2xl bg-orange-500 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+            className="w-full rounded-2xl bg-emerald-500 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {loading ? "Giriş yapılıyor..." : "Giriş Yap"}
+            {loading ? "Giriş yapılıyor..." : "Aktif Hesapla Giriş Yap"}
           </button>
         </form>
       </div>

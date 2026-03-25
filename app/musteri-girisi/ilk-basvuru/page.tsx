@@ -245,15 +245,15 @@ export default function IlkBasvuruPage() {
             onSubmit={handleSubmit}
             className="rounded-[32px] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(249,115,22,0.18),transparent_30%),linear-gradient(180deg,rgba(15,23,37,0.96),rgba(10,16,28,0.96))] p-6 shadow-[0_20px_40px_rgba(0,0,0,0.16)]"
           >
-          <input
-            tabIndex={-1}
-            autoComplete="off"
-            className="hidden"
-            name="website"
-            value=""
-            readOnly
-            aria-hidden="true"
-          />
+            <input
+              tabIndex={-1}
+              autoComplete="off"
+              className="hidden"
+              name="website"
+              value=""
+              readOnly
+              aria-hidden="true"
+            />
 
             <div className="mb-6 flex flex-wrap items-start justify-between gap-4 rounded-3xl border border-white/10 bg-white/[0.03] p-4">
               <div>
