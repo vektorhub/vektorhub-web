@@ -14,7 +14,7 @@ function formatCount(value: number) {
   return Math.max(0, Math.trunc(value)).toString().padStart(4, "0");
 }
 
-export function VisitorCounter() {
+function useVisitorCount() {
   const [count, setCount] = useState<number | null>(null);
 
   useEffect(() => {
@@ -65,13 +65,8 @@ export function VisitorCounter() {
           return;
         }
 
-        let resolvedCount: number;
-
-        if (typeof data.value === "number") {
-          resolvedCount = data.value;
-        } else {
-          resolvedCount = increaseLocalCounter();
-        }
+        const resolvedCount =
+          typeof data.value === "number" ? data.value : increaseLocalCounter();
 
         setCount(resolvedCount);
         sessionStorage.setItem(TAB_VISIT_FLAG, "1");
@@ -89,7 +84,6 @@ export function VisitorCounter() {
     };
 
     updateCounter().catch(() => {
-      // Silent fallback: keeps UI clean if the counter provider is temporarily unreachable.
       if (isActive) {
         setCount(null);
       }
@@ -100,16 +94,36 @@ export function VisitorCounter() {
     };
   }, []);
 
+  return count;
+}
+
+function VisitorCounterCard({ count }: { count: number | null }) {
   return (
-    <div className="pointer-events-none fixed bottom-3 right-2 z-[55] sm:bottom-4 sm:right-4">
-      <div className="rounded-xl border border-orange-300/20 bg-[#0d1626]/78 px-2.5 py-1.5 shadow-[0_10px_24px_rgba(0,0,0,0.24)] backdrop-blur-md">
-        <div className="text-[8px] font-semibold uppercase tracking-[0.14em] text-orange-200/85">
+    <div className="w-full overflow-hidden rounded-[1rem] border border-orange-300/18 bg-[linear-gradient(180deg,rgba(13,22,38,0.9),rgba(10,17,30,0.96))] px-2.75 py-1.75 shadow-[0_14px_34px_rgba(0,0,0,0.28)] backdrop-blur-md">
+      <div className="flex items-center justify-between gap-2.5">
+        <div className="text-[8px] font-semibold uppercase tracking-[0.18em] text-orange-200/82">
           Ziyaret
         </div>
-        <div className="mt-0.5 text-right text-[12px] font-bold leading-none text-white/95">
+        <div className="rounded-full border border-orange-300/18 bg-orange-500/10 px-2 py-0.75 text-[10px] font-black tracking-[0.14em] text-white/95">
           {count === null ? "--" : formatCount(count)}
         </div>
       </div>
+    </div>
+  );
+}
+
+export function VisitorCounterInline() {
+  const count = useVisitorCount();
+
+  return <VisitorCounterCard count={count} />;
+}
+
+export function VisitorCounter() {
+  const count = useVisitorCount();
+
+  return (
+    <div className="pointer-events-none fixed bottom-3 right-2 z-[55] w-[8.35rem] lg:hidden sm:bottom-4 sm:right-4">
+      <VisitorCounterCard count={count} />
     </div>
   );
 }

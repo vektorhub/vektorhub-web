@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Hizmetler",
   description:
-    "KOBİ'ler için web sitesi, dijital görünüm, tanıtım desteği ve ihtiyaca uygun özel dijital çözümler.",
+    "KOBİ'ler için web sitesi, Google ve SEO, sosyal medya, dijital reklam, mobil uygulama, iş geliştirme ve logo tasarımı hizmetleri.",
   alternates: {
     canonical: "/hizmetler",
   },
@@ -12,28 +12,53 @@ export const metadata: Metadata = {
 
 const servicePages = [
   {
-    href: "/hizmetler/dijital-gorunum-ve-kurumsal-duzen",
-    title: "Dijital Görünüm ve Kurumsal Düzen",
+    href: "/hizmetler/web-sitesi-tasarimi",
+    title: "Web Sitesi Tasarımı",
+    label: "Web",
     description:
-      "Web sitesi, kurumsal sunum dili ve dijital görünüm tarafında daha düzenli, daha güven veren bir yapı kurulmasına destek olur.",
+      "Profesyonel web sitesi kurulumu ile işletmenin dijitalde daha güven veren ve daha düzenli görünmesini sağlar.",
   },
   {
-    href: "/hizmetler/pratik-dijital-cozumler",
-    title: "Pratik Dijital Çözümler",
+    href: "/hizmetler/google-seo-calismalari",
+    title: "Google & SEO Çalışmaları",
+    label: "Google",
     description:
-      "Günlük işi kolaylaştıran, karmaşık olmayan, ihtiyaca göre şekillenen küçük ama etkili dijital çözümler geliştirir.",
+      "Google'da daha görünür olmak ve doğru arandığında daha kolay bulunmak için temel görünürlük yapısını güçlendirir.",
   },
   {
-    href: "/hizmetler/dijital-tanitim-ve-icerik-destegi",
-    title: "Dijital Tanıtım ve İçerik Desteği",
+    href: "/hizmetler/sosyal-medya-yonetimi",
+    title: "Sosyal Medya Yönetimi",
+    label: "Sosyal",
     description:
-      "Markanın kendini daha net anlatması ve müşteriye daha güvenli ulaşması için içerik ve dijital tanıtım desteği sunar.",
+      "Sosyal medya hesaplarını daha düzenli, daha aktif ve daha güven veren bir iletişim alanına dönüştürür.",
   },
   {
-    href: "/hizmetler/ihtiyaca-uygun-ozel-calismalar",
-    title: "İhtiyaca Uygun Özel Çalışmalar",
+    href: "/hizmetler/dijital-reklam-yonetimi",
+    title: "Dijital Reklam Yönetimi",
+    label: "Reklam",
     description:
-      "Hazır kalıplar yerine, işletmenin gerçek ihtiyacına göre şekillenen ölçülü ve uygulanabilir özel çalışmalar planlar.",
+      "Reklam bütçesini daha kontrollü kullanmak ve doğru müşteriyle temas kurmak için yönetim desteği sunar.",
+  },
+  {
+    href: "/hizmetler/mobil-uygulama-gelistirme",
+    title: "Mobil Uygulama Geliştirme",
+    label: "Mobil",
+    description:
+      "İhtiyaca özel mobil uygulamalarla işletmenin dijital akışını pratik ve kullanılabilir yapılarla destekler.",
+  },
+  {
+    href: "/hizmetler/is-gelistirme-danismanligi",
+    title: "İş Geliştirme Danışmanlığı",
+    label: "Büyüme",
+    description:
+      "İşletmenin görünürlük, sistem ve büyüme tarafını birlikte ele alan uygulanabilir yol haritası oluşturur.",
+  },
+  {
+    href: "/hizmetler/logo-tasarimi",
+    title: "Logo Tasarımı",
+    label: "Marka",
+    description:
+      "Markanın dijitalde daha net tanınmasını sağlayan sade, kullanışlı ve güven veren logo yapıları hazırlar.",
   },
 ];
 
@@ -41,48 +66,67 @@ export default function HizmetlerPage() {
   return (
     <section className="container-main page-content-template py-20">
       <div
-        className="relative mb-8 overflow-hidden rounded-[28px] border border-white/10 bg-[#131b28] px-6 py-7 shadow-[0_24px_60px_rgba(0,0,0,0.22)]"
+        className="relative mb-10 overflow-hidden rounded-[32px] border border-white/10 bg-[#131b28] px-6 py-8 shadow-[0_24px_60px_rgba(0,0,0,0.22)] sm:px-8 sm:py-10"
         style={{
           backgroundImage:
-            "linear-gradient(135deg, rgba(8,14,24,0.82), rgba(18,25,38,0.72)), url('/hizmet_banner.png')",
+            "linear-gradient(135deg, rgba(8,14,24,0.84), rgba(18,25,38,0.72)), url('/hizmet_banner.png')",
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
       >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,106,0,0.24),transparent_32%),radial-gradient(circle_at_bottom_left,rgba(59,130,246,0.16),transparent_30%)]" />
-        <div className="relative max-w-2xl">
+        <div className="relative max-w-3xl">
           <span className="inline-flex rounded-full border border-orange-400/30 bg-orange-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-orange-200">
             Ölçülü ve Uygulanabilir
           </span>
-          <p className="mt-4 text-xl font-black leading-tight text-white sm:text-2xl">
-            Küçük ve orta ölçekli işletmeleri dijitalle tanıştıran sade ama güçlü hizmetler.
+          <h1 className="mt-4 text-3xl font-black leading-tight text-white sm:text-4xl lg:text-[2.8rem]">
+            Web'den mobil uygulamaya, görünürlükten iş geliştirmeye uzanan sade ama güçlü hizmetler.
+          </h1>
+          <p className="mt-5 max-w-2xl text-base leading-8 text-white/72 sm:text-lg">
+            VektörHUB, broşür ve saha dilinde anlattığı hizmetleri sitede de aynı açıklıkla sunar.
+            Amaç büyük görünmek değil; işletmenin gerçekten ihtiyaç duyduğu doğru alanı netleştirip
+            işe yarayan dijital sistemi kurmaktır.
           </p>
         </div>
       </div>
 
-      <h1 className="section-title">Hizmetler</h1>
-      <p className="section-text mt-6 max-w-3xl">
-        VektörHUB, büyük ölçekli ve ağır dönüşüm projelerinden çok; küçük ve
-        orta ölçekli işletmelerin dijital dünyada daha düzenli, daha görünür ve
-        daha kontrollü ilerlemesine yardımcı olan uygulanabilir hizmetlere odaklanır.
-      </p>
-      <p className="section-text mt-4 max-w-3xl">
-        Hedefimiz işletmeleri gereksiz karmaşıklığa değil, ihtiyaç duydukları
-        kadar dijital desteğe ulaştırmaktır. Bu nedenle hizmet yapımız daha
-        sade, daha erişilebilir ve gerçek ihtiyaca göre şekillenen bir anlayışla kuruldu.
-      </p>
+      <div className="max-w-4xl">
+        <div className="inline-flex rounded-full border border-orange-500/20 bg-orange-500/8 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-orange-300">
+          Hizmet Yapısı
+        </div>
+        <p className="mt-5 max-w-3xl text-base leading-8 text-white/70 sm:text-lg">
+          Küçük ve orta ölçekli işletmeler için profesyonel web sitesi, Google görünürlüğü, sosyal
+          medya yönetimi, dijital reklam, mobil uygulama, iş geliştirme ve logo tasarımı gibi
+          alanlarda uygulanabilir hizmetler sunuyoruz.
+        </p>
+        <p className="mt-4 max-w-3xl text-base leading-8 text-white/64 sm:text-lg">
+          Hedefimiz işletmeleri gereksiz teknoloji yüküne değil, gerçekten ihtiyaç duydukları
+          dijital desteğe ulaştırmak. Bu yüzden hizmet yapımız broşür dilimizle uyumlu, daha net ve
+          daha anlaşılır bir başlık sistemiyle yeniden kurgulandı.
+        </p>
+      </div>
 
-      <div className="mt-8 grid gap-4 md:grid-cols-2">
+      <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
         {servicePages.map((service) => (
           <Link
             key={service.href}
             href={service.href}
-            className="group rounded-3xl border border-white/10 bg-white/[0.03] p-5 transition hover:border-orange-400/30 hover:bg-white/[0.05]"
+            className="group overflow-hidden rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.045),rgba(255,255,255,0.02))] p-6 shadow-[0_20px_45px_rgba(0,0,0,0.16)] transition hover:border-orange-400/25 hover:bg-white/[0.05]"
           >
-            <div className="text-sm font-semibold text-orange-300 transition group-hover:text-orange-200">
-              {service.title}
+            <div className="flex items-center justify-between gap-4">
+              <div className="rounded-full border border-orange-500/20 bg-orange-500/[0.08] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-orange-200">
+                {service.label}
+              </div>
+              <div className="text-sm font-medium text-white/38 transition group-hover:text-white/58">
+                İncele
+              </div>
             </div>
-            <p className="section-text mt-3 max-w-none text-white/70">
+
+            <h2 className="mt-5 max-w-sm text-2xl font-black leading-tight text-white">
+              {service.title}
+            </h2>
+
+            <p className="mt-4 max-w-none text-sm leading-7 text-white/68 sm:text-[15px]">
               {service.description}
             </p>
           </Link>
@@ -91,5 +135,3 @@ export default function HizmetlerPage() {
     </section>
   );
 }
-
-

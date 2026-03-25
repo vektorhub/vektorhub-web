@@ -1,7 +1,8 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { VisitorCounterInline } from "@/components/visitor-counter";
 
 const items = [
   {
@@ -85,10 +86,10 @@ const items = [
     ],
   },
   {
-    title: "VektörNEWS mobil uygulama projesi tamamlandı ve proje uygulamaları arasında yerini aldı.",
+    title: "VektörNEWS mobil uygulama projesi tamamlandı ve Proje Uygulamaları arasında yerini aldı.",
     date: "Mar 2026",
     content: [
-      "Mart 2026 döneminde VektörNEWS mobil uygulaması tamamlandı ve proje uygulamaları arasında yerini aldı.",
+      "Mart 2026 döneminde VektörNEWS mobil uygulaması tamamlandı ve Proje Uygulamaları arasında yerini aldı.",
       "Bu gelişme, VektörHUB'un farklı içerik ve kullanım alanlarına hitap eden ürünler oluşturabildiğini gösteren ikinci önemli proje oldu.",
     ],
   },
@@ -97,7 +98,7 @@ const items = [
     date: "Mar 2026",
     content: [
       "Mart ayı içinde web sitesi yalnızca kurumsal vitrin olmaktan çıkarılıp bir hizmet hub'ı mantığıyla yeniden düzenlendi.",
-      "Sayfalar, hizmet yapısı, proje uygulamaları ve güncellemeler aynı çatı altında toplanarak daha yaşayan bir dijital yapı kuruldu.",
+      "Sayfalar, hizmet yapısı, Proje Uygulamaları ve güncellemeler aynı çatı altında toplanarak daha yaşayan bir dijital yapı kuruldu.",
     ],
   },
   {
@@ -122,12 +123,12 @@ const projectApps = [
   {
     href: "/uygulamalar/vektorcnc",
     title: "VektörCNC",
-    subtitle: "Mobil uygulama",
+    subtitle: "Sektörel mobil uygulama",
   },
   {
     href: "/uygulamalar/vektornews",
     title: "VektörNEWS",
-    subtitle: "Mobil uygulama",
+    subtitle: "Haber gündem takip mobil uygulama",
   },
 ];
 
@@ -387,7 +388,7 @@ export function AnnouncementBar() {
     <>
       {/* Compact right-top announcement box for xl and up -> convert to fixed right sidebar */}
       <aside
-        className={`hidden lg:flex flex-col fixed right-2 w-32 bg-[#181c22]/90 p-2 rounded-xl shadow-lg z-50 transition-all duration-300 ${
+        className={`hidden lg:flex flex-col fixed right-2 w-[9.6rem] rounded-[1.35rem] border border-white/8 bg-[linear-gradient(180deg,rgba(20,24,31,0.92),rgba(12,16,24,0.96))] p-2.5 shadow-[0_20px_60px_rgba(0,0,0,0.28)] z-50 transition-all duration-300 ${
           sidebarVisible
             ? "translate-x-0 opacity-100 pointer-events-auto"
             : "translate-x-[140%] opacity-0 pointer-events-none"
@@ -395,35 +396,35 @@ export function AnnouncementBar() {
         style={{ top: "calc(120px + 8px)", bottom: "8px" }}
       >
         <div
-          className="rounded-lg border border-white/10 p-1.5"
+          className="rounded-[1rem] border border-white/8 p-2.5"
           style={{
             backgroundImage:
-              "linear-gradient(180deg, rgba(32,37,45,0.94), rgba(32,37,45,0.97)), url('/guncelleme_banner.png')",
+              "linear-gradient(180deg, rgba(21,25,33,0.94), rgba(16,20,28,0.98)), url('/guncelleme_banner.png')",
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
         >
           <div className="flex items-center justify-between">
             <div className="inline-flex items-center gap-2">
-              <span className="inline-flex w-fit rounded-md bg-orange-500/20 px-1.5 py-0.5 text-[10px] font-semibold text-orange-300">
-                Güncellemeler...
+              <span className="inline-flex max-w-full rounded-full border border-orange-400/20 bg-orange-500/10 px-2.5 py-1 text-[8px] font-semibold uppercase tracking-[0.14em] text-orange-200">
+                Güncellemeler
               </span>
             </div>
 
             <div className="flex items-center gap-2" />
           </div>
 
-          <div className="mt-2 rounded-md bg-white/[0.03] p-1">
+          <div className="mt-3">
             <div
               ref={desktopListRef}
               className="max-h-[13.25rem] overflow-y-auto pr-0.5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
             >
-              <ul className="flex flex-col gap-1">
+              <ul className="flex flex-col gap-2">
                 {items.map((item) => (
-                  <li key={item.title} className="min-h-[50px]">
+                  <li key={item.title} className="min-h-[54px]">
                     <button
                       type="button"
-                      className="flex min-h-[50px] w-full flex-col justify-center rounded-md bg-white/2 px-1.5 py-1 text-left text-[10px] leading-[1.15] text-white/80 transition hover:bg-orange-500/[0.08]"
+                      className="flex min-h-[54px] w-full flex-col justify-center rounded-[1rem] border border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.015))] px-2.5 py-2 text-left text-[10px] leading-[1.25] text-white/78 transition hover:border-orange-400/18 hover:bg-white/[0.05] hover:text-white"
                       title={item.title}
                       onClick={() => setSelectedItem(item)}
                     >
@@ -437,7 +438,7 @@ export function AnnouncementBar() {
                       >
                         {item.title}
                       </span>
-                      <span className="mt-0.5 text-[8px] text-white/40">{item.date}</span>
+                      <span className="mt-1.5 text-[8px] uppercase tracking-[0.12em] text-white/38">{item.date}</span>
                     </button>
                   </li>
                 ))}
@@ -446,27 +447,31 @@ export function AnnouncementBar() {
           </div>
         </div>
 
-        <div className="mt-3 rounded-lg border border-white/10 bg-[#20252d]/95 p-1.5">
-          <div className="inline-flex rounded-md bg-orange-500/20 px-1.5 py-0.5 text-[10px] font-semibold text-orange-300">
+        <div className="mt-2.5 rounded-[1rem] border border-white/8 bg-[linear-gradient(180deg,rgba(28,32,40,0.94),rgba(18,22,30,0.98))] p-2.25">
+          <div className="inline-flex max-w-full rounded-full border border-orange-400/20 bg-orange-500/10 px-2.5 py-1 text-[8px] font-semibold uppercase tracking-[0.14em] text-orange-200">
             Proje Uygulamaları
           </div>
 
-          <div className="mt-2 flex flex-col gap-1.5">
+          <div className="mt-2.5 flex flex-col gap-2">
             {projectApps.map((project) => (
               <Link
                 key={project.href}
                 href={project.href}
-                className="rounded-md border border-white/8 bg-white/[0.03] px-2 py-2 transition hover:border-orange-400/30 hover:bg-orange-500/[0.06]"
+                className="flex min-h-[54px] flex-col justify-center rounded-[1rem] border border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.015))] px-2.5 py-2 text-left transition hover:border-orange-400/18 hover:bg-white/[0.05] hover:text-white"
               >
-                <div className="text-[10px] font-semibold leading-tight text-white/88">
+                <div className="text-[11px] font-semibold leading-tight text-white/92">
                   {project.title}
                 </div>
-                <div className="mt-1 text-[8px] uppercase tracking-[0.16em] text-white/42">
+                <div className="mt-1.5 text-[8px] uppercase tracking-[0.12em] text-white/38">
                   {project.subtitle}
                 </div>
               </Link>
             ))}
           </div>
+        </div>
+
+        <div className="mt-2.5">
+          <VisitorCounterInline />
         </div>
       </aside>
 
@@ -534,7 +539,7 @@ export function AnnouncementBar() {
                   className="rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-3 transition hover:border-orange-400/30 hover:bg-orange-500/[0.08]"
                 >
                   <div className="text-sm font-semibold text-white">{project.title}</div>
-                  <div className="mt-1 text-[10px] uppercase tracking-[0.16em] text-white/42">
+                  <div className="mt-1 text-[10px] uppercase tracking-[0.12em] text-white/42">
                     {project.subtitle}
                   </div>
                 </Link>
@@ -593,3 +598,4 @@ export function AnnouncementBar() {
     </>
   );
 }
+

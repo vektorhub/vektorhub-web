@@ -1,22 +1,29 @@
-const contentAreas = [
-  {
-    title: "Metin Düzeni",
-    description:
-      "Web sitesi metinlerinin, hizmet anlatımlarının ve temel içerik yapısının daha anlaşılır hale getirilmesi.",
-  },
-  {
-    title: "Tanıtım Çerçevesi",
-    description:
-      "Firmanın diliyle uyumlu, sade ama güven veren dijital tanıtım çerçevesinin oluşturulması.",
-  },
-  {
-    title: "Net Temas",
-    description:
-      "Müşterinin işletmeyi daha hızlı anlamasını sağlayan açık ve tutarlı içerik kurgusu.",
-  },
-];
+type DetailItem = {
+  title: string;
+  description: string;
+};
 
-export default function DijitalTanitimVeIcerikDestegiPage() {
+type ServiceDetailPageProps = {
+  badge: string;
+  title: string;
+  intro: string;
+  approachLabel: string;
+  approachText: string;
+  itemLabel: string;
+  items: DetailItem[];
+  result: string;
+};
+
+export function ServiceDetailPage({
+  badge,
+  title,
+  intro,
+  approachLabel,
+  approachText,
+  itemLabel,
+  items,
+  result,
+}: ServiceDetailPageProps) {
   return (
     <section className="container-main page-content-template pb-20 pt-6">
       <div
@@ -31,41 +38,37 @@ export default function DijitalTanitimVeIcerikDestegiPage() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,106,0,0.24),transparent_32%),radial-gradient(circle_at_bottom_left,rgba(59,130,246,0.16),transparent_30%)]" />
         <div className="relative max-w-3xl">
           <span className="inline-flex rounded-full border border-orange-400/30 bg-orange-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-orange-200">
-            Daha Net Anlatım
+            {badge}
           </span>
           <h1 className="mt-4 text-3xl font-black leading-tight text-white sm:text-4xl lg:text-[2.7rem]">
-            Markayı abartmadan, doğru ve güven veren bir dille anlatan dijital içerik desteği.
+            {title}
           </h1>
-          <p className="mt-5 max-w-2xl text-base leading-8 text-white/72 sm:text-lg">
-            Birçok küçük ve orta ölçekli işletme iyi iş yapmasına rağmen bunu dijitalde yeterince
-            net anlatamaz. Sorun çoğu zaman ürün ya da hizmette değil; anlatımın dağınık, düzensiz
-            veya yetersiz kalmasındadır.
-          </p>
+          <p className="mt-5 max-w-2xl text-base leading-8 text-white/72 sm:text-lg">{intro}</p>
         </div>
       </div>
 
       <div className="max-w-4xl">
         <div className="inline-flex rounded-full border border-orange-500/20 bg-orange-500/8 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-orange-300">
-          İçerik Yaklaşımı
+          {approachLabel}
         </div>
         <p className="mt-5 max-w-3xl text-base leading-8 text-white/70 sm:text-lg">
-          VektörHUB, firmanın sunduğu değeri daha anlaşılır hale getiren içerik yapıları kurar.
-          Böylece marka dijital ortamda daha net konuşur, daha güvenli görünür ve müşteriyle daha
-          doğru temas kurar.
+          {approachText}
         </p>
       </div>
 
       <div className="mt-10 grid gap-5 md:grid-cols-3">
-        {contentAreas.map((area) => (
+        {items.map((item) => (
           <article
-            key={area.title}
+            key={item.title}
             className="rounded-[26px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.045),rgba(255,255,255,0.02))] p-5 shadow-[0_20px_45px_rgba(0,0,0,0.16)]"
           >
             <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-orange-300">
-              Destek Başlığı
+              {itemLabel}
             </div>
-            <h2 className="mt-4 text-xl font-black leading-tight text-white">{area.title}</h2>
-            <p className="mt-3 text-sm leading-7 text-white/68 sm:text-[15px]">{area.description}</p>
+            <h2 className="mt-4 text-xl font-black leading-tight text-white">{item.title}</h2>
+            <p className="mt-3 text-sm leading-7 text-white/68 sm:text-[15px]">
+              {item.description}
+            </p>
           </article>
         ))}
       </div>
@@ -74,10 +77,7 @@ export default function DijitalTanitimVeIcerikDestegiPage() {
         <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-orange-200">
           Sonuç
         </div>
-        <p className="mt-4 text-base leading-8 text-white/76 sm:text-lg">
-          Bu hizmetin amacı büyük kampanyalar kurmak değil; işletmenin dijitalde daha anlaşılır,
-          daha düzgün ve daha profesyonel görünmesini sağlamaktır.
-        </p>
+        <p className="mt-4 text-base leading-8 text-white/76 sm:text-lg">{result}</p>
       </div>
     </section>
   );
