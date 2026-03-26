@@ -475,7 +475,7 @@ export async function withdrawCustomerApplication(
   const snap = await docRef.get();
 
   if (!snap.exists) {
-    throw new Error("Talep bulunamadÄ±.");
+    throw new Error("Talep bulunamadı.");
   }
 
   const record = snap.data() as CustomerApplicationRecord;
@@ -483,21 +483,21 @@ export async function withdrawCustomerApplication(
   const ownsByEmail = record.email.trim().toLowerCase() === customerEmail.trim().toLowerCase();
 
   if (!ownsById && !ownsByEmail) {
-    throw new Error("Bu kayÄ±t Ã¼zerinde iÅŸlem yapma yetkiniz yok.");
+    throw new Error("Bu kayıt üzerinde işlem yapma yetkiniz yok.");
   }
 
-  if (String(record.status) !== "BaÅŸvuru AlÄ±ndÄ±") {
-    throw new Error("Bu kayÄ±t doÄŸrudan geri Ã§ekilemez.");
+  if (String(record.status) !== "Başvuru Alındı") {
+    throw new Error("Bu kayıt doğrudan geri çekilemez.");
   }
 
   const updatedAt = new Date().toISOString();
   const note =
     reason?.trim()
       ? `Müşteri tarafından geri çekildi. Not: ${reason.trim()}`
-      : "MÃ¼ÅŸteri tarafÄ±ndan geri Ã§ekildi.";
+      : "Müşteri tarafından geri çekildi.";
 
   await docRef.update({
-    status: "Ä°ptal Edildi",
+    status: "İptal Edildi",
     note,
     updatedAt,
   });
@@ -513,7 +513,7 @@ export async function withdrawCustomerApplication(
 
   return {
     id: record.id,
-    status: "Ä°ptal Edildi",
+    status: "İptal Edildi",
     note,
     updatedAt,
   };

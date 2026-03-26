@@ -123,8 +123,8 @@ function QuoteStatusBadge({ status }: { status: Quote["status"] }) {
 
   const label: Record<Quote["status"], string> = {
     draft: "Taslak",
-    published: "YayÄ±nlandÄ±",
-    accepted: "OnaylandÄ±",
+    published: "Yayınlandı",
+    accepted: "Onaylandı",
     rejected: "Reddedildi",
   };
 
@@ -144,9 +144,9 @@ function PaymentStatusBadge({ status }: { status: Payment["status"] }) {
   };
 
   const label: Record<Payment["status"], string> = {
-    pending: "Ã–deme bekleniyor",
-    notice_sent: "Bildirim gÃ¶nderildi",
-    confirmed: "Ã–deme onaylandÄ±",
+    pending: "Ödeme bekleniyor",
+    notice_sent: "Bildirim gönderildi",
+    confirmed: "Ödeme onaylandı",
     rejected: "Tekrar kontrol gerekli",
   };
 
@@ -229,7 +229,7 @@ function DetailPageContent() {
         setPayments(paymentData.payments ?? []);
       }
     } catch {
-      setError("Veriler yÃ¼klenemedi.");
+      setError("Veriler yüklenemedi.");
     } finally {
       setLoading(false);
     }
@@ -265,7 +265,7 @@ function DetailPageContent() {
 
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        setError(body.message ?? "Mesaj gÃ¶nderilemedi.");
+        setError(body.message ?? "Mesaj gönderilemedi.");
         return;
       }
 
@@ -273,7 +273,7 @@ function DetailPageContent() {
       setMessages((prev) => [...prev, data.message]);
       setMessageText("");
     } catch {
-      setError("Mesaj gÃ¶nderilemedi.");
+      setError("Mesaj gönderilemedi.");
     }
   };
 
@@ -296,21 +296,21 @@ function DetailPageContent() {
 
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        setError(body.message ?? "Dosya yÃ¼klenemedi.");
+        setError(body.message ?? "Dosya yüklenemedi.");
         return;
       }
 
       const data = await res.json();
       setDocuments((prev) => [...prev, data.document]);
     } catch {
-      setError("Dosya yÃ¼klenemedi.");
+      setError("Dosya yüklenemedi.");
     } finally {
       setUploading(false);
     }
   };
 
   const handleDeleteDocument = async (documentId: string) => {
-    if (!confirm("DokÃ¼manÄ± silmek istediÄŸinizden emin misiniz?")) return;
+    if (!confirm("Dokümanı silmek istediğinizden emin misiniz?")) return;
 
     try {
       const res = await fetch(`/api/customer/applications/${applicationId}/documents`, {
@@ -321,13 +321,13 @@ function DetailPageContent() {
 
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        setError(body.message ?? "DokÃ¼man silinemedi.");
+        setError(body.message ?? "Doküman silinemedi.");
         return;
       }
 
       setDocuments((prev) => prev.filter((item) => item.id !== documentId));
     } catch {
-      setError("DokÃ¼man silinemedi.");
+      setError("Doküman silinemedi.");
     }
   };
 
@@ -343,7 +343,7 @@ function DetailPageContent() {
 
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
-      throw new Error(body.message ?? "Dekont yÃ¼klenemedi.");
+      throw new Error(body.message ?? "Dekont yüklenemedi.");
     }
 
     const data = await res.json();
@@ -362,8 +362,8 @@ function DetailPageContent() {
   const handleQuoteDecision = async (quoteId: string, status: "accepted" | "rejected") => {
     const note = prompt(
       status === "accepted"
-        ? "Ä°sterseniz kÄ±sa bir not ekleyebilirsiniz."
-        : "Reddetme nedeninizi kÄ±sa not olarak yazabilirsiniz."
+        ? "İsterseniz kısa bir not ekleyebilirsiniz."
+        : "Reddetme nedeninizi kısa not olarak yazabilirsiniz."
     );
 
     try {
@@ -379,14 +379,14 @@ function DetailPageContent() {
 
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        setError(body.message ?? "Teklif yanÄ±tÄ± kaydedilemedi.");
+        setError(body.message ?? "Teklif yanıtı kaydedilemedi.");
         return;
       }
 
       const data = await res.json();
       setQuotes((prev) => prev.map((item) => (item.id === quoteId ? data.quote : item)));
     } catch {
-      setError("Teklif yanÄ±tÄ± kaydedilemedi.");
+      setError("Teklif yanıtı kaydedilemedi.");
     }
   };
 
@@ -413,14 +413,14 @@ function DetailPageContent() {
 
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        setError(body.message ?? "Ã–deme bildirimi kaydedilemedi.");
+        setError(body.message ?? "Ödeme bildirimi kaydedilemedi.");
         return;
       }
 
       const data = await res.json();
       setPayments((prev) => prev.map((item) => (item.id === paymentId ? data.payment : item)));
     } catch {
-      setError("Ã–deme bildirimi kaydedilemedi.");
+      setError("Ödeme bildirimi kaydedilemedi.");
     }
   };
 
@@ -568,9 +568,9 @@ function DetailPageContent() {
         <div className="flex flex-wrap gap-3 border-b border-white/10 pb-2">
           {([
             ["messages", `Mesajlar (${messages.length})`, MessageSquare],
-            ["documents", `DokÃ¼manlar (${documents.length})`, FileText],
+            ["documents", `Dokümanlar (${documents.length})`, FileText],
             ["quotes", `Teklifler (${quotes.length})`, ShieldCheck],
-            ["payments", `Ã–deme (${payments.length})`, CreditCard],
+            ["payments", `Ödeme (${payments.length})`, CreditCard],
           ] as const).map(([key, label, Icon]) => (
             <button
               key={key}
@@ -593,7 +593,7 @@ function DetailPageContent() {
               <div className="space-y-3">
                 {messages.length === 0 ? (
                   <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-sm text-white/56">
-                    HenÃ¼z mesaj yok.
+                    Henüz mesaj yok.
                   </div>
                 ) : (
                   messages.map((msg) => (
@@ -621,7 +621,7 @@ function DetailPageContent() {
                 type="text"
                 value={messageText}
                 onChange={(e) => setMessageText(e.target.value)}
-                placeholder="MesajÄ±nÄ±zÄ± yazÄ±n..."
+                placeholder="Mesajınızı yazın..."
                 className="flex-1 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white outline-none placeholder:text-white/35"
               />
               <button
@@ -630,7 +630,7 @@ function DetailPageContent() {
                 className="inline-flex items-center justify-center gap-2 rounded-2xl bg-orange-500 px-6 py-3 text-sm font-semibold text-white disabled:opacity-60"
               >
                 <Send className="h-4 w-4" />
-                GÃ¶nder
+                Gönder
               </button>
             </form>
           </div>
@@ -649,16 +649,16 @@ function DetailPageContent() {
               <label htmlFor="customer-upload" className="cursor-pointer">
                 <FileUp className="mx-auto h-8 w-8 text-white/50" />
                 <div className="mt-3 text-sm font-semibold text-white">
-                  {uploading ? "YÃ¼kleniyor..." : "Dosya yÃ¼kle"}
+                  {uploading ? "Yükleniyor..." : "Dosya yükle"}
                 </div>
-                <div className="mt-1 text-xs text-white/45">PDF, Word, Excel ve gÃ¶rsel dosyalarÄ±</div>
+                <div className="mt-1 text-xs text-white/45">PDF, Word, Excel ve görsel dosyaları</div>
               </label>
             </div>
 
             <div className="grid gap-3">
               {documents.length === 0 ? (
                 <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-sm text-white/56">
-                  HenÃ¼z dokÃ¼man yok.
+                  Henüz doküman yok.
                 </div>
               ) : (
                 documents.map((doc) => (
@@ -669,7 +669,7 @@ function DetailPageContent() {
                     <div>
                       <div className="text-sm font-semibold text-white">{doc.fileName}</div>
                       <div className="mt-1 text-xs text-white/45">
-                        {(doc.fileSize / 1024 / 1024).toFixed(2)} MB â€¢ {formatDate(doc.uploadedAt)}
+                        {(doc.fileSize / 1024 / 1024).toFixed(2)} MB • {formatDate(doc.uploadedAt)}
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -694,7 +694,7 @@ function DetailPageContent() {
           <div className="grid gap-4">
             {quotes.length === 0 ? (
               <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-sm text-white/56">
-                HenÃ¼z hazÄ±rlanmÄ±ÅŸ teklif bulunmuyor.
+                Henüz hazırlanmış teklif bulunmuyor.
               </div>
             ) : (
               quotes.map((quote) => (
@@ -717,7 +717,7 @@ function DetailPageContent() {
                   </div>
 
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-orange-300/15 bg-orange-500/8 px-4 py-3">
-                    <div className="text-sm text-white/60">Toplam teklif tutarÄ±</div>
+                    <div className="text-sm text-white/60">Toplam teklif tutarı</div>
                     <div className="text-xl font-black text-white">{formatAmount(quote.totalAmount)}</div>
                   </div>
 
@@ -753,7 +753,7 @@ function DetailPageContent() {
           <div className="grid gap-4">
             {payments.length === 0 ? (
               <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-sm text-white/56">
-                HenÃ¼z oluÅŸturulmuÅŸ Ã¶deme kaydÄ± bulunmuyor.
+                Henüz oluşturulmuş ödeme kaydı bulunmuyor.
               </div>
             ) : (
               payments.map((payment) => {
@@ -775,10 +775,10 @@ function DetailPageContent() {
 
                     <div className="mt-4 grid gap-3 lg:grid-cols-2">
                       <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-                        <div className="text-[11px] uppercase tracking-[0.18em] text-orange-300">IBAN ile Ã¶deme</div>
+                        <div className="text-[11px] uppercase tracking-[0.18em] text-orange-300">IBAN ile ödeme</div>
                         <div className="mt-3 text-sm text-white/70">Hesap sahibi: {payment.iban.accountName}</div>
                         <div className="mt-2 text-sm text-white/70">Banka: {payment.iban.bankName}</div>
-                        <div className="mt-2 text-sm text-white/70">Åube: {payment.iban.branchName}</div>
+                        <div className="mt-2 text-sm text-white/70">Şube: {payment.iban.branchName}</div>
                         <div className="mt-4 rounded-2xl border border-white/10 bg-[#0b1322] px-4 py-3 font-mono text-sm text-white">
                           {payment.iban.iban}
                         </div>
@@ -786,7 +786,7 @@ function DetailPageContent() {
                       </div>
 
                       <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-                        <div className="text-[11px] uppercase tracking-[0.18em] text-orange-300">Ã–deme bildirimi</div>
+                        <div className="text-[11px] uppercase tracking-[0.18em] text-orange-300">Ödeme bildirimi</div>
                         <div className="mt-3 text-2xl font-black text-white">{formatAmount(payment.amount)}</div>
                         {payment.dueDate ? (
                           <div className="mt-2 text-sm text-white/58">Son tarih: {formatDate(payment.dueDate)}</div>
@@ -801,7 +801,7 @@ function DetailPageContent() {
                               [payment.id]: { ...form, reference: e.target.value },
                             }))
                           }
-                          placeholder="Dekont no / aÃ§Ä±klama / referans"
+                          placeholder="Dekont no / açıklama / referans"
                           className="mt-4 w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white outline-none placeholder:text-white/35"
                         />
                         <textarea
@@ -813,11 +813,11 @@ function DetailPageContent() {
                               [payment.id]: { ...form, note: e.target.value },
                             }))
                           }
-                          placeholder="Ã–deme notu"
+                          placeholder="Ödeme notu"
                           className="mt-3 w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white outline-none placeholder:text-white/35"
                         />
                         <label className="mt-3 flex cursor-pointer items-center justify-between rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white/70">
-                          <span>{form.proofFileName || "Dekont / dijital slip yÃ¼kle"}</span>
+                          <span>{form.proofFileName || "Dekont / dijital slip yükle"}</span>
                           <input
                             type="file"
                             className="hidden"
@@ -832,7 +832,7 @@ function DetailPageContent() {
                                 setError(
                                   uploadError instanceof Error
                                     ? uploadError.message
-                                    : "Dekont yÃ¼klenemedi."
+                                    : "Dekont yüklenemedi."
                                 );
                               } finally {
                                 e.currentTarget.value = "";
@@ -845,7 +845,7 @@ function DetailPageContent() {
                           onClick={() => handlePaymentNotice(payment.id)}
                           className="mt-3 rounded-2xl bg-orange-500 px-4 py-2.5 text-sm font-semibold text-white"
                         >
-                          Ã–deme bildirimini gÃ¶nder
+                          Ödeme bildirimini gönder
                         </button>
                         {payment.customerReference ? (
                           <div className="mt-3 text-xs leading-6 text-white/55">
@@ -854,12 +854,12 @@ function DetailPageContent() {
                         ) : null}
                         {payment.adminNote ? (
                           <div className="mt-3 rounded-2xl border border-white/10 bg-white/[0.03] p-3 text-xs leading-6 text-white/60">
-                            YÃ¶netici notu: {payment.adminNote}
+                            Yönetici notu: {payment.adminNote}
                           </div>
                         ) : null}
                         {payment.proofFileName ? (
                           <div className="mt-3 text-xs leading-6 text-white/55">
-                            Son yÃ¼klenen dekont: {payment.proofFileName}
+                            Son yüklenen dekont: {payment.proofFileName}
                           </div>
                         ) : null}
                       </div>
@@ -887,7 +887,7 @@ function DetailPageContent() {
 
 export default function DetailPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-white/70">YÃ¼kleniyor...</div>}>
+    <Suspense fallback={<div className="p-8 text-white/70">Yükleniyor...</div>}>
       <DetailPageContent />
     </Suspense>
   );
