@@ -135,7 +135,7 @@ a {
   position: relative;
   overflow: hidden;
   contain: paint;
-  animation: header-login-glow 4.8s ease-in-out infinite;
+  animation: header-login-glow 2.5s ease-in-out infinite;
 }
 
 .header-login-energy {
@@ -163,7 +163,7 @@ a {
     rgba(255, 255, 255, 0)
   );
   filter: blur(2.5px) saturate(1.18);
-  animation: header-login-energy-sweep 4.8s ease-in-out infinite;
+  animation: header-login-energy-sweep 2.5s ease-in-out infinite;
 }
 
 @media (min-width: 1024px) {
