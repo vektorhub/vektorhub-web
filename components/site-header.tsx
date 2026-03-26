@@ -99,16 +99,28 @@ export function SiteHeader() {
           backgroundBlendMode: isWorkspaceMode ? "normal" : "overlay",
         }}
       >
-        <div className={`container-main flex items-center justify-between gap-3 ${
+        {!isWorkspaceMode && (
+          <>
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_14%,rgba(255,147,70,0.16),transparent_22%),radial-gradient(circle_at_79%_16%,rgba(92,163,255,0.11),transparent_24%),radial-gradient(circle_at_58%_110%,rgba(255,119,44,0.09),transparent_32%)]" />
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-[linear-gradient(180deg,rgba(255,255,255,0.16),rgba(255,255,255,0.04)_40%,rgba(255,255,255,0)_100%)] opacity-70" />
+            <div className="pointer-events-none absolute left-[10%] top-[-42%] h-44 w-44 rounded-full bg-orange-400/14 blur-3xl" />
+            <div className="pointer-events-none absolute right-[8%] bottom-[-48%] h-52 w-72 rounded-full bg-sky-400/12 blur-3xl" />
+          </>
+        )}
+
+        <div className={`container-main relative z-10 flex items-center justify-between gap-3 ${
           isWorkspaceMode
             ? "min-h-[68px] py-2 sm:min-h-[72px] sm:py-2.5 lg:min-h-[76px]"
-            : "min-h-[92px] py-3 sm:min-h-[104px] sm:py-4 lg:min-h-[120px] lg:items-end lg:justify-end lg:gap-4"
+            : "min-h-[76px] py-2.5 sm:min-h-[84px] sm:py-3 lg:min-h-[92px] lg:items-end lg:justify-end lg:gap-4"
         }`}>
           <Link
             href="/"
-            className="flex min-w-0 items-center gap-3 text-left lg:absolute lg:left-2 lg:top-4"
+            className="relative z-10 flex min-w-0 items-center gap-3 text-left lg:absolute lg:left-2 lg:top-4"
           >
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02))] p-1 shadow-[0_14px_34px_rgba(0,0,0,0.24)] sm:h-12 sm:w-12 lg:h-14 lg:w-14">
+            {!isWorkspaceMode && (
+              <div className="pointer-events-none absolute -left-2 top-1/2 h-14 w-14 -translate-y-1/2 rounded-[1.7rem] bg-[radial-gradient(circle,rgba(255,130,36,0.24),rgba(255,130,36,0.08)_46%,transparent_72%)] blur-xl lg:h-16 lg:w-16" />
+            )}
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.09),rgba(255,255,255,0.03))] p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_16px_36px_rgba(0,0,0,0.28)] sm:h-12 sm:w-12 lg:h-14 lg:w-14">
               <img
                 src="/logo.png"
                 alt="VektörHUB"
@@ -117,10 +129,10 @@ export function SiteHeader() {
             </div>
 
             <div className="min-w-0 pt-0.5">
-              <div className="truncate text-[1.05rem] font-black leading-none tracking-[-0.04em] text-white sm:text-[1.2rem] lg:text-[1.35rem]">
+              <div className="truncate text-[1.05rem] font-black leading-none tracking-[-0.045em] text-white sm:text-[1.18rem] lg:text-[1.32rem]">
                 Vektör<span className="text-[#ff6a00]">HUB</span>
               </div>
-              <div className="mt-1 text-[9px] leading-tight tracking-[0.08em] text-white/58 sm:text-[10px] lg:text-[10px]">
+              <div className="mt-1.5 text-[9px] leading-tight tracking-[0.14em] text-white/52 sm:text-[9px] lg:text-[9px]">
                 İş Geliştirme • Dijital Çözümler
               </div>
             </div>
@@ -143,14 +155,18 @@ export function SiteHeader() {
           rel="noreferrer"
           aria-label="WhatsApp ile iletişime geç"
           title="WhatsApp"
-          className="absolute bottom-3 right-2 hidden h-8 w-8 items-center justify-center rounded-full border border-emerald-300/25 bg-[linear-gradient(135deg,rgba(16,185,129,0.92),rgba(5,150,105,0.84))] text-white shadow-[0_14px_30px_rgba(16,185,129,0.26)] transition duration-300 hover:-translate-y-0.5 hover:scale-[1.05] hover:border-emerald-200/40 hover:shadow-[0_18px_36px_rgba(16,185,129,0.34)] md:flex"
+          className="whatsapp-header-cta transition duration-300 hover:-translate-y-0.5 hover:scale-[1.04] hover:border-emerald-200/46 hover:shadow-[0_18px_34px_rgba(16,185,129,0.34)]"
         >
-          <MessageCircleMore className="h-4 w-4" />
+          <span className="relative z-10 flex h-full w-full items-center justify-center">
+            <MessageCircleMore className="h-[0.92rem] w-[0.92rem]" />
+          </span>
         </a>
         )}
 
         {!isWorkspaceMode && (
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-[linear-gradient(180deg,rgba(7,16,29,0)_0%,rgba(11,18,32,0.1)_22%,rgba(11,18,32,0.24)_44%,rgba(11,18,32,0.45)_66%,rgba(11,18,32,0.7)_84%,rgba(11,18,32,0.96)_100%)] sm:h-16 lg:h-20" />
+          <>
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-[linear-gradient(180deg,rgba(7,16,29,0)_0%,rgba(11,18,32,0.1)_22%,rgba(11,18,32,0.24)_44%,rgba(11,18,32,0.45)_66%,rgba(11,18,32,0.7)_84%,rgba(11,18,32,0.96)_100%)] sm:h-16 lg:h-20" />
+          </>
         )}
       </div>
 
@@ -184,9 +200,9 @@ export function SiteHeader() {
         className={`fixed left-2 z-40 hidden w-[9.75rem] flex-col rounded-[1.4rem] border border-white/8 bg-[linear-gradient(180deg,rgba(11,22,36,0.94),rgba(8,17,29,0.98))] p-2 shadow-[0_24px_60px_rgba(0,0,0,0.3)] transition-transform duration-300 ease-in-out lg:flex ${
           sidebarOpen ? "translate-x-0" : "-translate-x-40"
         }`}
-        style={{ overflow: "visible", top: "calc(120px + 8px)", bottom: "8px" }}
+        style={{ overflow: "visible", top: "calc(92px + 8px)", bottom: "8px" }}
       >
-        <div className="rounded-[1rem] border border-white/8 bg-[linear-gradient(180deg,rgba(9,19,31,0.92),rgba(7,15,25,0.97))] p-2">
+        <div className="flex min-h-0 flex-1 flex-col rounded-[1rem] border border-white/8 bg-[linear-gradient(180deg,rgba(9,19,31,0.92),rgba(7,15,25,0.97))] p-2">
           <div className="mb-2 flex items-center justify-between">
             <div>
               <div className="text-[9px] font-semibold uppercase tracking-[0.18em] text-orange-300/90">
@@ -312,7 +328,7 @@ export function SiteHeader() {
           type="button"
           onClick={() => setSidebarOpen(true)}
           className="fixed left-2 z-40 hidden h-10 w-10 items-center justify-center rounded-full border border-orange-300/20 bg-orange-500 text-white shadow-lg shadow-orange-500/30 transition hover:scale-[1.04] lg:flex"
-          style={{ top: "calc(120px + 16px)" }}
+          style={{ top: "calc(92px + 16px)" }}
           aria-label="Menüyü tekrar göster"
         >
           <ChevronRight className="h-5 w-5" />

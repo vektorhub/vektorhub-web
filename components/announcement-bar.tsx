@@ -408,85 +408,87 @@ export function AnnouncementBar() {
             ? "translate-x-0 opacity-100 pointer-events-auto"
             : "translate-x-[140%] opacity-0 pointer-events-none"
         }`}
-        style={{ top: "calc(120px + 8px)", bottom: "8px" }}
+        style={{ top: "calc(92px + 8px)", bottom: "8px" }}
       >
-        <div
-          className="rounded-[1rem] border border-white/8 p-2.5"
-          style={{
-            backgroundImage:
-              "linear-gradient(180deg, rgba(21,25,33,0.94), rgba(16,20,28,0.98)), url('/guncelleme_banner.png')",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-        >
-          <div className="flex items-center justify-between">
-            <div className="inline-flex items-center gap-2">
-              <span className="inline-flex max-w-full rounded-full border border-orange-400/20 bg-orange-500/10 px-2.5 py-1 text-[8px] font-semibold uppercase tracking-[0.14em] text-orange-200">
-                Güncellemeler
-              </span>
+        <div className="flex min-h-0 flex-1 flex-col">
+          <div
+            className="rounded-[1rem] border border-white/8 p-2.5"
+            style={{
+              backgroundImage:
+                "linear-gradient(180deg, rgba(21,25,33,0.94), rgba(16,20,28,0.98)), url('/guncelleme_banner.png')",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
+          >
+            <div className="flex items-center justify-between">
+              <div className="inline-flex items-center gap-2">
+                <span className="inline-flex max-w-full rounded-full border border-orange-400/20 bg-orange-500/10 px-2.5 py-1 text-[8px] font-semibold uppercase tracking-[0.14em] text-orange-200">
+                  Güncellemeler
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2" />
             </div>
 
-            <div className="flex items-center gap-2" />
-          </div>
-
-          <div className="mt-3">
-            <div
-              ref={desktopListRef}
-              className="max-h-[13.25rem] overflow-y-auto pr-0.5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
-            >
-              <ul className="flex flex-col gap-2">
-                {items.map((item) => (
-                  <li key={item.title} className="min-h-[54px]">
-                    <button
-                      type="button"
-                      className="flex min-h-[54px] w-full flex-col justify-center rounded-[1rem] border border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.015))] px-2.5 py-2 text-left text-[10px] leading-[1.25] text-white/78 transition hover:border-orange-400/18 hover:bg-white/[0.05] hover:text-white"
-                      title={item.title}
-                      onClick={() => setSelectedItem(item)}
-                    >
-                      <span
-                        className="block w-full overflow-hidden"
-                        style={{
-                          display: "-webkit-box",
-                          WebkitBoxOrient: "vertical",
-                          WebkitLineClamp: 2,
-                        }}
-                      >
-                        {item.title}
-                      </span>
-                      <span className="mt-1.5 text-[8px] uppercase tracking-[0.12em] text-white/38">{item.date}</span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-2.5 rounded-[1rem] border border-white/8 bg-[linear-gradient(180deg,rgba(28,32,40,0.94),rgba(18,22,30,0.98))] p-2.25">
-          <div className="inline-flex max-w-full rounded-full border border-orange-400/20 bg-orange-500/10 px-2.5 py-1 text-[8px] font-semibold uppercase tracking-[0.14em] text-orange-200">
-            Proje Uygulamaları
-          </div>
-
-          <div className="mt-2.5 flex flex-col gap-2">
-            {projectApps.map((project) => (
-              <Link
-                key={project.href}
-                href={project.href}
-                className="flex min-h-[54px] flex-col justify-center rounded-[1rem] border border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.015))] px-2.5 py-2 text-left transition hover:border-orange-400/18 hover:bg-white/[0.05] hover:text-white"
+            <div className="mt-3">
+              <div
+                ref={desktopListRef}
+                className="max-h-[15.75rem] overflow-y-auto pr-0.5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
               >
-                <div className="text-[11px] font-semibold leading-tight text-white/92">
-                  {project.title}
-                </div>
-                <div className="mt-1.5 text-[8px] uppercase tracking-[0.12em] text-white/38">
-                  {project.subtitle}
-                </div>
-              </Link>
-            ))}
+                <ul className="flex flex-col gap-2">
+                  {items.map((item) => (
+                    <li key={item.title} className="min-h-[54px]">
+                      <button
+                        type="button"
+                        className="flex min-h-[54px] w-full flex-col justify-center rounded-[1rem] border border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.015))] px-2.5 py-2 text-left text-[10px] leading-[1.25] text-white/78 transition hover:border-orange-400/18 hover:bg-white/[0.05] hover:text-white"
+                        title={item.title}
+                        onClick={() => setSelectedItem(item)}
+                      >
+                        <span
+                          className="block w-full overflow-hidden"
+                          style={{
+                            display: "-webkit-box",
+                            WebkitBoxOrient: "vertical",
+                            WebkitLineClamp: 2,
+                          }}
+                        >
+                          {item.title}
+                        </span>
+                        <span className="mt-1.5 text-[8px] uppercase tracking-[0.12em] text-white/38">{item.date}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
           </div>
-        </div>
 
-        <div className="mt-2.5">
-          <VisitorCounterInline />
+          <div className="mt-2.5 rounded-[1rem] border border-white/8 bg-[linear-gradient(180deg,rgba(28,32,40,0.94),rgba(18,22,30,0.98))] p-2.25">
+            <div className="inline-flex max-w-full rounded-full border border-orange-400/20 bg-orange-500/10 px-2.5 py-1 text-[8px] font-semibold uppercase tracking-[0.14em] text-orange-200">
+              Proje Uygulamaları
+            </div>
+
+            <div className="mt-2.5 flex flex-col gap-2">
+              {projectApps.map((project) => (
+                <Link
+                  key={project.href}
+                  href={project.href}
+                  className="flex min-h-[54px] flex-col justify-center rounded-[1rem] border border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.015))] px-2.5 py-2 text-left transition hover:border-orange-400/18 hover:bg-white/[0.05] hover:text-white"
+                >
+                  <div className="text-[11px] font-semibold leading-tight text-white/92">
+                    {project.title}
+                  </div>
+                  <div className="mt-1.5 text-[8px] uppercase tracking-[0.12em] text-white/38">
+                    {project.subtitle}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-auto pt-3">
+            <VisitorCounterInline />
+          </div>
         </div>
       </aside>
 

@@ -1,13 +1,5 @@
 import Link from "next/link";
-import {
-  ArrowRight,
-  Blocks,
-  Building2,
-  Compass,
-  LayoutPanelTop,
-  ShieldCheck,
-  Sparkles,
-} from "lucide-react";
+import { ArrowRight, Blocks, Building2, Compass, LayoutPanelTop, ShieldCheck, Sparkles } from "lucide-react";
 
 const stats = [
   { label: "Odak", value: "KOBİ" },
@@ -18,61 +10,49 @@ const stats = [
 const features = [
   {
     icon: Building2,
-    title: "Dijital görünümünü toparlamak isteyen işletmeler",
-    desc: "Karmaşık olmayan ama güven veren bir dijital vitrin için doğru başlangıç.",
+    title: "İnternette var ama düzgün görünmeyen işletmeler",
+    desc: "Müşteri baktığında güven veren, ne iş yaptığınızın net anlaşıldığı bir dijital görünüm kurarız.",
   },
   {
     icon: LayoutPanelTop,
-    title: "Günlük işini kolaylaştıracak pratik çözümler",
-    desc: "Sadece gerekli olanı kuran, işi büyütmeden düzeni iyileştiren yaklaşım.",
+    title: "Telefon ve WhatsApp trafiğini daha düzenli yönetmek isteyenler",
+    desc: "Dağınık iletişim yerine daha derli toplu, daha kontrollü bir müşteri akışı oluştururuz.",
   },
   {
     icon: ShieldCheck,
-    title: "Müşterisiyle daha düzenli çalışmak isteyen firmalar",
-    desc: "Portal, takip ve görünür süreç yapısıyla daha profesyonel temas kurar.",
+    title: "Teklif, evrak ve iş takibini tek yerde görmek isteyen firmalar",
+    desc: "Portal yapısıyla müşteri sürecini izlenebilir hale getirir, profesyonel temas kurmanıza yardımcı oluruz.",
   },
   {
     icon: Compass,
-    title: "Ne yapacağını netleştirmek isteyen markalar",
-    desc: "İş geliştirme, anlatım ve dijital sunum tarafında sade yol haritası.",
+    title: "Nereden başlayacağını bilmeyen ama işini büyütmek isteyen esnaf",
+    desc: "Web, sosyal medya, Google ve içerik tarafında karmaşık değil uygulanabilir bir yol haritası çıkarırız.",
   },
 ];
 
 export function HeroSection() {
   return (
     <section className="container-main pb-6 pt-6 md:pb-8 md:pt-6">
-      <div className="relative overflow-hidden rounded-[2rem] border border-white/8 bg-[radial-gradient(circle_at_top_left,rgba(255,106,0,0.14),transparent_26%),radial-gradient(circle_at_bottom_right,rgba(77,132,255,0.12),transparent_24%),linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.015))] px-5 py-6 shadow-[0_28px_80px_rgba(0,0,0,0.2)] sm:px-6 sm:py-7 lg:px-8 lg:py-8">
+      <div className="relative overflow-hidden rounded-[2rem] border border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.015))] px-5 py-6 shadow-[0_28px_80px_rgba(0,0,0,0.2)] sm:px-6 sm:py-7 lg:px-8 lg:py-8">
         <div className="pointer-events-none absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
-        <div className="grid items-center gap-6 xl:grid-cols-[1.08fr_0.92fr]">
+        <div className="grid items-start gap-8 xl:grid-cols-[1.05fr_0.95fr]">
           <div className="relative">
             <div className="mb-4 inline-flex rounded-full border border-orange-500/25 bg-orange-500/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-orange-300 sm:text-xs">
-              KOBİ Odaklı Dijital Yapılanma
+              Esnaf ve KOBİ İçin Dijital Düzen
             </div>
 
             <h1 className="max-w-5xl text-4xl font-black leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
-              Büyük görünmek zorunda olmayan işletmeler için
-              <span className="brand-gradient block pt-2">premium, net ve çalışan dijital düzen.</span>
+              Müşterisinin güvenle ulaştığı,
+              <span className="brand-gradient block pt-2">işini dijitalde düzgün anlatan bir esnaf düzeni.</span>
             </h1>
 
             <p className="mt-4 max-w-3xl text-sm leading-7 text-white/72 sm:text-base sm:leading-8 md:text-lg">
-              Web sitesi, anlatım dili ve müşteri sürecini aynı düzende bir araya getiririz.
-              Amaç daha büyük görünmek değil; daha net, daha güven veren ve gerçekten kullanılan
-              bir dijital yapı kurmaktır.
+              Web sitesi, Google görünürlüğü, sosyal medya düzeni ve müşteri takibini aynı yapıda toplarız.
+              Amaç gösteriş değil; telefon açtıran, mesaj getiren ve işletmeyi daha derli toplu gösteren
+              bir dijital düzen kurmaktır.
             </p>
 
-            <div className="mt-5 rounded-[1.75rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.045),rgba(255,255,255,0.025))] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] sm:p-5">
-              <div className="flex items-start gap-3">
-                <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-orange-500/15 text-orange-300">
-                  <Sparkles className="h-5 w-5" />
-                </div>
-                <p className="text-sm leading-7 text-white/74 sm:text-[15px]">
-                  Gösterişli vitrin yerine, işletmenin dijitalde daha olgun ve daha kontrollü
-                  göründüğü bir sistem kurarız. Site yalnızca göstermez; düzen hissi verir.
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-5 flex flex-col gap-3 sm:flex-row">
               <Link
                 href="/hizmetler"
                 className="inline-flex items-center justify-center rounded-2xl bg-orange-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-500/25 transition hover:scale-[1.02]"
@@ -93,12 +73,10 @@ export function HeroSection() {
               {stats.map((item) => (
                 <div
                   key={item.label}
-                  className="rounded-[1.5rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.02))] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
+                  className="rounded-[1.5rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.015))] p-4"
                 >
                   <div className="text-2xl font-black sm:text-3xl">{item.value}</div>
-                  <div className="mt-2 text-xs uppercase tracking-[0.18em] text-white/45">
-                    {item.label}
-                  </div>
+                  <div className="mt-2 text-xs uppercase tracking-[0.18em] text-white/45">{item.label}</div>
                 </div>
               ))}
             </div>
@@ -110,58 +88,60 @@ export function HeroSection() {
             </div>
           </div>
 
-          <div className="glass-card relative p-4 sm:p-5 md:p-6">
-            <div className="pointer-events-none absolute inset-0 rounded-[2rem] bg-[radial-gradient(circle_at_top_right,rgba(255,106,0,0.12),transparent_22%)]" />
-            <div className="relative rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,#0f1728_0%,#121b2e_100%)] p-4 shadow-[0_18px_40px_rgba(0,0,0,0.18)] sm:p-5 md:p-6">
-              <div className="flex flex-col gap-3 border-b border-white/10 pb-5 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <p className="text-[11px] uppercase tracking-[0.22em] text-white/45 sm:text-xs">
-                    VektörHUB Yaklaşımı
-                  </p>
-                  <h3 className="mt-2 text-xl font-bold sm:text-2xl">Az ama doğru kurulan dijital yapı</h3>
-                </div>
+          <div className="relative rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,#0f1728_0%,#121b2e_100%)] p-6 shadow-[0_18px_40px_rgba(0,0,0,0.18)]">
+            <div className="border-b border-white/10 pb-5">
+              <p className="text-[11px] uppercase tracking-[0.22em] text-white/45 sm:text-xs">VektörHUB Yaklaşımı</p>
+              <h3 className="mt-2 text-xl font-bold leading-tight sm:text-[1.75rem]">
+                Küçük işletmenin dijitalde daha güvenli ve daha derli toplu görünmesi
+              </h3>
+              <p className="mt-3 text-sm leading-7 text-white/62">
+                Burada amaç süslü sözler değil; müşterinin baktığında sizi ciddiye aldığı, ne yaptığınızı
+                anladığı ve rahatça ulaşabildiği bir dijital düzen kurmak.
+              </p>
+            </div>
 
-                <div className="inline-flex rounded-full bg-orange-500/15 px-3 py-2 text-xs font-semibold text-orange-300">
-                  Abartı Değil, Etki
-                </div>
-              </div>
+            <div className="mt-5 space-y-5">
+              {features.map((item) => {
+                const Icon = item.icon;
 
-              <div className="mt-4 grid gap-3">
-                {features.map((item) => {
-                  const Icon = item.icon;
-
-                  return (
-                    <div
-                      key={item.title}
-                      className="flex items-start gap-4 rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.045),rgba(255,255,255,0.02))] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
-                    >
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-orange-500/15 text-orange-300">
-                        <Icon className="h-5 w-5" />
-                      </div>
-
-                      <div>
-                        <h4 className="text-sm font-bold sm:text-base">{item.title}</h4>
-                        <p className="mt-1 text-xs leading-6 text-white/62 sm:text-sm">{item.desc}</p>
-                      </div>
+                return (
+                  <div key={item.title} className="flex items-start gap-4 border-b border-white/8 pb-5 last:border-b-0 last:pb-0">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-orange-500/12 text-orange-300">
+                      <Icon className="h-5 w-5" />
                     </div>
-                  );
-                })}
-              </div>
 
-              <div className="mt-4 rounded-2xl border border-orange-500/15 bg-[linear-gradient(180deg,rgba(255,106,0,0.1),rgba(255,106,0,0.06))] p-4">
-                <div className="flex items-start gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-orange-500/15 text-orange-300">
-                    <Blocks className="h-5 w-5" />
+                    <div>
+                      <h4 className="text-base font-bold leading-tight text-white">{item.title}</h4>
+                      <p className="mt-2 text-sm leading-7 text-white/62">{item.desc}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-semibold text-white">Dijital ofis mantığı</p>
-                    <p className="mt-1 text-xs leading-6 text-white/64 sm:text-sm">
-                      Site, içerik yapısı ve müşteri portalı birlikte kurgulanır. Böylece ziyaretçi
-                      güven hisseder, müşteri süreci rahat takip eder, işletme de dijitalde daha olgun görünür.
-                    </p>
-                  </div>
+                );
+              })}
+            </div>
+
+            <div className="mt-5 border-t border-white/10 pt-5">
+              <div className="flex items-start gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-orange-500/12 text-orange-300">
+                  <Blocks className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-white">Müşteri size baktığında ne görsün?</p>
+                  <p className="mt-2 text-sm leading-7 text-white/62">
+                    Gelişi güzel açılmış hesaplar değil; ne iş yaptığı belli olan, güven veren, ulaşması kolay
+                    ve süreci takip edilebilen bir işletme görsün istiyoruz.
+                  </p>
                 </div>
               </div>
+            </div>
+
+            <div className="mt-5 flex items-start gap-3 rounded-[1.4rem] border border-white/8 bg-white/[0.03] p-4">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-orange-500/12 text-orange-300">
+                <Sparkles className="h-5 w-5" />
+              </div>
+              <p className="text-sm leading-7 text-white/66">
+                Gösterişli vitrin yerine, işletmenin dijitalde daha düzenli, daha güven veren ve
+                müşterisinin kolayca anlayabildiği bir sistem kurarız. Site yalnızca görünmez; iş getirir.
+              </p>
             </div>
           </div>
         </div>

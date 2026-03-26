@@ -51,12 +51,12 @@ export function ServicePackages() {
       <div className="mb-6 max-w-3xl">
         <p className="text-sm uppercase tracking-[0.2em] text-orange-300">Hizmet Alanları</p>
         <h2 className="section-title mt-3">
-          Broşürde anlattığımız hizmetleri site içinde de aynı netlikle görünür kıldık.
+          İşletmenin dijitalde eksik kalan tarafını bulup, doğru hizmetle tamamlıyoruz.
         </h2>
         <p className="section-text mt-3">
-          Hizmet yaklaşımımız büyük kurumsal dönüşüm projeleri satmak değil; web sitesi, Google,
-          sosyal medya, reklam, mobil uygulama ve iş geliştirme tarafında işletmenin ihtiyacına
-          uygun doğru alanı netleştirmek ve uygulanabilir dijital destek sunmaktır.
+          Her işletmenin ihtiyacı aynı değil. Kiminin web sitesi eksik, kiminin Google görünürlüğü
+          zayıf, kiminin sosyal medya düzeni oturmamış oluyor. Biz ihtiyacı netleştirip doğru
+          hizmet alanına odaklanan, uygulanabilir ve takip edilebilir dijital destek sunuyoruz.
         </p>
       </div>
 
@@ -77,8 +77,8 @@ export function ServicePackages() {
             <p className="mt-3 text-sm leading-7 text-white/68 sm:text-base">{pkg.desc}</p>
 
             <div className="mt-4 grid gap-2 text-sm text-white/65">
-              <div>• Kapsamı ölçülü ve anlaşılırdır</div>
-              <div>• KOBİ yapısına uygun ilerler</div>
+              <div>• Kapsamı ölçülüdür ve anlaşılır ilerler</div>
+              <div>• Küçük işletme yapısına uygun kurulur</div>
               <div>• Kurulum sonrası takip mantığına uygundur</div>
             </div>
 
