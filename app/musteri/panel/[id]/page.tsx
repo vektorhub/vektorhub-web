@@ -1,8 +1,8 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
   ChevronLeft,
   CreditCard,
@@ -123,8 +123,8 @@ function QuoteStatusBadge({ status }: { status: Quote["status"] }) {
 
   const label: Record<Quote["status"], string> = {
     draft: "Taslak",
-    published: "Yayınlandı",
-    accepted: "Onaylandı",
+    published: "YayÄ±nlandÄ±",
+    accepted: "OnaylandÄ±",
     rejected: "Reddedildi",
   };
 
@@ -144,9 +144,9 @@ function PaymentStatusBadge({ status }: { status: Payment["status"] }) {
   };
 
   const label: Record<Payment["status"], string> = {
-    pending: "Ödeme bekleniyor",
-    notice_sent: "Bildirim gönderildi",
-    confirmed: "Ödeme onaylandı",
+    pending: "Ã–deme bekleniyor",
+    notice_sent: "Bildirim gÃ¶nderildi",
+    confirmed: "Ã–deme onaylandÄ±",
     rejected: "Tekrar kontrol gerekli",
   };
 
@@ -160,7 +160,16 @@ function PaymentStatusBadge({ status }: { status: Payment["status"] }) {
 function DetailPageContent() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const applicationId = params.id as string;
+  const requestedTab = searchParams.get("tab");
+  const initialTab =
+    requestedTab === "documents" ||
+    requestedTab === "quotes" ||
+    requestedTab === "payments" ||
+    requestedTab === "messages"
+      ? requestedTab
+      : "messages";
 
   const [application, setApplication] = useState<Application | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -171,7 +180,7 @@ function DetailPageContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState<"messages" | "documents" | "quotes" | "payments">(
-    "messages"
+    initialTab
   );
   const [uploading, setUploading] = useState(false);
   const [showQuickActions, setShowQuickActions] = useState(false);
@@ -220,7 +229,7 @@ function DetailPageContent() {
         setPayments(paymentData.payments ?? []);
       }
     } catch {
-      setError("Veriler yüklenemedi.");
+      setError("Veriler yÃ¼klenemedi.");
     } finally {
       setLoading(false);
     }
@@ -229,6 +238,17 @@ function DetailPageContent() {
   useEffect(() => {
     void fetchData();
   }, [fetchData]);
+
+  useEffect(() => {
+    if (
+      requestedTab === "messages" ||
+      requestedTab === "documents" ||
+      requestedTab === "quotes" ||
+      requestedTab === "payments"
+    ) {
+      setActiveTab(requestedTab);
+    }
+  }, [requestedTab]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -245,7 +265,7 @@ function DetailPageContent() {
 
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        setError(body.message ?? "Mesaj gönderilemedi.");
+        setError(body.message ?? "Mesaj gÃ¶nderilemedi.");
         return;
       }
 
@@ -253,7 +273,7 @@ function DetailPageContent() {
       setMessages((prev) => [...prev, data.message]);
       setMessageText("");
     } catch {
-      setError("Mesaj gönderilemedi.");
+      setError("Mesaj gÃ¶nderilemedi.");
     }
   };
 
@@ -276,21 +296,21 @@ function DetailPageContent() {
 
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        setError(body.message ?? "Dosya yüklenemedi.");
+        setError(body.message ?? "Dosya yÃ¼klenemedi.");
         return;
       }
 
       const data = await res.json();
       setDocuments((prev) => [...prev, data.document]);
     } catch {
-      setError("Dosya yüklenemedi.");
+      setError("Dosya yÃ¼klenemedi.");
     } finally {
       setUploading(false);
     }
   };
 
   const handleDeleteDocument = async (documentId: string) => {
-    if (!confirm("Dokümanı silmek istediğinizden emin misiniz?")) return;
+    if (!confirm("DokÃ¼manÄ± silmek istediÄŸinizden emin misiniz?")) return;
 
     try {
       const res = await fetch(`/api/customer/applications/${applicationId}/documents`, {
@@ -301,13 +321,13 @@ function DetailPageContent() {
 
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        setError(body.message ?? "Doküman silinemedi.");
+        setError(body.message ?? "DokÃ¼man silinemedi.");
         return;
       }
 
       setDocuments((prev) => prev.filter((item) => item.id !== documentId));
     } catch {
-      setError("Doküman silinemedi.");
+      setError("DokÃ¼man silinemedi.");
     }
   };
 
@@ -323,7 +343,7 @@ function DetailPageContent() {
 
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
-      throw new Error(body.message ?? "Dekont yüklenemedi.");
+      throw new Error(body.message ?? "Dekont yÃ¼klenemedi.");
     }
 
     const data = await res.json();
@@ -342,8 +362,8 @@ function DetailPageContent() {
   const handleQuoteDecision = async (quoteId: string, status: "accepted" | "rejected") => {
     const note = prompt(
       status === "accepted"
-        ? "İsterseniz kısa bir not ekleyebilirsiniz."
-        : "Reddetme nedeninizi kısa not olarak yazabilirsiniz."
+        ? "Ä°sterseniz kÄ±sa bir not ekleyebilirsiniz."
+        : "Reddetme nedeninizi kÄ±sa not olarak yazabilirsiniz."
     );
 
     try {
@@ -359,14 +379,14 @@ function DetailPageContent() {
 
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        setError(body.message ?? "Teklif yanıtı kaydedilemedi.");
+        setError(body.message ?? "Teklif yanÄ±tÄ± kaydedilemedi.");
         return;
       }
 
       const data = await res.json();
       setQuotes((prev) => prev.map((item) => (item.id === quoteId ? data.quote : item)));
     } catch {
-      setError("Teklif yanıtı kaydedilemedi.");
+      setError("Teklif yanÄ±tÄ± kaydedilemedi.");
     }
   };
 
@@ -393,14 +413,14 @@ function DetailPageContent() {
 
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        setError(body.message ?? "Ödeme bildirimi kaydedilemedi.");
+        setError(body.message ?? "Ã–deme bildirimi kaydedilemedi.");
         return;
       }
 
       const data = await res.json();
       setPayments((prev) => prev.map((item) => (item.id === paymentId ? data.payment : item)));
     } catch {
-      setError("Ödeme bildirimi kaydedilemedi.");
+      setError("Ã–deme bildirimi kaydedilemedi.");
     }
   };
 
@@ -409,6 +429,14 @@ function DetailPageContent() {
     [quotes]
   );
   const latestPayment = payments[0] ?? null;
+  const quoteWaitingMessage = latestPayment
+    ? "Bu kayıt için ödeme planı açılmış durumda. Teklif detayları alt sekmelerde görüntülenebilir."
+    : application?.status === "Teklif Hazırlanıyor"
+      ? "Bu kayıt şu anda teklif hazırlık aşamasında. Teklif paylaşılır paylaşılmaz burada toplam tutar ve onay alanı görünecek."
+      : "Bu kayıt için henüz müşteriye açılmış bir teklif bulunmuyor. Önce teklif paylaşımı yapıldığında bu alan dolacak.";
+  const paymentWaitingMessage = latestQuote
+    ? "Bu kayıt için henüz ödeme adımı açılmadı. Yönetici ödeme planını tanımladığında IBAN, tutar ve dekont yükleme alanı burada görünecek."
+    : "Şu anda sizden ödeme beklenmiyor. Önce teklif ve ardından ödeme planı oluşturulduğunda IBAN bilgileri ve ödeme adımları burada açılacak.";
 
   if (loading) {
     return <div className="p-8 text-white/70">Müşteri portalı hazırlanıyor...</div>;
@@ -490,9 +518,12 @@ function DetailPageContent() {
                     <div className="mt-3 text-sm text-white/68">{formatAmount(latestQuote.totalAmount)}</div>
                   </>
                 ) : (
-                  <p className="mt-3 text-sm leading-6 text-white/56">
-                    Yönetici tarafından yayınlanmış teklif burada görünecek.
-                  </p>
+                  <div className="mt-3 space-y-3">
+                    <p className="text-sm leading-6 text-white/62">{quoteWaitingMessage}</p>
+                    <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-xs leading-6 text-white/50">
+                      Durum: Teklif görünmeden ödeme ve onay adımı başlamaz.
+                    </div>
+                  </div>
                 )}
               </div>
 
@@ -510,9 +541,12 @@ function DetailPageContent() {
                     <div className="mt-3 text-sm text-white/68">{formatAmount(latestPayment.amount)}</div>
                   </>
                 ) : (
-                  <p className="mt-3 text-sm leading-6 text-white/56">
-                    Ödeme kaydı oluşturulduğunda IBAN ve ödeme talimatları bu alanda görünecek.
-                  </p>
+                  <div className="mt-3 space-y-3">
+                    <p className="text-sm leading-6 text-white/62">{paymentWaitingMessage}</p>
+                    <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-xs leading-6 text-white/50">
+                      Durum: Ödeme açıldığında IBAN, açıklama ve dekont yükleme alanı otomatik olarak burada görünecek.
+                    </div>
+                  </div>
                 )}
               </div>
             </div>
@@ -534,9 +568,9 @@ function DetailPageContent() {
         <div className="flex flex-wrap gap-3 border-b border-white/10 pb-2">
           {([
             ["messages", `Mesajlar (${messages.length})`, MessageSquare],
-            ["documents", `Dokümanlar (${documents.length})`, FileText],
+            ["documents", `DokÃ¼manlar (${documents.length})`, FileText],
             ["quotes", `Teklifler (${quotes.length})`, ShieldCheck],
-            ["payments", `Ödeme (${payments.length})`, CreditCard],
+            ["payments", `Ã–deme (${payments.length})`, CreditCard],
           ] as const).map(([key, label, Icon]) => (
             <button
               key={key}
@@ -559,7 +593,7 @@ function DetailPageContent() {
               <div className="space-y-3">
                 {messages.length === 0 ? (
                   <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-sm text-white/56">
-                    Henüz mesaj yok.
+                    HenÃ¼z mesaj yok.
                   </div>
                 ) : (
                   messages.map((msg) => (
@@ -587,7 +621,7 @@ function DetailPageContent() {
                 type="text"
                 value={messageText}
                 onChange={(e) => setMessageText(e.target.value)}
-                placeholder="Mesajınızı yazın..."
+                placeholder="MesajÄ±nÄ±zÄ± yazÄ±n..."
                 className="flex-1 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white outline-none placeholder:text-white/35"
               />
               <button
@@ -596,7 +630,7 @@ function DetailPageContent() {
                 className="inline-flex items-center justify-center gap-2 rounded-2xl bg-orange-500 px-6 py-3 text-sm font-semibold text-white disabled:opacity-60"
               >
                 <Send className="h-4 w-4" />
-                Gönder
+                GÃ¶nder
               </button>
             </form>
           </div>
@@ -615,16 +649,16 @@ function DetailPageContent() {
               <label htmlFor="customer-upload" className="cursor-pointer">
                 <FileUp className="mx-auto h-8 w-8 text-white/50" />
                 <div className="mt-3 text-sm font-semibold text-white">
-                  {uploading ? "Yükleniyor..." : "Dosya yükle"}
+                  {uploading ? "YÃ¼kleniyor..." : "Dosya yÃ¼kle"}
                 </div>
-                <div className="mt-1 text-xs text-white/45">PDF, Word, Excel ve görsel dosyaları</div>
+                <div className="mt-1 text-xs text-white/45">PDF, Word, Excel ve gÃ¶rsel dosyalarÄ±</div>
               </label>
             </div>
 
             <div className="grid gap-3">
               {documents.length === 0 ? (
                 <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-sm text-white/56">
-                  Henüz doküman yok.
+                  HenÃ¼z dokÃ¼man yok.
                 </div>
               ) : (
                 documents.map((doc) => (
@@ -635,7 +669,7 @@ function DetailPageContent() {
                     <div>
                       <div className="text-sm font-semibold text-white">{doc.fileName}</div>
                       <div className="mt-1 text-xs text-white/45">
-                        {(doc.fileSize / 1024 / 1024).toFixed(2)} MB • {formatDate(doc.uploadedAt)}
+                        {(doc.fileSize / 1024 / 1024).toFixed(2)} MB â€¢ {formatDate(doc.uploadedAt)}
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -660,7 +694,7 @@ function DetailPageContent() {
           <div className="grid gap-4">
             {quotes.length === 0 ? (
               <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-sm text-white/56">
-                Henüz hazırlanmış teklif bulunmuyor.
+                HenÃ¼z hazÄ±rlanmÄ±ÅŸ teklif bulunmuyor.
               </div>
             ) : (
               quotes.map((quote) => (
@@ -683,7 +717,7 @@ function DetailPageContent() {
                   </div>
 
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-orange-300/15 bg-orange-500/8 px-4 py-3">
-                    <div className="text-sm text-white/60">Toplam teklif tutarı</div>
+                    <div className="text-sm text-white/60">Toplam teklif tutarÄ±</div>
                     <div className="text-xl font-black text-white">{formatAmount(quote.totalAmount)}</div>
                   </div>
 
@@ -719,7 +753,7 @@ function DetailPageContent() {
           <div className="grid gap-4">
             {payments.length === 0 ? (
               <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-sm text-white/56">
-                Henüz oluşturulmuş ödeme kaydı bulunmuyor.
+                HenÃ¼z oluÅŸturulmuÅŸ Ã¶deme kaydÄ± bulunmuyor.
               </div>
             ) : (
               payments.map((payment) => {
@@ -741,10 +775,10 @@ function DetailPageContent() {
 
                     <div className="mt-4 grid gap-3 lg:grid-cols-2">
                       <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-                        <div className="text-[11px] uppercase tracking-[0.18em] text-orange-300">IBAN ile ödeme</div>
+                        <div className="text-[11px] uppercase tracking-[0.18em] text-orange-300">IBAN ile Ã¶deme</div>
                         <div className="mt-3 text-sm text-white/70">Hesap sahibi: {payment.iban.accountName}</div>
                         <div className="mt-2 text-sm text-white/70">Banka: {payment.iban.bankName}</div>
-                        <div className="mt-2 text-sm text-white/70">Şube: {payment.iban.branchName}</div>
+                        <div className="mt-2 text-sm text-white/70">Åube: {payment.iban.branchName}</div>
                         <div className="mt-4 rounded-2xl border border-white/10 bg-[#0b1322] px-4 py-3 font-mono text-sm text-white">
                           {payment.iban.iban}
                         </div>
@@ -752,7 +786,7 @@ function DetailPageContent() {
                       </div>
 
                       <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-                        <div className="text-[11px] uppercase tracking-[0.18em] text-orange-300">Ödeme bildirimi</div>
+                        <div className="text-[11px] uppercase tracking-[0.18em] text-orange-300">Ã–deme bildirimi</div>
                         <div className="mt-3 text-2xl font-black text-white">{formatAmount(payment.amount)}</div>
                         {payment.dueDate ? (
                           <div className="mt-2 text-sm text-white/58">Son tarih: {formatDate(payment.dueDate)}</div>
@@ -767,7 +801,7 @@ function DetailPageContent() {
                               [payment.id]: { ...form, reference: e.target.value },
                             }))
                           }
-                          placeholder="Dekont no / açıklama / referans"
+                          placeholder="Dekont no / aÃ§Ä±klama / referans"
                           className="mt-4 w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white outline-none placeholder:text-white/35"
                         />
                         <textarea
@@ -779,11 +813,11 @@ function DetailPageContent() {
                               [payment.id]: { ...form, note: e.target.value },
                             }))
                           }
-                          placeholder="Ödeme notu"
+                          placeholder="Ã–deme notu"
                           className="mt-3 w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white outline-none placeholder:text-white/35"
                         />
                         <label className="mt-3 flex cursor-pointer items-center justify-between rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white/70">
-                          <span>{form.proofFileName || "Dekont / dijital slip yükle"}</span>
+                          <span>{form.proofFileName || "Dekont / dijital slip yÃ¼kle"}</span>
                           <input
                             type="file"
                             className="hidden"
@@ -798,7 +832,7 @@ function DetailPageContent() {
                                 setError(
                                   uploadError instanceof Error
                                     ? uploadError.message
-                                    : "Dekont yüklenemedi."
+                                    : "Dekont yÃ¼klenemedi."
                                 );
                               } finally {
                                 e.currentTarget.value = "";
@@ -811,7 +845,7 @@ function DetailPageContent() {
                           onClick={() => handlePaymentNotice(payment.id)}
                           className="mt-3 rounded-2xl bg-orange-500 px-4 py-2.5 text-sm font-semibold text-white"
                         >
-                          Ödeme bildirimini gönder
+                          Ã–deme bildirimini gÃ¶nder
                         </button>
                         {payment.customerReference ? (
                           <div className="mt-3 text-xs leading-6 text-white/55">
@@ -820,12 +854,12 @@ function DetailPageContent() {
                         ) : null}
                         {payment.adminNote ? (
                           <div className="mt-3 rounded-2xl border border-white/10 bg-white/[0.03] p-3 text-xs leading-6 text-white/60">
-                            Yönetici notu: {payment.adminNote}
+                            YÃ¶netici notu: {payment.adminNote}
                           </div>
                         ) : null}
                         {payment.proofFileName ? (
                           <div className="mt-3 text-xs leading-6 text-white/55">
-                            Son yüklenen dekont: {payment.proofFileName}
+                            Son yÃ¼klenen dekont: {payment.proofFileName}
                           </div>
                         ) : null}
                       </div>
@@ -853,7 +887,7 @@ function DetailPageContent() {
 
 export default function DetailPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-white/70">Yükleniyor...</div>}>
+    <Suspense fallback={<div className="p-8 text-white/70">YÃ¼kleniyor...</div>}>
       <DetailPageContent />
     </Suspense>
   );

@@ -81,18 +81,24 @@ const PORTAL_MODULES = [
     title: "Teklif Merkezi",
     text: "Hazırlanan teklifleri tek alanda görmek, revizyon notlarını izlemek ve onay sürecini net yönetmek için kurgulandı.",
     badge: "Hazır altyapı",
+    cta: "Teklif ekranını aç",
+    target: "quotes",
   },
   {
     title: "Belge ve Dosya Alanı",
     text: "Sözleşme, teslim notu, yüklenen dökümanlar ve süreç dosyaları aynı akış içinde toplanacak şekilde planlandı.",
     badge: "Merkezi arşiv",
+    cta: "Belge alanını aç",
+    target: "documents",
   },
   {
     title: "Ödeme ve Tahsilat",
     text: "Ödeme adımları, işlem geçmişi ve ileride gelecek sanal POS akışı için güvenli bir müşteri yüzeyi hazırlandı.",
     badge: "Kademeli açılım",
+    cta: "Ödeme alanını aç",
+    target: "payments",
   },
-];
+] as const;
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString("tr-TR", {
@@ -219,6 +225,7 @@ export default function MusteriPanelPage() {
   );
 
   const latest = sortedApplications[0] ?? null;
+  const latestDetailHref = latest ? `/musteri/panel/${latest.id}` : "/musteri/yeni-talep";
 
   const completionRatio = useMemo(() => {
     if (!summary.total) return 0;
@@ -485,9 +492,10 @@ export default function MusteriPanelPage() {
 
                 <div className="mt-5 grid gap-3 xl:grid-cols-3">
                   {PORTAL_MODULES.map((item) => (
-                    <div
+                    <Link
                       key={item.title}
-                      className="rounded-[24px] border border-white/10 bg-white/[0.03] p-4"
+                      href={`${latestDetailHref}${latest ? `?tab=${item.target}` : ""}`}
+                      className="group rounded-[24px] border border-white/10 bg-white/[0.03] p-4 transition hover:border-orange-300/25 hover:bg-white/[0.05]"
                     >
                       <div className="flex items-center justify-between gap-3">
                         <div className="text-sm font-black text-white">{item.title}</div>
@@ -496,7 +504,11 @@ export default function MusteriPanelPage() {
                         </span>
                       </div>
                       <p className="mt-3 text-[13px] leading-6 text-white/66">{item.text}</p>
-                    </div>
+                      <div className="mt-4 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-white/60 transition group-hover:text-orange-200">
+                        {item.cta}
+                        <ArrowRight className="h-3.5 w-3.5" />
+                      </div>
+                    </Link>
                   ))}
                 </div>
               </div>
