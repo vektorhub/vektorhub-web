@@ -1,8 +1,8 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState, useCallback } from "react";
-import { ChevronLeft, Send, FileUp, Download, Trash2, CheckCircle2, Clock } from "lucide-react";
+import { useEffect, useState, useCallback, useMemo } from "react";
+import { ChevronLeft, Send, FileUp, Download, Trash2, ShieldCheck, Wallet } from "lucide-react";
 
 type AdminApplication = {
   id: string;
@@ -38,6 +38,50 @@ type Document = {
   uploadedAt: string;
 };
 
+type Quote = {
+  id: string;
+  applicationId: string;
+  title: string;
+  description: string;
+  items: Array<{ label: string; amount: number }>;
+  currency: "TRY";
+  totalAmount: number;
+  status: "draft" | "published" | "accepted" | "rejected";
+  publishedAt: string | null;
+  customerRespondedAt: string | null;
+  customerNote: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+type Payment = {
+  id: string;
+  applicationId: string;
+  quoteId: string | null;
+  title: string;
+  description: string;
+  amount: number;
+  currency: "TRY";
+  status: "pending" | "notice_sent" | "confirmed" | "rejected";
+  dueDate: string | null;
+  iban: {
+    accountName: string;
+    iban: string;
+    bankName: string;
+    branchName: string;
+    paymentNote: string;
+  };
+  customerReference: string;
+  customerNote: string;
+  proofDocumentId: string | null;
+  proofFileName: string;
+  adminNote: string;
+  noticeSubmittedAt: string | null;
+  confirmedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
 function AdminApplicationDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -46,36 +90,62 @@ function AdminApplicationDetailPage() {
   const [application, setApplication] = useState<AdminApplication | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [documents, setDocuments] = useState<Document[]>([]);
+  const [quotes, setQuotes] = useState<Quote[]>([]);
+  const [payments, setPayments] = useState<Payment[]>([]);
   const [messageText, setMessageText] = useState("");
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"messages" | "documents">("messages");
+  const [activeTab, setActiveTab] = useState<"messages" | "documents" | "quotes" | "payments">(
+    "messages"
+  );
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
+  const [quoteForm, setQuoteForm] = useState({
+    title: "",
+    description: "",
+    items: [{ label: "", amount: "" }],
+  });
+  const [paymentForm, setPaymentForm] = useState({
+    title: "",
+    description: "",
+    amount: "",
+    dueDate: "",
+    quoteId: "",
+  });
+  const [paymentReview, setPaymentReview] = useState<Record<string, string>>({});
 
   const fetchData = useCallback(async () => {
     try {
-      const res = await fetch(`/api/admin/applications/${applicationId}`);
-      if (!res.ok) throw new Error("Talep alınamadı");
-      
-      const data = await res.json();
+      const [appRes, msgRes, docRes, quoteRes, paymentRes] = await Promise.all([
+        fetch(`/api/admin/applications/${applicationId}`),
+        fetch(`/api/admin/applications/${applicationId}/messages`),
+        fetch(`/api/admin/applications/${applicationId}/documents`),
+        fetch(`/api/admin/applications/${applicationId}/quotes`),
+        fetch(`/api/admin/applications/${applicationId}/payments`),
+      ]);
+
+      if (!appRes.ok) throw new Error("Talep alınamadı");
+
+      const data = await appRes.json();
       setApplication(data.application);
 
-      // Fetch messages
-      const msgRes = await fetch(
-        `/api/admin/applications/${applicationId}/messages`
-      );
       if (msgRes.ok) {
         const msgData = await msgRes.json();
-        setMessages(msgData.messages);
+        setMessages(msgData.messages ?? []);
       }
 
-      // Fetch documents
-      const docRes = await fetch(
-        `/api/admin/applications/${applicationId}/documents`
-      );
       if (docRes.ok) {
         const docData = await docRes.json();
-        setDocuments(docData.documents);
+        setDocuments(docData.documents ?? []);
+      }
+
+      if (quoteRes.ok) {
+        const quoteData = await quoteRes.json();
+        setQuotes(quoteData.quotes ?? []);
+      }
+
+      if (paymentRes.ok) {
+        const paymentData = await paymentRes.json();
+        setPayments(paymentData.payments ?? []);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Veri alınamadı");
@@ -159,6 +229,113 @@ function AdminApplicationDetailPage() {
     }
   };
 
+  const handleCreateQuote = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const res = await fetch(`/api/admin/applications/${applicationId}/quotes`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: quoteForm.title,
+          description: quoteForm.description,
+          items: quoteForm.items.map((item) => ({
+            label: item.label,
+            amount: Number(item.amount || 0),
+          })),
+        }),
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        setError(body.message ?? "Teklif oluşturulamadı");
+        return;
+      }
+
+      const data = await res.json();
+      setQuotes((prev) => [data.quote, ...prev]);
+      setQuoteForm({ title: "", description: "", items: [{ label: "", amount: "" }] });
+    } catch {
+      setError("Teklif oluşturulamadı");
+    }
+  };
+
+  const handlePublishQuote = async (quoteId: string) => {
+    try {
+      const res = await fetch(`/api/admin/applications/${applicationId}/quotes`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ quoteId, status: "published" }),
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        setError(body.message ?? "Teklif yayınlanamadı");
+        return;
+      }
+
+      const data = await res.json();
+      setQuotes((prev) => prev.map((item) => (item.id === quoteId ? data.quote : item)));
+    } catch {
+      setError("Teklif yayınlanamadı");
+    }
+  };
+
+  const handleCreatePayment = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const res = await fetch(`/api/admin/applications/${applicationId}/payments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: paymentForm.title,
+          description: paymentForm.description,
+          amount: Number(paymentForm.amount || 0),
+          dueDate: paymentForm.dueDate || null,
+          quoteId: paymentForm.quoteId || null,
+        }),
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        setError(body.message ?? "Ödeme kaydı oluşturulamadı");
+        return;
+      }
+
+      const data = await res.json();
+      setPayments((prev) => [data.payment, ...prev]);
+      setPaymentForm({ title: "", description: "", amount: "", dueDate: "", quoteId: "" });
+    } catch {
+      setError("Ödeme kaydı oluşturulamadı");
+    }
+  };
+
+  const handleReviewPayment = async (paymentId: string, status: "confirmed" | "rejected") => {
+    try {
+      const res = await fetch(`/api/admin/applications/${applicationId}/payments`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          paymentId,
+          status,
+          adminNote: paymentReview[paymentId] ?? "",
+        }),
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        setError(body.message ?? "Ödeme güncellenemedi");
+        return;
+      }
+
+      const data = await res.json();
+      setPayments((prev) => prev.map((item) => (item.id === paymentId ? data.payment : item)));
+    } catch {
+      setError("Ödeme güncellenemedi");
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 p-6">
@@ -192,6 +369,30 @@ function AdminApplicationDetailPage() {
       minute: "2-digit",
     });
   };
+
+  const formatAmount = (amount: number) =>
+    new Intl.NumberFormat("tr-TR", {
+      style: "currency",
+      currency: "TRY",
+      maximumFractionDigits: 2,
+    }).format(amount);
+
+  const publishedQuotes = useMemo(
+    () => quotes.filter((item) => item.status === "published" || item.status === "accepted"),
+    [quotes]
+  );
+
+  const proofUrlByPaymentId = useMemo(() => {
+    const pairs = new Map<string, string>();
+    for (const payment of payments) {
+      if (!payment.proofDocumentId) continue;
+      const match = documents.find((doc) => doc.id === payment.proofDocumentId);
+      if (match) {
+        pairs.set(payment.id, match.url);
+      }
+    }
+    return pairs;
+  }, [documents, payments]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white p-6">
@@ -263,6 +464,26 @@ function AdminApplicationDetailPage() {
             }`}
           >
             Dokümanlar ({documents.length})
+          </button>
+          <button
+            onClick={() => setActiveTab("quotes")}
+            className={`px-4 py-3 font-medium border-b-2 transition ${
+              activeTab === "quotes"
+                ? "border-blue-500 text-blue-400"
+                : "border-transparent text-slate-400"
+            }`}
+          >
+            Teklifler ({quotes.length})
+          </button>
+          <button
+            onClick={() => setActiveTab("payments")}
+            className={`px-4 py-3 font-medium border-b-2 transition ${
+              activeTab === "payments"
+                ? "border-blue-500 text-blue-400"
+                : "border-transparent text-slate-400"
+            }`}
+          >
+            Ödeme ({payments.length})
           </button>
         </div>
 
@@ -371,6 +592,260 @@ function AdminApplicationDetailPage() {
                 ))}
               </div>
             )}
+          </div>
+        )}
+
+        {activeTab === "quotes" && (
+          <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+            <form onSubmit={handleCreateQuote} className="space-y-4 rounded-[20px] border border-slate-700 bg-slate-800 p-6">
+              <div className="text-sm font-semibold uppercase tracking-[0.2em] text-orange-300">Yeni Teklif</div>
+              <input
+                type="text"
+                value={quoteForm.title}
+                onChange={(e) => setQuoteForm((prev) => ({ ...prev, title: e.target.value }))}
+                placeholder="Teklif başlığı"
+                className="w-full rounded-lg border border-slate-700 bg-slate-900 px-4 py-3 text-white outline-none"
+              />
+              <textarea
+                rows={4}
+                value={quoteForm.description}
+                onChange={(e) => setQuoteForm((prev) => ({ ...prev, description: e.target.value }))}
+                placeholder="Teklif kapsamı"
+                className="w-full rounded-lg border border-slate-700 bg-slate-900 px-4 py-3 text-white outline-none"
+              />
+              <div className="space-y-3">
+                {quoteForm.items.map((item, index) => (
+                  <div key={index} className="grid gap-3 md:grid-cols-[1fr_180px]">
+                    <input
+                      type="text"
+                      value={item.label}
+                      onChange={(e) =>
+                        setQuoteForm((prev) => ({
+                          ...prev,
+                          items: prev.items.map((row, rowIndex) =>
+                            rowIndex === index ? { ...row, label: e.target.value } : row
+                          ),
+                        }))
+                      }
+                      placeholder="Kalem açıklaması"
+                      className="rounded-lg border border-slate-700 bg-slate-900 px-4 py-3 text-white outline-none"
+                    />
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={item.amount}
+                      onChange={(e) =>
+                        setQuoteForm((prev) => ({
+                          ...prev,
+                          items: prev.items.map((row, rowIndex) =>
+                            rowIndex === index ? { ...row, amount: e.target.value } : row
+                          ),
+                        }))
+                      }
+                      placeholder="Tutar"
+                      className="rounded-lg border border-slate-700 bg-slate-900 px-4 py-3 text-white outline-none"
+                    />
+                  </div>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={() =>
+                  setQuoteForm((prev) => ({
+                    ...prev,
+                    items: [...prev.items, { label: "", amount: "" }],
+                  }))
+                }
+                className="rounded-lg border border-slate-700 bg-slate-900 px-4 py-2 text-sm text-white/80"
+              >
+                Kalem ekle
+              </button>
+              <button type="submit" className="w-full rounded-lg bg-orange-500 px-4 py-3 font-semibold text-white">
+                Teklif oluştur
+              </button>
+            </form>
+
+            <div className="grid gap-4">
+              {quotes.length === 0 ? (
+                <div className="rounded-[20px] border border-slate-700 bg-slate-800 p-6 text-slate-400">
+                  Henüz teklif yok.
+                </div>
+              ) : (
+                quotes.map((quote) => (
+                  <div key={quote.id} className="rounded-[20px] border border-slate-700 bg-slate-800 p-6">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <div className="text-xl font-bold text-white">{quote.title}</div>
+                        <p className="mt-2 text-sm leading-7 text-slate-300">{quote.description}</p>
+                      </div>
+                      <div className="rounded-full border border-slate-600 px-3 py-1 text-xs text-slate-300">
+                        {quote.status}
+                      </div>
+                    </div>
+                    <div className="mt-4 space-y-2">
+                      {quote.items.map((item, index) => (
+                        <div key={index} className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-900 px-4 py-3">
+                          <span>{item.label}</span>
+                          <span className="font-semibold">{formatAmount(item.amount)}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                      <div className="text-lg font-bold text-white">{formatAmount(quote.totalAmount)}</div>
+                      {quote.status === "draft" ? (
+                        <button
+                          onClick={() => handlePublishQuote(quote.id)}
+                          className="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-white"
+                        >
+                          Müşteriye yayınla
+                        </button>
+                      ) : null}
+                    </div>
+                    {quote.customerNote ? (
+                      <div className="mt-4 rounded-lg border border-slate-700 bg-slate-900 px-4 py-3 text-sm text-slate-300">
+                        Müşteri notu: {quote.customerNote}
+                      </div>
+                    ) : null}
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+
+        {activeTab === "payments" && (
+          <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+            <form onSubmit={handleCreatePayment} className="space-y-4 rounded-[20px] border border-slate-700 bg-slate-800 p-6">
+              <div className="text-sm font-semibold uppercase tracking-[0.2em] text-orange-300">Yeni Ödeme Kaydı</div>
+              <input
+                type="text"
+                value={paymentForm.title}
+                onChange={(e) => setPaymentForm((prev) => ({ ...prev, title: e.target.value }))}
+                placeholder="Ödeme başlığı"
+                className="w-full rounded-lg border border-slate-700 bg-slate-900 px-4 py-3 text-white outline-none"
+              />
+              <textarea
+                rows={3}
+                value={paymentForm.description}
+                onChange={(e) => setPaymentForm((prev) => ({ ...prev, description: e.target.value }))}
+                placeholder="Ödeme açıklaması"
+                className="w-full rounded-lg border border-slate-700 bg-slate-900 px-4 py-3 text-white outline-none"
+              />
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={paymentForm.amount}
+                onChange={(e) => setPaymentForm((prev) => ({ ...prev, amount: e.target.value }))}
+                placeholder="Tutar"
+                className="w-full rounded-lg border border-slate-700 bg-slate-900 px-4 py-3 text-white outline-none"
+              />
+              <input
+                type="date"
+                value={paymentForm.dueDate}
+                onChange={(e) => setPaymentForm((prev) => ({ ...prev, dueDate: e.target.value }))}
+                className="w-full rounded-lg border border-slate-700 bg-slate-900 px-4 py-3 text-white outline-none"
+              />
+              <select
+                value={paymentForm.quoteId}
+                onChange={(e) => setPaymentForm((prev) => ({ ...prev, quoteId: e.target.value }))}
+                className="w-full rounded-lg border border-slate-700 bg-slate-900 px-4 py-3 text-white outline-none"
+              >
+                <option value="">Teklife bağlama</option>
+                {publishedQuotes.map((quote) => (
+                  <option key={quote.id} value={quote.id}>
+                    {quote.title}
+                  </option>
+                ))}
+              </select>
+              <button type="submit" className="w-full rounded-lg bg-orange-500 px-4 py-3 font-semibold text-white">
+                Ödeme kaydı oluştur
+              </button>
+            </form>
+
+            <div className="grid gap-4">
+              {payments.length === 0 ? (
+                <div className="rounded-[20px] border border-slate-700 bg-slate-800 p-6 text-slate-400">
+                  Henüz ödeme kaydı yok.
+                </div>
+              ) : (
+                payments.map((payment) => (
+                  <div key={payment.id} className="rounded-[20px] border border-slate-700 bg-slate-800 p-6">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <div className="text-xl font-bold text-white">{payment.title}</div>
+                        <p className="mt-2 text-sm leading-7 text-slate-300">{payment.description}</p>
+                      </div>
+                      <div className="rounded-full border border-slate-600 px-3 py-1 text-xs text-slate-300">
+                        {payment.status}
+                      </div>
+                    </div>
+                    <div className="mt-4 grid gap-3 md:grid-cols-2">
+                      <div className="rounded-lg border border-slate-700 bg-slate-900 p-4">
+                        <div className="text-lg font-bold text-white">{formatAmount(payment.amount)}</div>
+                        {payment.dueDate ? (
+                          <div className="mt-2 text-sm text-slate-400">Son tarih: {formatDate(payment.dueDate)}</div>
+                        ) : null}
+                        <div className="mt-3 text-xs leading-6 text-slate-400">
+                          {payment.iban.accountName} • {payment.iban.bankName}
+                        </div>
+                      </div>
+                      <div className="rounded-lg border border-slate-700 bg-slate-900 p-4">
+                        <div className="text-sm text-slate-300">Müşteri bildirimi</div>
+                        <div className="mt-2 text-sm text-slate-400">
+                          {payment.customerReference || "Henüz bildirim yok"}
+                        </div>
+                        {payment.customerNote ? (
+                          <div className="mt-2 text-xs leading-6 text-slate-400">{payment.customerNote}</div>
+                        ) : null}
+                        {payment.proofFileName ? (
+                          <div className="mt-2 text-xs leading-6 text-slate-400">Dekont: {payment.proofFileName}</div>
+                        ) : null}
+                        {proofUrlByPaymentId.get(payment.id) ? (
+                          <a
+                            href={proofUrlByPaymentId.get(payment.id)!}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="mt-3 inline-flex rounded-lg border border-slate-700 px-3 py-2 text-xs font-semibold text-white/80"
+                          >
+                            Dekontu aç
+                          </a>
+                        ) : null}
+                      </div>
+                    </div>
+
+                    <textarea
+                      rows={2}
+                      value={paymentReview[payment.id] ?? payment.adminNote}
+                      onChange={(e) =>
+                        setPaymentReview((prev) => ({
+                          ...prev,
+                          [payment.id]: e.target.value,
+                        }))
+                      }
+                      placeholder="Yönetici notu"
+                      className="mt-4 w-full rounded-lg border border-slate-700 bg-slate-900 px-4 py-3 text-white outline-none"
+                    />
+
+                    <div className="mt-3 flex flex-wrap gap-3">
+                      <button
+                        onClick={() => handleReviewPayment(payment.id, "confirmed")}
+                        className="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-white"
+                      >
+                        Ödemeyi onayla
+                      </button>
+                      <button
+                        onClick={() => handleReviewPayment(payment.id, "rejected")}
+                        className="rounded-lg border border-rose-400/25 bg-rose-500/10 px-4 py-2 text-sm font-semibold text-rose-200"
+                      >
+                        Revizyona gönder
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         )}
       </div>

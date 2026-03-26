@@ -23,6 +23,11 @@ type CockpitRequest = {
   status: "pending" | "completed" | "rejected";
 };
 
+type CockpitPayment = {
+  id: string;
+  status: "pending" | "notice_sent" | "confirmed" | "rejected";
+};
+
 export async function GET(request: Request) {
   try {
     const cookieHeader = request.headers.get("cookie") ?? "";
@@ -47,7 +52,13 @@ export async function GET(request: Request) {
     const applicationSignals = await Promise.all(
       applications.map(async (application) => {
         const appRef = db.collection("customer_applications").doc(application.id);
-        const [latestMessageSnap, unreadCustomerSnap, pendingRequestsSnap, pendingCancelSnap] =
+        const [
+          latestMessageSnap,
+          unreadCustomerSnap,
+          pendingRequestsSnap,
+          pendingCancelSnap,
+          pendingPaymentSnap,
+        ] =
           await Promise.all([
             appRef.collection("messages").orderBy("createdAt", "desc").limit(1).get(),
             appRef
@@ -60,6 +71,10 @@ export async function GET(request: Request) {
               .collection("requests")
               .where("status", "==", "pending")
               .where("type", "==", "cancel_application")
+              .get(),
+            appRef
+              .collection("payments")
+              .where("status", "==", "notice_sent")
               .get(),
           ]);
 
@@ -88,6 +103,9 @@ export async function GET(request: Request) {
           unreadCustomerMessages: unreadCustomerSnap.size,
           pendingRequests: pendingRequests.length,
           pendingCancelRequests: pendingCancelSnap.size,
+          pendingPaymentConfirmations: pendingPaymentSnap.docs.filter(
+            (doc) => ((doc.data() as CockpitPayment).status ?? "") === "notice_sent"
+          ).length,
         };
       })
     );
@@ -138,6 +156,10 @@ export async function GET(request: Request) {
       pendingRequests: applicationSignals.reduce((sum, item) => sum + item.pendingRequests, 0),
       pendingCancelRequests: applicationSignals.reduce(
         (sum, item) => sum + item.pendingCancelRequests,
+        0
+      ),
+      pendingPaymentConfirmations: applicationSignals.reduce(
+        (sum, item) => sum + item.pendingPaymentConfirmations,
         0
       ),
     };

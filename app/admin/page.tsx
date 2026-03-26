@@ -76,6 +76,7 @@ type CockpitSummary = {
   unreadCustomerMessages: number;
   pendingRequests: number;
   pendingCancelRequests: number;
+  pendingPaymentConfirmations: number;
 };
 
 type CockpitInboxItem = {
@@ -1247,6 +1248,12 @@ export default function AdminPanelPage() {
                     <div className="text-xs text-white/45">İptal Talebi</div>
                     <div className="mt-1 text-2xl font-black text-rose-200">
                       {cockpit?.summary.pendingCancelRequests ?? 0}
+                    </div>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+                    <div className="text-xs text-white/45">Ödeme Doğrulama</div>
+                    <div className="mt-1 text-2xl font-black text-violet-200">
+                      {cockpit?.summary.pendingPaymentConfirmations ?? 0}
                     </div>
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
