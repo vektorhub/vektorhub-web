@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getAuthenticatedAdminSession } from "@/lib/admin-auth";
 import { createCustomerInvite } from "@/lib/customer-accounts";
 import { isMailConfigured, sendCustomerInviteMail } from "@/lib/mailer";
 
@@ -18,6 +19,11 @@ function getBaseUrl(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const session = getAuthenticatedAdminSession(request);
+  if (!session) {
+    return NextResponse.json({ message: "Yetkisiz erisim." }, { status: 401 });
+  }
+
   try {
     const body = (await request.json()) as {
       email?: string;

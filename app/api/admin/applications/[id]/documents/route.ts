@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
-import { getAdminCookieName, verifyAdminSessionToken } from "../../../../../../lib/admin-session";
-import { uploadDocument, getDocuments, deleteDocument } from "@/lib/customer-applications-extended";
+import { getAuthenticatedAdminSession } from "@/lib/admin-auth";
+import {
+  uploadDocument,
+  getDocuments,
+  deleteDocument,
+} from "@/lib/customer-applications-extended";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -11,22 +15,15 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const cookieHeader = request.headers.get("cookie") ?? "";
-    const token = cookieHeader
-      .split(";")
-      .map((c) => c.trim())
-      .find((c) => c.startsWith(`${getAdminCookieName()}=`))
-      ?.slice(getAdminCookieName().length + 1);
-
-    const session = verifyAdminSessionToken(token);
+    const session = getAuthenticatedAdminSession(request);
     if (!session) {
-      return NextResponse.json({ message: "Yetkisiz erişim." }, { status: 401 });
+      return NextResponse.json({ message: "Yetkisiz erisim." }, { status: 401 });
     }
 
     const documents = await getDocuments(id);
     return NextResponse.json({ documents }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Dokümanlar alınamadı.";
+    const message = error instanceof Error ? error.message : "Dokumanlar alinamadi.";
     return NextResponse.json({ message }, { status: 400 });
   }
 }
@@ -37,16 +34,9 @@ export async function POST(
 ) {
   try {
     const { id } = await params;
-    const cookieHeader = request.headers.get("cookie") ?? "";
-    const token = cookieHeader
-      .split(";")
-      .map((c) => c.trim())
-      .find((c) => c.startsWith(`${getAdminCookieName()}=`))
-      ?.slice(getAdminCookieName().length + 1);
-
-    const session = verifyAdminSessionToken(token);
+    const session = getAuthenticatedAdminSession(request);
     if (!session) {
-      return NextResponse.json({ message: "Yetkisiz erişim." }, { status: 401 });
+      return NextResponse.json({ message: "Yetkisiz erisim." }, { status: 401 });
     }
 
     const formData = await request.formData();
@@ -58,7 +48,7 @@ export async function POST(
     }
 
     if (file.size > 50 * 1024 * 1024) {
-      return NextResponse.json({ message: "Dosya 50 MB'den büyük olamaz." }, { status: 400 });
+      return NextResponse.json({ message: "Dosya 50 MB'den buyuk olamaz." }, { status: 400 });
     }
 
     const url = `/api/admin/applications/${id}/documents/${file.name}`;
@@ -74,7 +64,7 @@ export async function POST(
 
     return NextResponse.json({ document }, { status: 201 });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Dosya yüklenemedi.";
+    const message = error instanceof Error ? error.message : "Dosya yuklenemedi.";
     return NextResponse.json({ message }, { status: 400 });
   }
 }
@@ -85,29 +75,22 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    const cookieHeader = request.headers.get("cookie") ?? "";
-    const token = cookieHeader
-      .split(";")
-      .map((c) => c.trim())
-      .find((c) => c.startsWith(`${getAdminCookieName()}=`))
-      ?.slice(getAdminCookieName().length + 1);
-
-    const session = verifyAdminSessionToken(token);
+    const session = getAuthenticatedAdminSession(request);
     if (!session) {
-      return NextResponse.json({ message: "Yetkisiz erişim." }, { status: 401 });
+      return NextResponse.json({ message: "Yetkisiz erisim." }, { status: 401 });
     }
 
     const body = await request.json();
     const { documentId } = body;
 
     if (!documentId) {
-      return NextResponse.json({ message: "Doküman kimliği gerekli." }, { status: 400 });
+      return NextResponse.json({ message: "Dokuman kimligi gerekli." }, { status: 400 });
     }
 
     await deleteDocument(id, documentId);
     return NextResponse.json({ success: true });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Doküman silinemedi.";
+    const message = error instanceof Error ? error.message : "Dokuman silinemedi.";
     return NextResponse.json({ message }, { status: 400 });
   }
 }

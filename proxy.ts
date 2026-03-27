@@ -98,6 +98,8 @@ async function verifyCustomerSessionToken(raw: string | undefined): Promise<bool
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const authHeader = request.headers.get("authorization") ?? "";
+  const hasBearerToken = authHeader.startsWith("Bearer ");
 
   // /admin/giris herkese açık (giriş sayfası ve session API)
   if (
@@ -116,6 +118,10 @@ export async function proxy(request: NextRequest) {
   }
 
   // /admin/** ve /api/admin/** için oturum kontrolü
+  if (pathname.startsWith("/api/admin") && hasBearerToken) {
+    return NextResponse.next();
+  }
+
   if (pathname.startsWith("/admin") || pathname.startsWith("/api/admin")) {
     const token = request.cookies.get(ADMIN_COOKIE_NAME)?.value;
     if (!(await verifySessionToken(token))) {

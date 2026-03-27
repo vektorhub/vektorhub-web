@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { confirmCustomerApplicationVerification } from "@/lib/customer-applications";
+import { sendAdminPushNotification } from "@/lib/admin-push";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -19,6 +20,15 @@ export async function GET(request: Request) {
 
   try {
     const result = await confirmCustomerApplicationVerification(token);
+    await sendAdminPushNotification({
+      title: "Yeni basvuru onaylandi",
+      body: `${result.referenceNo} takip numarali yeni basvuru olustu.`,
+      data: {
+        type: "new_application",
+        referenceNo: result.referenceNo,
+        screen: "cockpit",
+      },
+    });
     return redirectWithState(url, "success", {
       referenceNo: result.referenceNo,
       submittedAt: result.submittedAt,

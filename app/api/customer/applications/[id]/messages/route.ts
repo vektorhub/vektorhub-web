@@ -3,6 +3,7 @@ import { getCustomerById } from "@/lib/customer-accounts";
 import { getMessages, createMessage, markMessageAsRead } from "@/lib/customer-applications-extended";
 import { getCustomerCookieName, verifyCustomerSessionToken } from "@/lib/customer-session";
 import { getAdminDb } from "@/lib/firebase-admin";
+import { sendAdminPushNotification } from "@/lib/admin-push";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -111,6 +112,17 @@ export async function POST(
       customer.fullName,
       text
     );
+
+    await sendAdminPushNotification({
+      title: "Yeni musteri mesaji",
+      body: `${customer.fullName} size yeni bir mesaj gonderdi.`,
+      data: {
+        type: "customer_message",
+        applicationId: id,
+        senderName: customer.fullName,
+        screen: "application_messages",
+      },
+    });
 
     return NextResponse.json({ message }, { status: 201 });
   } catch (error) {

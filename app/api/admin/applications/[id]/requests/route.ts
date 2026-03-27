@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAdminDb } from "@/lib/firebase-admin";
-import { getAdminCookieName, verifyAdminSessionToken } from "@/lib/admin-session";
+import { getAuthenticatedAdminSession } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -16,14 +16,7 @@ type CustomerRequest = {
 };
 
 function getAdminSessionFromRequest(request: Request) {
-  const cookieHeader = request.headers.get("cookie") ?? "";
-  const token = cookieHeader
-    .split(";")
-    .map((cookie) => cookie.trim())
-    .find((cookie) => cookie.startsWith(`${getAdminCookieName()}=`))
-    ?.slice(getAdminCookieName().length + 1);
-
-  return verifyAdminSessionToken(token);
+  return getAuthenticatedAdminSession(request);
 }
 
 export async function GET(

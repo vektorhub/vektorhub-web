@@ -6,7 +6,7 @@ import {
   updateApplicationStatus,
   type ApplicationStatus,
 } from "@/lib/customer-applications";
-import { getAdminCookieName, verifyAdminSessionToken } from "@/lib/admin-session";
+import { getAuthenticatedAdminSession } from "@/lib/admin-auth";
 import { sendApplicationDeletedMail } from "@/lib/mailer";
 
 export const dynamic = "force-dynamic";
@@ -19,14 +19,7 @@ const VALID_STATUSES = new Set<ApplicationStatus>([
 ]);
 
 function getAdminSessionFromRequest(request: Request) {
-  const cookieHeader = request.headers.get("cookie") ?? "";
-  const token = cookieHeader
-    .split(";")
-    .map((cookie) => cookie.trim())
-    .find((cookie) => cookie.startsWith(`${getAdminCookieName()}=`))
-    ?.slice(getAdminCookieName().length + 1);
-
-  return verifyAdminSessionToken(token);
+  return getAuthenticatedAdminSession(request);
 }
 
 export async function GET(

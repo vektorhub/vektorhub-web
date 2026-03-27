@@ -1,20 +1,22 @@
 import { NextResponse } from "next/server";
 import { getCustomerById } from "@/lib/customer-accounts";
-import { getDocuments, uploadDocument, deleteDocument } from "@/lib/customer-applications-extended";
+import {
+  getDocuments,
+  uploadDocument,
+  deleteDocument,
+} from "@/lib/customer-applications-extended";
+import { sendAdminPushNotification } from "@/lib/admin-push";
 import { getCustomerCookieName, verifyCustomerSessionToken } from "@/lib/customer-session";
 import { getAdminDb } from "@/lib/firebase-admin";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
+const MAX_FILE_SIZE = 50 * 1024 * 1024;
 
 async function verifyOwnership(applicationId: string, customerId: string, customerEmail?: string) {
   const db = getAdminDb();
-  const appSnap = await db
-    .collection("customer_applications")
-    .doc(applicationId)
-    .get();
+  const appSnap = await db.collection("customer_applications").doc(applicationId).get();
 
   if (!appSnap.exists) {
     throw new Error("Talep bulunamadı.");
@@ -58,16 +60,11 @@ export async function GET(
     }
 
     await verifyOwnership(id, session.customerId, customer.email);
-
     const documents = await getDocuments(id);
 
     return NextResponse.json(
       { documents },
-      {
-        headers: {
-          "Cache-Control": "no-store, max-age=0",
-        },
-      }
+      { headers: { "Cache-Control": "no-store, max-age=0" } }
     );
   } catch (error) {
     const message = error instanceof Error ? error.message : "Dokümanlar alınamadı.";
@@ -115,17 +112,12 @@ export async function POST(
       );
     }
 
-    // Validate docType
     if (!["teklif", "taraf", "diger"].includes(docType)) {
       return NextResponse.json(
         { message: "Geçersiz doküman türü." },
         { status: 400 }
       );
     }
-
-    // In production, integrate with cloud storage (S3, GCS, etc.)
-    // For now, we'll store metadata and rely on client-side upload
-    // This is a placeholder - real implementation would handle file storage
 
     const url = `/api/customer/applications/${id}/documents/${file.name}`;
     const document = await uploadDocument(
@@ -137,6 +129,18 @@ export async function POST(
       url,
       "customer"
     );
+
+    await sendAdminPushNotification({
+      title: "Yeni musteri dokumani",
+      body: `${customer.fullName} yeni bir dokuman yukledi: ${file.name}`,
+      data: {
+        type: "customer_document_uploaded",
+        applicationId: id,
+        documentId: document.id,
+        documentName: file.name,
+        screen: "application_documents",
+      },
+    });
 
     return NextResponse.json({ document }, { status: 201 });
   } catch (error) {
@@ -166,14 +170,25 @@ export async function DELETE(
     const customer = await getCustomerById(session.customerId);
     await verifyOwnership(id, session.customerId, customer?.email);
 
-    const body = await request.json();
-    const { documentId } = body;
+    const body = (await request.json()) as { documentId?: string };
+    const documentId = body.documentId ?? "";
 
     if (!documentId) {
       return NextResponse.json({ message: "Doküman kimliği gerekli." }, { status: 400 });
     }
 
     await deleteDocument(id, documentId);
+
+    await sendAdminPushNotification({
+      title: "Musteri dokumani silindi",
+      body: `${customer?.fullName ?? "Musteri"} bir dokumani kaldirdi.`,
+      data: {
+        type: "customer_document_deleted",
+        applicationId: id,
+        documentId,
+        screen: "application_documents",
+      },
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {

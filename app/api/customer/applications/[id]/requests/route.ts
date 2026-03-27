@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getCustomerById } from "@/lib/customer-accounts";
 import { getCustomerCookieName, verifyCustomerSessionToken } from "@/lib/customer-session";
 import { getAdminDb } from "@/lib/firebase-admin";
+import { sendAdminPushNotification } from "@/lib/admin-push";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -159,6 +160,18 @@ export async function POST(
         details: { requestId: docRef.id, ...data },
         createdAt: new Date().toISOString(),
       });
+
+    await sendAdminPushNotification({
+      title: "Yeni musteri aksiyonu",
+      body: `${customer.fullName} yeni bir istek gonderdi.`,
+      data: {
+        type: "customer_request",
+        applicationId: id,
+        requestId: docRef.id,
+        requestType: type,
+        screen: "application_requests",
+      },
+    });
 
     return NextResponse.json({ request: customerRequest }, { status: 201 });
   } catch (error) {

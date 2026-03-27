@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAdminCookieName, verifyAdminSessionToken } from "../../../../../../lib/admin-session";
+import { getAuthenticatedAdminSession } from "@/lib/admin-auth";
 import {
   createMessage,
   getMessages,
@@ -15,23 +15,16 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const cookieHeader = request.headers.get("cookie") ?? "";
-    const token = cookieHeader
-      .split(";")
-      .map((c) => c.trim())
-      .find((c) => c.startsWith(`${getAdminCookieName()}=`))
-      ?.slice(getAdminCookieName().length + 1);
-
-    const session = verifyAdminSessionToken(token);
+    const session = getAuthenticatedAdminSession(request);
     if (!session) {
-      return NextResponse.json({ message: "Yetkisiz erişim." }, { status: 401 });
+      return NextResponse.json({ message: "Yetkisiz erisim." }, { status: 401 });
     }
 
     const messages = await getMessages(id);
     await markMessagesAsReadBySender(id, "customer");
     return NextResponse.json({ messages }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Mesajlar alınamadı.";
+    const message = error instanceof Error ? error.message : "Mesajlar alinamadi.";
     return NextResponse.json({ message }, { status: 400 });
   }
 }
@@ -42,30 +35,23 @@ export async function POST(
 ) {
   try {
     const { id } = await params;
-    const cookieHeader = request.headers.get("cookie") ?? "";
-    const token = cookieHeader
-      .split(";")
-      .map((c) => c.trim())
-      .find((c) => c.startsWith(`${getAdminCookieName()}=`))
-      ?.slice(getAdminCookieName().length + 1);
-
-    const session = verifyAdminSessionToken(token);
+    const session = getAuthenticatedAdminSession(request);
     if (!session) {
-      return NextResponse.json({ message: "Yetkisiz erişim." }, { status: 401 });
+      return NextResponse.json({ message: "Yetkisiz erisim." }, { status: 401 });
     }
 
     const body = await request.json();
     const { text } = body;
 
     if (!text || text.trim().length === 0) {
-      return NextResponse.json({ message: "Mesaj boş olamaz." }, { status: 400 });
+      return NextResponse.json({ message: "Mesaj bos olamaz." }, { status: 400 });
     }
 
-    const message = await createMessage(id, "admin", "Vektörhub Ekibi", text);
+    const message = await createMessage(id, "admin", "Vektorhub Ekibi", text);
 
     return NextResponse.json({ message }, { status: 201 });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Mesaj gönderilemedi.";
+    const message = error instanceof Error ? error.message : "Mesaj gonderilemedi.";
     return NextResponse.json({ message }, { status: 400 });
   }
 }

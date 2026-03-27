@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCustomerById } from "@/lib/customer-accounts";
+import { sendAdminPushNotification } from "@/lib/admin-push";
 import { getCustomerCookieName, verifyCustomerSessionToken } from "@/lib/customer-session";
 import { getAdminDb } from "@/lib/firebase-admin";
 import { listQuotes, updateQuoteStatus } from "@/lib/customer-commerce";
@@ -90,6 +91,18 @@ export async function PATCH(
       auth.customer.fullName,
       body.customerNote
     );
+
+    await sendAdminPushNotification({
+      title: body.status === "accepted" ? "Teklif kabul edildi" : "Teklif reddedildi",
+      body: `${auth.customer.fullName} bir teklife yanit verdi.`,
+      data: {
+        type: "customer_quote_response",
+        applicationId: id,
+        quoteId: body.quoteId,
+        quoteStatus: body.status,
+        screen: "application_quotes",
+      },
+    });
 
     return NextResponse.json({ quote });
   } catch (error) {

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAdminCookieName, verifyAdminSessionToken } from "@/lib/admin-session";
+import { getAuthenticatedAdminSession } from "@/lib/admin-auth";
 import { listPendingCustomerAccounts } from "@/lib/customer-accounts";
 import { listAllApplications } from "@/lib/customer-applications";
 import { getAdminDb } from "@/lib/firebase-admin";
@@ -30,14 +30,7 @@ type CockpitPayment = {
 
 export async function GET(request: Request) {
   try {
-    const cookieHeader = request.headers.get("cookie") ?? "";
-    const token = cookieHeader
-      .split(";")
-      .map((c) => c.trim())
-      .find((c) => c.startsWith(`${getAdminCookieName()}=`))
-      ?.slice(getAdminCookieName().length + 1);
-
-    const session = verifyAdminSessionToken(token);
+    const session = getAuthenticatedAdminSession(request);
     if (!session) {
       return NextResponse.json({ message: "Yetkisiz erişim." }, { status: 401 });
     }

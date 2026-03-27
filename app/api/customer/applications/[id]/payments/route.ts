@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getCustomerById } from "@/lib/customer-accounts";
 import { getCustomerCookieName, verifyCustomerSessionToken } from "@/lib/customer-session";
 import { getAdminDb } from "@/lib/firebase-admin";
+import { sendAdminPushNotification } from "@/lib/admin-push";
 import { listPayments, submitPaymentNotice } from "@/lib/customer-commerce";
 
 export const dynamic = "force-dynamic";
@@ -96,6 +97,17 @@ export async function POST(
       },
       auth.customer.fullName
     );
+
+    await sendAdminPushNotification({
+      title: "Odeme bildirimi geldi",
+      body: `${auth.customer.fullName} bir odeme bildirimi gonderdi.`,
+      data: {
+        type: "payment_notice",
+        applicationId: id,
+        paymentId: body.paymentId,
+        screen: "application_payments",
+      },
+    });
 
     return NextResponse.json({ payment });
   } catch (error) {

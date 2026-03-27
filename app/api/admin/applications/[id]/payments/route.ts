@@ -1,19 +1,12 @@
 import { NextResponse } from "next/server";
-import { getAdminCookieName, verifyAdminSessionToken } from "@/lib/admin-session";
+import { getAuthenticatedAdminSession } from "@/lib/admin-auth";
 import { createPayment, listPayments, reviewPayment } from "@/lib/customer-commerce";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 function getAdminSession(request: Request) {
-  const cookieHeader = request.headers.get("cookie") ?? "";
-  const token = cookieHeader
-    .split(";")
-    .map((cookie) => cookie.trim())
-    .find((cookie) => cookie.startsWith(`${getAdminCookieName()}=`))
-    ?.slice(getAdminCookieName().length + 1);
-
-  return verifyAdminSessionToken(token);
+  return getAuthenticatedAdminSession(request);
 }
 
 export async function GET(

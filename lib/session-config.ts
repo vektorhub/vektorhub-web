@@ -13,7 +13,10 @@ function getMachineSeed() {
     .join("|");
 }
 
-function buildSessionSecret(scope: "admin" | "customer", explicitSecret?: string) {
+function buildSessionSecret(
+  scope: "admin" | "admin_mobile" | "customer",
+  explicitSecret?: string
+) {
   const trimmed = explicitSecret?.trim();
   if (trimmed) {
     return trimmed;
@@ -26,10 +29,15 @@ function buildSessionSecret(scope: "admin" | "customer", explicitSecret?: string
 export const ADMIN_COOKIE_NAME = "vh_admin_session";
 export const CUSTOMER_COOKIE_NAME = "vh_customer_session";
 export const ADMIN_SESSION_MAX_AGE = 60 * 60 * 8;
+export const ADMIN_MOBILE_SESSION_MAX_AGE = 60 * 60 * 24 * 30;
 export const CUSTOMER_SESSION_MAX_AGE = 60 * 60 * 24 * 7;
 
 export function getAdminSessionSecret() {
   return buildSessionSecret("admin", process.env.ADMIN_SESSION_SECRET);
+}
+
+export function getAdminMobileSessionSecret() {
+  return buildSessionSecret("admin_mobile", process.env.ADMIN_MOBILE_SESSION_SECRET);
 }
 
 export function getCustomerSessionSecret() {

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCustomerById } from "@/lib/customer-accounts";
+import { sendAdminPushNotification } from "@/lib/admin-push";
 import { getCustomerCookieName, verifyCustomerSessionToken } from "@/lib/customer-session";
 import { getAdminDb } from "@/lib/firebase-admin";
 import { withdrawCustomerApplication } from "@/lib/customer-applications";
@@ -82,12 +83,26 @@ export async function POST(
         reason
       );
 
+      await sendAdminPushNotification({
+        title: "Basvuru geri cekildi",
+        body: `${auth.customer.fullName} basvuruyu geri cekti.`,
+        data: {
+          type: "customer_application_withdrawn",
+          applicationId: id,
+          referenceNo: appData.referenceNo ?? "",
+          screen: "application_detail",
+        },
+      });
+
       return NextResponse.json({ application: updated });
     }
 
     if (action === "cancel_request") {
       if (appData.status === "İptal Edildi") {
-        return NextResponse.json({ message: "Bu kayıt zaten kapatılmış durumda." }, { status: 400 });
+        return NextResponse.json(
+          { message: "Bu kayıt zaten kapatılmış durumda." },
+          { status: 400 }
+        );
       }
 
       const db = getAdminDb();
@@ -125,6 +140,18 @@ export async function POST(
           },
           createdAt: now,
         });
+
+      await sendAdminPushNotification({
+        title: "Iptal talebi olusturuldu",
+        body: `${auth.customer.fullName} iptal talebi gonderdi.`,
+        data: {
+          type: "customer_cancel_request",
+          applicationId: id,
+          requestId: requestRef.id,
+          referenceNo: appData.referenceNo ?? "",
+          screen: "application_requests",
+        },
+      });
 
       return NextResponse.json({
         request: {

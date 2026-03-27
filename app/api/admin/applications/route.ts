@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getAuthenticatedAdminSession } from "@/lib/admin-auth";
 import {
   listAllApplications,
   toCustomerApplicationView,
@@ -7,8 +8,12 @@ import {
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    if (!getAuthenticatedAdminSession(request)) {
+      return NextResponse.json({ message: "Yetkisiz erisim." }, { status: 401 });
+    }
+
     const items = await listAllApplications(200);
     return NextResponse.json({ applications: items.map(toCustomerApplicationView) }, {
       headers: { "Cache-Control": "no-store, max-age=0" },
