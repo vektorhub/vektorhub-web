@@ -44,11 +44,14 @@ function getBaseUrl(request: Request) {
     return envBaseUrl.replace(/\/$/, "");
   }
 
-  if (process.env.NODE_ENV === "production") {
-    throw new Error("APP_BASE_URL üretim ortamında zorunludur.");
+  const forwardedHost = request.headers.get("x-forwarded-host")?.trim();
+  const forwardedProto = request.headers.get("x-forwarded-proto")?.trim();
+
+  if (forwardedHost) {
+    return `${forwardedProto || "https"}://${forwardedHost}`.replace(/\/$/, "");
   }
 
-  return new URL(request.url).origin;
+  return new URL(request.url).origin.replace(/\/$/, "");
 }
 
 export async function POST(request: Request) {

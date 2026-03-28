@@ -41,6 +41,42 @@ type SessionProfileResponse = {
   customer: SessionCustomer;
 };
 
+
+const COMMON_EMAIL_DOMAIN_TYPOS = new Map<string, string>([
+  ["gmil.com", "gmail.com"],
+  ["gmial.com", "gmail.com"],
+  ["gmai.com", "gmail.com"],
+  ["gmail.con", "gmail.com"],
+  ["gmail.co", "gmail.com"],
+  ["hotmal.com", "hotmail.com"],
+  ["hotmai.com", "hotmail.com"],
+  ["hotmaio.com", "hotmail.com"],
+  ["hotmial.com", "hotmail.com"],
+  ["hotnail.com", "hotmail.com"],
+  ["outlok.com", "outlook.com"],
+  ["outllok.com", "outlook.com"],
+  ["outloo.com", "outlook.com"],
+  ["outlook.con", "outlook.com"],
+  ["yaho.com", "yahoo.com"],
+  ["yahoo.con", "yahoo.com"],
+  ["icloud.con", "icloud.com"],
+]);
+
+function getEmailSuggestion(email: string) {
+  const normalized = email.trim().toLowerCase();
+  const [localPart, domain] = normalized.split("@");
+
+  if (!localPart || !domain) {
+    return null;
+  }
+
+  const correctedDomain = COMMON_EMAIL_DOMAIN_TYPOS.get(domain);
+  if (!correctedDomain) {
+    return null;
+  }
+
+  return `${localPart}@${correctedDomain}`;
+}
 const SERVICE_OPTIONS: ServiceArea[] = [
   "Web Sitesi Tasarımı",
   "Google & SEO Çalışmaları",
@@ -78,6 +114,8 @@ export default function IlkBasvuruPage() {
   }, [companyName, details, email, fullName, phone, serviceArea]);
 
   const detailLength = details.trim().length;
+
+  const emailSuggestion = useMemo(() => getEmailSuggestion(email), [email]);
 
   const submittedAtText = useMemo(() => {
     if (!result?.expiresAt) {
@@ -315,6 +353,11 @@ export default function IlkBasvuruPage() {
               className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 outline-none placeholder:text-white/35"
               placeholder="E-posta"
             />
+            {!authenticatedCustomer && emailSuggestion ? (
+              <p className="md:col-span-2 -mt-1 text-sm text-amber-200">
+                Bu adres hatal? g?r?n?yor. ?unu mu demek istediniz: <span className="font-semibold text-white">{emailSuggestion}</span>
+              </p>
+            ) : null}
             </div>
 
             {authenticatedCustomer ? (

@@ -113,9 +113,46 @@ function maskEmail(email: string) {
   return `${localPart.slice(0, 2)}***@${domain}`;
 }
 
+const COMMON_EMAIL_DOMAIN_TYPOS = new Map<string, string>([
+  ["gmil.com", "gmail.com"],
+  ["gmial.com", "gmail.com"],
+  ["gmai.com", "gmail.com"],
+  ["gmail.con", "gmail.com"],
+  ["gmail.co", "gmail.com"],
+  ["hotmal.com", "hotmail.com"],
+  ["hotmai.com", "hotmail.com"],
+  ["hotmaio.com", "hotmail.com"],
+  ["hotmial.com", "hotmail.com"],
+  ["hotnail.com", "hotmail.com"],
+  ["outlok.com", "outlook.com"],
+  ["outllok.com", "outlook.com"],
+  ["outloo.com", "outlook.com"],
+  ["outlook.con", "outlook.com"],
+  ["yaho.com", "yahoo.com"],
+  ["yahoo.con", "yahoo.com"],
+  ["icloud.con", "icloud.com"],
+]);
+
+function getSuggestedEmailAddress(email: string) {
+  const normalized = email.trim().toLowerCase();
+  const [localPart, domain] = normalized.split("@");
+
+  if (!localPart || !domain) {
+    return null;
+  }
+
+  const correctedDomain = COMMON_EMAIL_DOMAIN_TYPOS.get(domain);
+  if (!correctedDomain) {
+    return null;
+  }
+
+  return `${localPart}@${correctedDomain}`;
+}
+
 function validateInput(input: CustomerApplicationInput) {
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email.trim());
   const phoneDigits = normalizePhone(input.phone);
+  const suggestedEmail = getSuggestedEmailAddress(input.email);
 
   if (input.fullName.trim().length < 2) throw new Error("Lütfen geçerli bir ad soyad girin.");
   if (input.companyName.trim().length < 2) throw new Error("Lütfen geçerli bir firma adı girin.");
