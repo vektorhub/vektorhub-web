@@ -13,15 +13,52 @@ import {
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-const SERVICE_AREAS = new Set([
-  "Web Sitesi Tasar\u0131m\u0131",
-  "Google & SEO \u00c7al\u0131\u015fmalar\u0131",
-  "Sosyal Medya Y\u00f6netimi",
-  "Dijital Reklam Y\u00f6netimi",
-  "Mobil Uygulama Geli\u015ftirme",
-  "\u0130\u015f Geli\u015ftirme Dan\u0131\u015fmanl\u0131\u011f\u0131",
-  "Logo Tasar\u0131m\u0131",
-]);
+const SERVICE_AREA_ALIASES: readonly (readonly [string, readonly string[]])[] =
+  [
+    ["Web Sitesi Tasarımı", ["Web Sitesi Tasarımı", "Web Sitesi Tasarimi"]],
+    [
+      "Google & SEO Çalışmaları",
+      ["Google & SEO Çalışmaları", "Google & SEO Calismalari"],
+    ],
+    [
+      "Sosyal Medya Yönetimi",
+      ["Sosyal Medya Yönetimi", "Sosyal Medya Yonetimi"],
+    ],
+    [
+      "Dijital Reklam Yönetimi",
+      ["Dijital Reklam Yönetimi", "Dijital Reklam Yonetimi"],
+    ],
+    [
+      "Mobil Uygulama Geliştirme",
+      ["Mobil Uygulama Geliştirme", "Mobil Uygulama Gelistirme"],
+    ],
+    [
+      "İş Geliştirme Danışmanlığı",
+      ["İş Geliştirme Danışmanlığı", "Is Gelistirme Danismanligi"],
+    ],
+    ["Logo Tasarımı", ["Logo Tasarımı", "Logo Tasarimi"]],
+  ];
+
+const SERVICE_AREA_MAP = new Map(
+  SERVICE_AREA_ALIASES.flatMap(([canonical, aliases]) =>
+    aliases.map(
+      (alias) =>
+        [alias.toLocaleLowerCase("tr-TR").normalize("NFC"), canonical] as const,
+    ),
+  ),
+);
+
+function normalizeServiceArea(value?: string) {
+  if (!value) {
+    return null;
+  }
+
+  return (
+    SERVICE_AREA_MAP.get(
+      value.trim().toLocaleLowerCase("tr-TR").normalize("NFC"),
+    ) ?? null
+  );
+}
 
 export async function POST(request: Request) {
   try {
@@ -34,26 +71,29 @@ export async function POST(request: Request) {
 
     const session = verifyCustomerSessionToken(token);
     if (!session) {
-      return NextResponse.json({ message: "Yetkisiz eri\u015fim." }, { status: 401 });
+      return NextResponse.json(
+        { message: "Yetkisiz eri\u015fim." },
+        { status: 401 },
+      );
     }
 
     const customer = await getCustomerById(session.customerId);
     if (!customer) {
       return NextResponse.json(
         { message: "M\u00fc\u015fteri kayd\u0131 bulunamad\u0131." },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     const body = (await request.json()) as Partial<CustomerApplicationInput>;
-    const serviceArea = body.serviceArea?.trim() as
+    const serviceArea = normalizeServiceArea(body.serviceArea) as
       | CustomerApplicationInput["serviceArea"]
-      | undefined;
+      | null;
 
-    if (!serviceArea || !SERVICE_AREAS.has(serviceArea)) {
+    if (!serviceArea) {
       return NextResponse.json(
         { message: "Ge\u00e7erli bir hizmet alan\u0131 se\u00e7in." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -84,7 +124,9 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Talep olu\u015fturulamad\u0131.";
+      error instanceof Error
+        ? error.message
+        : "Talep olu\u015fturulamad\u0131.";
     return NextResponse.json({ message }, { status: 400 });
   }
 }

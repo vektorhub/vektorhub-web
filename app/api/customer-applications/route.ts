@@ -3,20 +3,48 @@ import {
   createCustomerApplicationVerification,
   type CustomerApplicationInput,
 } from "@/lib/customer-applications";
-import { isMailConfigured, sendApplicationVerificationMail } from "@/lib/mailer";
+import {
+  isMailConfigured,
+  sendApplicationVerificationMail,
+} from "@/lib/mailer";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-const SERVICE_AREAS = new Set([
-  "Web Sitesi Tasarımı",
-  "Google & SEO Çalışmaları",
-  "Sosyal Medya Yönetimi",
-  "Dijital Reklam Yönetimi",
-  "Mobil Uygulama Geliştirme",
-  "İş Geliştirme Danışmanlığı",
-  "Logo Tasarımı",
-]);
+const SERVICE_AREA_ALIASES: readonly (readonly [string, readonly string[]])[] =
+  [
+    ["Web Sitesi Tasarımı", ["Web Sitesi Tasarımı", "Web Sitesi Tasarimi"]],
+    [
+      "Google & SEO Çalışmaları",
+      ["Google & SEO Çalışmaları", "Google & SEO Calismalari"],
+    ],
+    [
+      "Sosyal Medya Yönetimi",
+      ["Sosyal Medya Yönetimi", "Sosyal Medya Yonetimi"],
+    ],
+    [
+      "Dijital Reklam Yönetimi",
+      ["Dijital Reklam Yönetimi", "Dijital Reklam Yonetimi"],
+    ],
+    [
+      "Mobil Uygulama Geliştirme",
+      ["Mobil Uygulama Geliştirme", "Mobil Uygulama Gelistirme"],
+    ],
+    [
+      "İş Geliştirme Danışmanlığı",
+      ["İş Geliştirme Danışmanlığı", "Is Gelistirme Danismanligi"],
+    ],
+    ["Logo Tasarımı", ["Logo Tasarımı", "Logo Tasarimi"]],
+  ];
+
+const SERVICE_AREA_MAP = new Map(
+  SERVICE_AREA_ALIASES.flatMap(([canonical, aliases]) =>
+    aliases.map(
+      (alias) =>
+        [alias.toLocaleLowerCase("tr-TR").normalize("NFC"), canonical] as const,
+    ),
+  ),
+);
 
 const ipHits = new Map<string, number[]>();
 
@@ -54,6 +82,18 @@ function getBaseUrl(request: Request) {
   return new URL(request.url).origin.replace(/\/$/, "");
 }
 
+function normalizeServiceArea(value?: string) {
+  if (!value) {
+    return null;
+  }
+
+  return (
+    SERVICE_AREA_MAP.get(
+      value.trim().toLocaleLowerCase("tr-TR").normalize("NFC"),
+    ) ?? null
+  );
+}
+
 export async function POST(request: Request) {
   try {
     const nowMs = Date.now();
@@ -61,8 +101,11 @@ export async function POST(request: Request) {
 
     if (isRateLimited(ip, nowMs)) {
       return NextResponse.json(
-        { message: "Kısa sürede çok fazla başvuru gönderildi. Lütfen 1 dakika sonra tekrar deneyin." },
-        { status: 429 }
+        {
+          message:
+            "Kısa sürede çok fazla başvuru gönderildi. Lütfen 1 dakika sonra tekrar deneyin.",
+        },
+        { status: 429 },
       );
     }
 
@@ -74,10 +117,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Geçersiz istek." }, { status: 400 });
     }
 
-    const serviceArea = body.serviceArea?.trim() as CustomerApplicationInput["serviceArea"] | undefined;
+    const serviceArea = normalizeServiceArea(body.serviceArea) as
+      | CustomerApplicationInput["serviceArea"]
+      | null;
 
-    if (!serviceArea || !SERVICE_AREAS.has(serviceArea)) {
-      return NextResponse.json({ message: "Geçerli bir hizmet alanı seçin." }, { status: 400 });
+    if (!serviceArea) {
+      return NextResponse.json(
+        { message: "Geçerli bir hizmet alanı seçin." },
+        { status: 400 },
+      );
     }
 
     const verification = await createCustomerApplicationVerification({
@@ -106,8 +154,11 @@ export async function POST(request: Request) {
       deliveryMode = "preview";
     } else {
       return NextResponse.json(
-        { message: "E-posta doğrulama sistemi yapılandırılmamış. SMTP ayarlarını tamamlayın." },
-        { status: 503 }
+        {
+          message:
+            "E-posta doğrulama sistemi yapılandırılmamış. SMTP ayarlarını tamamlayın.",
+        },
+        { status: 503 },
       );
     }
 
@@ -129,10 +180,11 @@ export async function POST(request: Request) {
         headers: {
           "Cache-Control": "no-store, max-age=0",
         },
-      }
+      },
     );
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Başvuru oluşturulamadı.";
+    const message =
+      error instanceof Error ? error.message : "Başvuru oluşturulamadı.";
     return NextResponse.json({ message }, { status: 400 });
   }
 }

@@ -3,10 +3,10 @@ import { getAdminDb } from "./firebase-admin";
 import { getCustomerByEmail } from "./customer-accounts";
 
 export type ServiceArea =
-  | "Web sitesi ve dijital görünüm"
-  | "Mobil uygulama"
-  | "Dijital tanıtım ve içerik"
-  | "Özel çözüm talebi";
+  | "Web Sitesi Tasarımı"
+  | "Mobil Uygulama Geliştirme"
+  | "Google & SEO Çalışmaları"
+  | "İş Geliştirme Danışmanlığı";
 
 export type ApplicationStatus =
   | "Başvuru Alındı"
@@ -154,11 +154,15 @@ function validateInput(input: CustomerApplicationInput) {
   const phoneDigits = normalizePhone(input.phone);
   const suggestedEmail = getSuggestedEmailAddress(input.email);
 
-  if (input.fullName.trim().length < 2) throw new Error("Lütfen geçerli bir ad soyad girin.");
-  if (input.companyName.trim().length < 2) throw new Error("Lütfen geçerli bir firma adı girin.");
+  if (input.fullName.trim().length < 2)
+    throw new Error("Lütfen geçerli bir ad soyad girin.");
+  if (input.companyName.trim().length < 2)
+    throw new Error("Lütfen geçerli bir firma adı girin.");
   if (!emailValid) throw new Error("Lütfen geçerli bir e-posta adresi girin.");
-  if (phoneDigits.length < 10) throw new Error("Lütfen geçerli bir telefon numarası girin.");
-  if (input.details.trim().length < 10) throw new Error("Lütfen ihtiyacınızı en az 10 karakter ile yazın.");
+  if (phoneDigits.length < 10)
+    throw new Error("Lütfen geçerli bir telefon numarası girin.");
+  if (input.details.trim().length < 10)
+    throw new Error("Lütfen ihtiyacınızı en az 10 karakter ile yazın.");
 }
 
 async function generateUniqueReferenceNo() {
@@ -167,7 +171,10 @@ async function generateUniqueReferenceNo() {
   let referenceNo = generateReferenceNo();
 
   for (let i = 0; i < 20; i++) {
-    const existing = await col.where("referenceNo", "==", referenceNo).limit(1).get();
+    const existing = await col
+      .where("referenceNo", "==", referenceNo)
+      .limit(1)
+      .get();
     if (existing.empty) break;
     referenceNo = generateReferenceNo();
   }
@@ -177,7 +184,7 @@ async function generateUniqueReferenceNo() {
 
 async function persistCustomerApplication(
   input: CustomerApplicationInput,
-  emailVerifiedAt: string
+  emailVerifiedAt: string,
 ) {
   const db = getAdminDb();
   const record: CustomerApplicationRecord = {
@@ -209,13 +216,17 @@ async function persistCustomerApplication(
   };
 }
 
-export async function createCustomerApplication(input: CustomerApplicationInput) {
+export async function createCustomerApplication(
+  input: CustomerApplicationInput,
+) {
   validateInput(input);
   const now = new Date().toISOString();
   return persistCustomerApplication(input, now);
 }
 
-export async function createCustomerApplicationVerification(input: CustomerApplicationInput) {
+export async function createCustomerApplicationVerification(
+  input: CustomerApplicationInput,
+) {
   validateInput(input);
 
   const token = createVerificationToken();
@@ -225,7 +236,9 @@ export async function createCustomerApplicationVerification(input: CustomerAppli
   const verificationCodeHash = hashVerificationToken(verificationCode);
   const now = new Date();
   const nowIso = now.toISOString();
-  const expiresAt = new Date(now.getTime() + VERIFICATION_WINDOW_MS).toISOString();
+  const expiresAt = new Date(
+    now.getTime() + VERIFICATION_WINDOW_MS,
+  ).toISOString();
 
   const record: PendingCustomerApplicationRecord = {
     id: verificationId,
@@ -259,7 +272,10 @@ export async function createCustomerApplicationVerification(input: CustomerAppli
   };
 }
 
-async function createApplicationFromPending(pending: PendingCustomerApplicationRecord, verifiedAt: string) {
+async function createApplicationFromPending(
+  pending: PendingCustomerApplicationRecord,
+  verifiedAt: string,
+) {
   const created = await persistCustomerApplication(
     {
       fullName: pending.fullName,
@@ -270,17 +286,14 @@ async function createApplicationFromPending(pending: PendingCustomerApplicationR
       details: pending.details,
       customerId: (await getCustomerByEmail(pending.email))?.id ?? null,
     },
-    verifiedAt
+    verifiedAt,
   );
 
-  await getAdminDb()
-    .collection(PENDING_COLLECTION)
-    .doc(pending.id)
-    .update({
-      verifiedAt,
-      referenceNo: created.referenceNo,
-      applicationId: created.id,
-    });
+  await getAdminDb().collection(PENDING_COLLECTION).doc(pending.id).update({
+    verifiedAt,
+    referenceNo: created.referenceNo,
+    applicationId: created.id,
+  });
 
   return created;
 }
@@ -294,7 +307,10 @@ function toConfirmedResponse(pending: PendingCustomerApplicationRecord) {
   };
 }
 
-export async function confirmCustomerApplicationWithCode(verificationId: string, code: string) {
+export async function confirmCustomerApplicationWithCode(
+  verificationId: string,
+  code: string,
+) {
   const normalizedVerificationId = verificationId.trim();
   const normalizedCode = code.trim();
 
@@ -307,7 +323,9 @@ export async function confirmCustomerApplicationWithCode(verificationId: string,
   }
 
   const db = getAdminDb();
-  const docRef = db.collection(PENDING_COLLECTION).doc(normalizedVerificationId);
+  const docRef = db
+    .collection(PENDING_COLLECTION)
+    .doc(normalizedVerificationId);
   const snap = await docRef.get();
 
   if (!snap.exists) {
@@ -321,7 +339,9 @@ export async function confirmCustomerApplicationWithCode(verificationId: string,
   }
 
   if (new Date(pending.expiresAt).getTime() < Date.now()) {
-    throw new Error("Doğrulama kodunun süresi doldu. Lütfen formu yeniden gönderin.");
+    throw new Error(
+      "Doğrulama kodunun süresi doldu. Lütfen formu yeniden gönderin.",
+    );
   }
 
   const incomingHash = hashVerificationToken(normalizedCode);
@@ -362,23 +382,32 @@ export async function confirmCustomerApplicationVerification(token: string) {
   }
 
   if (new Date(pending.expiresAt).getTime() < Date.now()) {
-    throw new Error("Doğrulama bağlantısının süresi dolmuş. Lütfen formu yeniden gönderin.");
+    throw new Error(
+      "Doğrulama bağlantısının süresi dolmuş. Lütfen formu yeniden gönderin.",
+    );
   }
 
   const verifiedAt = new Date().toISOString();
   return createApplicationFromPending(pending, verifiedAt);
 }
 
-export async function queryCustomerApplication(referenceNo: string, phone: string) {
+export async function queryCustomerApplication(
+  referenceNo: string,
+  phone: string,
+) {
   const normalizedRef = normalizeReferenceNo(referenceNo);
   const comparablePhone = getComparablePhone(phone);
 
   if (!normalizedRef) throw new Error("Takip numarası zorunludur.");
-  if (comparablePhone.length < 10) throw new Error("Telefon numarası en az 10 haneli olmalıdır.");
+  if (comparablePhone.length < 10)
+    throw new Error("Telefon numarası en az 10 haneli olmalıdır.");
 
   const db = getAdminDb();
   const col = db.collection(COLLECTION);
-  const snap = await col.where("referenceNo", "==", normalizedRef).limit(1).get();
+  const snap = await col
+    .where("referenceNo", "==", normalizedRef)
+    .limit(1)
+    .get();
 
   if (snap.empty) return null;
 
@@ -396,7 +425,10 @@ export async function queryCustomerApplication(referenceNo: string, phone: strin
   };
 }
 
-export async function listCustomerApplicationsByEmail(email: string, limit = 100) {
+export async function listCustomerApplicationsByEmail(
+  email: string,
+  limit = 100,
+) {
   const normalizedEmail = email.trim().toLowerCase();
   if (!normalizedEmail) {
     return [];
@@ -410,13 +442,15 @@ export async function listCustomerApplicationsByEmail(email: string, limit = 100
     .get();
 
   const items = snap.docs.map((d) => d.data() as CustomerApplicationRecord);
-  return items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  return items.sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+  );
 }
 
 export async function listCustomerApplicationsForCustomer(
   customerId: string,
   email: string,
-  limit = 100
+  limit = 100,
 ) {
   const db = getAdminDb();
   const normalizedEmail = email.trim().toLowerCase();
@@ -449,7 +483,7 @@ export async function listCustomerApplicationsForCustomer(
   }
 
   return [...items.values()].sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
 }
 
@@ -476,7 +510,7 @@ export async function getApplicationById(id: string) {
 }
 
 export function toCustomerApplicationView(
-  record: CustomerApplicationRecord
+  record: CustomerApplicationRecord,
 ): CustomerApplicationView {
   return {
     ...record,
@@ -491,7 +525,7 @@ export function toCustomerApplicationView(
 export async function updateApplicationStatus(
   id: string,
   status: ApplicationStatus,
-  note: string
+  note: string,
 ) {
   const db = getAdminDb();
   await db.collection(COLLECTION).doc(id).update({
@@ -505,7 +539,7 @@ export async function withdrawCustomerApplication(
   id: string,
   customerId: string,
   customerEmail: string,
-  reason?: string
+  reason?: string,
 ) {
   const db = getAdminDb();
   const docRef = db.collection(COLLECTION).doc(id);
@@ -517,7 +551,8 @@ export async function withdrawCustomerApplication(
 
   const record = snap.data() as CustomerApplicationRecord;
   const ownsById = !!record.customerId && record.customerId === customerId;
-  const ownsByEmail = record.email.trim().toLowerCase() === customerEmail.trim().toLowerCase();
+  const ownsByEmail =
+    record.email.trim().toLowerCase() === customerEmail.trim().toLowerCase();
 
   if (!ownsById && !ownsByEmail) {
     throw new Error("Bu kayıt üzerinde işlem yapma yetkiniz yok.");
@@ -528,10 +563,9 @@ export async function withdrawCustomerApplication(
   }
 
   const updatedAt = new Date().toISOString();
-  const note =
-    reason?.trim()
-      ? `Müşteri tarafından geri çekildi. Not: ${reason.trim()}`
-      : "Müşteri tarafından geri çekildi.";
+  const note = reason?.trim()
+    ? `Müşteri tarafından geri çekildi. Not: ${reason.trim()}`
+    : "Müşteri tarafından geri çekildi.";
 
   await docRef.update({
     status: "İptal Edildi",
@@ -556,9 +590,15 @@ export async function withdrawCustomerApplication(
   };
 }
 
-async function deleteSubcollectionDocs(applicationId: string, subcollection: string) {
+async function deleteSubcollectionDocs(
+  applicationId: string,
+  subcollection: string,
+) {
   const db = getAdminDb();
-  const colRef = db.collection(COLLECTION).doc(applicationId).collection(subcollection);
+  const colRef = db
+    .collection(COLLECTION)
+    .doc(applicationId)
+    .collection(subcollection);
 
   // Delete in chunks to avoid oversized batch operations.
   while (true) {
