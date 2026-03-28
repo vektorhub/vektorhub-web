@@ -8,6 +8,10 @@ import {
 } from "@/lib/customer-applications";
 import { getAuthenticatedAdminSession } from "@/lib/admin-auth";
 import { sendApplicationDeletedMail } from "@/lib/mailer";
+import {
+  getCustomerMessagingOverviewByPhone,
+  sendApplicationStatusWhatsApp,
+} from "@/lib/customer-messaging";
 
 export const dynamic = "force-dynamic";
 
@@ -39,7 +43,12 @@ export async function GET(
     }
 
     return NextResponse.json(
-      { application: toCustomerApplicationView(application) },
+      {
+        application: {
+          ...toCustomerApplicationView(application),
+          messaging: await getCustomerMessagingOverviewByPhone(application.phone),
+        },
+      },
       { headers: { "Cache-Control": "no-store, max-age=0" } }
     );
   } catch (error) {
@@ -72,6 +81,13 @@ export async function PATCH(
     }
 
     await updateApplicationStatus(id, status, note);
+    void sendApplicationStatusWhatsApp({
+      applicationId: id,
+      status,
+      note,
+    }).catch((error) => {
+      console.error("WhatsApp durum guncelleme mesaji gonderilemedi:", error);
+    });
     return NextResponse.json({ ok: true });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Güncelleme başarısız.";

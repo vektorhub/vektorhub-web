@@ -29,6 +29,15 @@ type Application = {
   note: string;
   createdAt: string;
   updatedAt: string;
+  messaging?: {
+    whatsappConfigured: boolean;
+    whatsappOptOut: boolean;
+    whatsappStatusLabel: string;
+    whatsappOptOutAt: string | null;
+    lastInboundText: string;
+    lastInboundAt: string | null;
+    profileName: string | null;
+  };
 };
 
 type AdminMessage = {
@@ -583,6 +592,54 @@ function UpdateDrawer({
                   onChange={(e) => setNote(e.target.value)}
                   className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-white/35"
                 />
+              </div>
+
+              <div className="mt-4 rounded-3xl border border-white/10 bg-white/[0.03] p-4">
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-orange-300">
+                    WhatsApp Bildirim Durumu
+                  </div>
+                  <span
+                    className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${
+                      app.messaging?.whatsappConfigured
+                        ? app.messaging?.whatsappOptOut
+                          ? "border-rose-400/30 bg-rose-500/10 text-rose-200"
+                          : "border-emerald-400/30 bg-emerald-500/10 text-emerald-200"
+                        : "border-white/10 bg-white/5 text-white/55"
+                    }`}
+                  >
+                    {app.messaging?.whatsappStatusLabel ?? "Bilinmiyor"}
+                  </span>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+                    <div className="text-[10px] uppercase tracking-[0.18em] text-white/40">
+                      Son Gelen Cevap
+                    </div>
+                    <div className="mt-2 text-sm text-white/80">
+                      {app.messaging?.lastInboundText?.trim() || "Henüz müşteri cevabı yok."}
+                    </div>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+                    <div className="text-[10px] uppercase tracking-[0.18em] text-white/40">
+                      Son Hareket
+                    </div>
+                    <div className="mt-2 text-sm text-white/80">
+                      {app.messaging?.lastInboundAt
+                        ? formatDate(app.messaging.lastInboundAt)
+                        : "Henüz cevap alınmadı."}
+                    </div>
+                    {app.messaging?.whatsappOptOutAt ? (
+                      <div className="mt-2 text-xs text-rose-200">
+                        Bildirim kapatma tarihi: {formatDate(app.messaging.whatsappOptOutAt)}
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+                <p className="mt-3 text-xs leading-6 text-white/55">
+                  Durum güncellemesi kaydedildiğinde müşteri aktifse WhatsApp bildirimi alır.
+                  Müşteri RET yazdıysa yeni bildirim gönderilmez.
+                </p>
               </div>
 
               <div className="mt-4 rounded-3xl border border-white/10 bg-white/[0.03] p-4">

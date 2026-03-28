@@ -14,6 +14,16 @@ type CustomerContactPreferenceRecord = {
   profileName: string | null;
 };
 
+export type CustomerMessagingOverview = {
+  whatsappConfigured: boolean;
+  whatsappOptOut: boolean;
+  whatsappStatusLabel: string;
+  whatsappOptOutAt: string | null;
+  lastInboundText: string;
+  lastInboundAt: string | null;
+  profileName: string | null;
+};
+
 const CONTACT_PREFERENCES_COLLECTION = "customer_contact_preferences";
 const OPT_OUT_COMMANDS = new Set(["RET", "STOP", "IPTAL", "İPTAL"]);
 const OPT_IN_COMMANDS = new Set(["BASLAT", "BAŞLAT", "START"]);
@@ -79,6 +89,25 @@ function buildInitialApplicationMessage(input: {
     "",
     "Süreçle ilgili önemli güncellemeleri bu numara üzerinden paylaşacağız.",
     "Bildirim almak istemiyorsanız RET yazabilirsiniz.",
+  ].join("\n");
+}
+
+function buildStatusUpdateMessage(input: {
+  fullName: string;
+  referenceNo: string;
+  status: string;
+  note: string;
+}) {
+  const firstName = input.fullName.trim().split(/\s+/)[0] ?? "Merhaba";
+
+  return [
+    `Merhaba ${firstName}, VektörHUB talebiniz güncellendi.`,
+    `Takip numaranız: ${input.referenceNo}`,
+    `Yeni durum: ${input.status}`,
+    "",
+    input.note.trim(),
+    "",
+    "Bildirim almak istemiyorsanız RET, yeniden açmak için BAŞLAT yazabilirsiniz.",
   ].join("\n");
 }
 
@@ -164,6 +193,27 @@ async function upsertCustomerContactPreference(input: {
 export async function isWhatsAppOptedOut(phone: string) {
   const preference = await getCustomerContactPreferenceByPhone(phone);
   return preference?.whatsappOptOut ?? false;
+}
+
+export async function getCustomerMessagingOverviewByPhone(
+  phone: string,
+): Promise<CustomerMessagingOverview> {
+  const preference = await getCustomerContactPreferenceByPhone(phone);
+  const optedOut = preference?.whatsappOptOut ?? false;
+
+  return {
+    whatsappConfigured: isWhatsAppMessagingConfigured(),
+    whatsappOptOut: optedOut,
+    whatsappStatusLabel: !isWhatsAppMessagingConfigured()
+      ? "WhatsApp kapalı"
+      : optedOut
+        ? "Müşteri durdurdu"
+        : "Aktif",
+    whatsappOptOutAt: preference?.whatsappOptOutAt ?? null,
+    lastInboundText: preference?.lastInboundText ?? "",
+    lastInboundAt: preference?.lastInboundAt ?? null,
+    profileName: preference?.profileName ?? null,
+  };
 }
 
 export async function processIncomingWhatsAppReply(input: {
@@ -307,6 +357,33 @@ export async function sendInitialApplicationWhatsApp(applicationId: string) {
     fullName: application.fullName,
     referenceNo: application.referenceNo,
     serviceArea: application.serviceArea,
+  });
+
+  return sendWhatsAppMessage({
+    toPhone: application.phone,
+    body: message,
+  });
+}
+
+export async function sendApplicationStatusWhatsApp(input: {
+  applicationId: string;
+  status: string;
+  note: string;
+}) {
+  if (!isWhatsAppMessagingConfigured()) {
+    return null;
+  }
+
+  const application = await getApplicationById(input.applicationId);
+  if (!application) {
+    return null;
+  }
+
+  const message = buildStatusUpdateMessage({
+    fullName: application.fullName,
+    referenceNo: application.referenceNo,
+    status: input.status,
+    note: input.note,
   });
 
   return sendWhatsAppMessage({

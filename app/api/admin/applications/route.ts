@@ -4,6 +4,7 @@ import {
   listAllApplications,
   toCustomerApplicationView,
 } from "@/lib/customer-applications";
+import { getCustomerMessagingOverviewByPhone } from "@/lib/customer-messaging";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -15,7 +16,14 @@ export async function GET(request: Request) {
     }
 
     const items = await listAllApplications(200);
-    return NextResponse.json({ applications: items.map(toCustomerApplicationView) }, {
+    const applications = await Promise.all(
+      items.map(async (item) => ({
+        ...toCustomerApplicationView(item),
+        messaging: await getCustomerMessagingOverviewByPhone(item.phone),
+      })),
+    );
+
+    return NextResponse.json({ applications }, {
       headers: { "Cache-Control": "no-store, max-age=0" },
     });
   } catch (error) {
