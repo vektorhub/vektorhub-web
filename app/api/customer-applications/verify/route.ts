@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { confirmCustomerApplicationVerification } from "@/lib/customer-applications";
 import { sendAdminPushNotification } from "@/lib/admin-push";
+import { sendInitialApplicationWhatsApp } from "@/lib/customer-messaging";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -29,6 +30,13 @@ export async function GET(request: Request) {
         screen: "cockpit",
       },
     });
+
+    if ("id" in result && typeof result.id === "string" && result.id) {
+      void sendInitialApplicationWhatsApp(result.id).catch((error) => {
+        console.error("WhatsApp ilk basvuru mesaji gonderilemedi:", error);
+      });
+    }
+
     return redirectWithState(url, "success", {
       referenceNo: result.referenceNo,
       submittedAt: result.submittedAt,

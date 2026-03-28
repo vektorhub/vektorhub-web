@@ -5,6 +5,7 @@ import {
   type CustomerApplicationInput,
 } from "@/lib/customer-applications";
 import { sendAdminPushNotification } from "@/lib/admin-push";
+import { sendInitialApplicationWhatsApp } from "@/lib/customer-messaging";
 import {
   getCustomerCookieName,
   verifyCustomerSessionToken,
@@ -116,6 +117,10 @@ export async function POST(request: Request) {
         referenceNo: created.referenceNo,
         screen: "application_detail",
       },
+    });
+
+    void sendInitialApplicationWhatsApp(created.id).catch((error) => {
+      console.error("WhatsApp ilk musteri talebi mesaji gonderilemedi:", error);
     });
 
     return NextResponse.json(created, {
