@@ -1,5 +1,7 @@
-import { getAdminDb } from "./firebase-admin";
+import { sendAdminPushNotification } from "./admin-push";
 import { getApplicationById } from "./customer-applications";
+import { createMessage } from "./customer-applications-extended";
+import { getAdminDb } from "./firebase-admin";
 
 type CustomerContactPreferenceRecord = {
   id: string;
@@ -14,6 +16,17 @@ type CustomerContactPreferenceRecord = {
   profileName: string | null;
 };
 
+type ApplicationLookupRecord = {
+  id: string;
+  referenceNo: string;
+  fullName: string;
+  phone: string;
+  normalizedPhone: string;
+  serviceArea: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type CustomerMessagingOverview = {
   whatsappConfigured: boolean;
   whatsappOptOut: boolean;
@@ -25,6 +38,7 @@ export type CustomerMessagingOverview = {
 };
 
 const CONTACT_PREFERENCES_COLLECTION = "customer_contact_preferences";
+const APPLICATIONS_COLLECTION = "customer_applications";
 const OPT_OUT_COMMANDS = new Set(["RET", "STOP", "IPTAL", "İPTAL"]);
 const OPT_IN_COMMANDS = new Set(["BASLAT", "BAŞLAT", "START"]);
 
@@ -38,12 +52,148 @@ function getTwilioConfig() {
   };
 }
 
+function getDirectSupportWhatsAppLine() {
+  return (
+    process.env.CUSTOMER_WHATSAPP_DIRECT_LINE?.trim() ??
+    process.env.CUSTOMER_SUPPORT_WHATSAPP?.trim() ??
+    ""
+  );
+}
+
 function getPreferenceDocId(normalizedPhone: string) {
   return normalizedPhone.replace(/^\+/, "");
 }
 
 function getNowIso() {
   return new Date().toISOString();
+}
+
+function getFirstName(fullName: string) {
+  return fullName.trim().split(/\s+/)[0] ?? "Müşteri";
+}
+
+function getDirectSupportFooter() {
+  const directLine = getDirectSupportWhatsAppLine();
+  if (!directLine) {
+    return [] as string[];
+  }
+
+  return [
+    "",
+    "Bu hat otomatik bilgilendirme hattıdır.",
+    `Doğrudan yazışma için işletme hattımız: ${directLine}`,
+  ];
+}
+
+function buildInitialApplicationMessage(input: {
+  fullName: string;
+  referenceNo: string;
+  serviceArea: string;
+}) {
+  return [
+    `Merhaba ${getFirstName(input.fullName)}, VektörHUB başvurunuz alındı.`,
+    `Takip numaranız: ${input.referenceNo}`,
+    `Hizmet alanı: ${input.serviceArea}`,
+    "",
+    "Süreçle ilgili önemli güncellemeleri bu numara üzerinden paylaşacağız.",
+    "Bildirim almak istemiyorsanız RET yazabilirsiniz.",
+    ...getDirectSupportFooter(),
+  ].join("\n");
+}
+
+function buildStatusUpdateMessage(input: {
+  fullName: string;
+  referenceNo: string;
+  status: string;
+  note: string;
+}) {
+  return [
+    `Merhaba ${getFirstName(input.fullName)}, VektörHUB talebiniz güncellendi.`,
+    `Takip numaranız: ${input.referenceNo}`,
+    `Yeni durum: ${input.status}`,
+    "",
+    input.note.trim(),
+    "",
+    "Bildirim almak istemiyorsanız RET, yeniden açmak için BAŞLAT yazabilirsiniz.",
+    ...getDirectSupportFooter(),
+  ].join("\n");
+}
+
+function buildAdminMessageNotification(input: {
+  fullName: string;
+  referenceNo: string;
+  previewText: string;
+}) {
+  return [
+    `Merhaba ${getFirstName(input.fullName)}, VektörHUB ekibinden yeni bir mesajınız var.`,
+    `Takip numaranız: ${input.referenceNo}`,
+    "",
+    `Özet: ${input.previewText}`,
+    "",
+    "Detayları müşteri panelinizden takip edebilirsiniz.",
+    "Bildirim almak istemiyorsanız RET yazabilirsiniz.",
+    ...getDirectSupportFooter(),
+  ].join("\n");
+}
+
+function buildQuotePublishedMessage(input: {
+  fullName: string;
+  referenceNo: string;
+  title: string;
+  totalAmount: number;
+}) {
+  return [
+    `Merhaba ${getFirstName(input.fullName)}, teklifiniz hazır.`,
+    `Takip numaranız: ${input.referenceNo}`,
+    `Teklif başlığı: ${input.title}`,
+    `Toplam tutar: ${input.totalAmount.toLocaleString("tr-TR")} TL`,
+    "",
+    "Detayları müşteri panelinizden inceleyebilirsiniz.",
+    "Bildirim almak istemiyorsanız RET yazabilirsiniz.",
+    ...getDirectSupportFooter(),
+  ].join("\n");
+}
+
+function buildPaymentCreatedMessage(input: {
+  fullName: string;
+  referenceNo: string;
+  title: string;
+  amount: number;
+  dueDate: string | null;
+}) {
+  return [
+    `Merhaba ${getFirstName(input.fullName)}, ödemeniz için yeni bir kayıt oluşturuldu.`,
+    `Takip numaranız: ${input.referenceNo}`,
+    `Ödeme başlığı: ${input.title}`,
+    `Tutar: ${input.amount.toLocaleString("tr-TR")} TL`,
+    input.dueDate ? `Son ödeme tarihi: ${input.dueDate}` : "",
+    "",
+    "Ödeme detaylarını müşteri panelinizden görüntüleyebilirsiniz.",
+    "Bildirim almak istemiyorsanız RET yazabilirsiniz.",
+    ...getDirectSupportFooter(),
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
+function getNormalizedReplyCommand(body: string) {
+  const firstToken =
+    body
+      .trim()
+      .toLocaleUpperCase("tr-TR")
+      .normalize("NFC")
+      .split(/\s+/)[0]
+      ?.replace(/[^\p{L}]/gu, "") ?? "";
+
+  return firstToken;
+}
+
+function stringifyTemplateVariables(variables: Record<string, string>) {
+  return JSON.stringify(
+    Object.fromEntries(
+      Object.entries(variables).map(([key, value]) => [key, value.trim()]),
+    ),
+  );
 }
 
 export function isWhatsAppMessagingConfigured() {
@@ -75,114 +225,6 @@ export function normalizeMessagingPhone(phone: string) {
   }
 
   return null;
-}
-
-function buildInitialApplicationMessage(input: {
-  fullName: string;
-  referenceNo: string;
-  serviceArea: string;
-}) {
-  const firstName = input.fullName.trim().split(/\s+/)[0] ?? "Merhaba";
-
-  return [
-    `Merhaba ${firstName}, VektörHUB başvurunuz alındı.`,
-    `Takip numaranız: ${input.referenceNo}`,
-    `Hizmet alanı: ${input.serviceArea}`,
-    "",
-    "Süreçle ilgili önemli güncellemeleri bu numara üzerinden paylaşacağız.",
-    "Bildirim almak istemiyorsanız RET yazabilirsiniz.",
-  ].join("\n");
-}
-
-function buildStatusUpdateMessage(input: {
-  fullName: string;
-  referenceNo: string;
-  status: string;
-  note: string;
-}) {
-  const firstName = input.fullName.trim().split(/\s+/)[0] ?? "Merhaba";
-
-  return [
-    `Merhaba ${firstName}, VektörHUB talebiniz güncellendi.`,
-    `Takip numaranız: ${input.referenceNo}`,
-    `Yeni durum: ${input.status}`,
-    "",
-    input.note.trim(),
-    "",
-    "Bildirim almak istemiyorsanız RET, yeniden açmak için BAŞLAT yazabilirsiniz.",
-  ].join("\n");
-}
-
-function buildAdminMessageNotification(input: {
-  fullName: string;
-  referenceNo: string;
-  previewText: string;
-}) {
-  const firstName = input.fullName.trim().split(/\s+/)[0] ?? "Merhaba";
-
-  return [
-    `Merhaba ${firstName}, VektörHUB ekibinden yeni bir mesajınız var.`,
-    `Takip numaranız: ${input.referenceNo}`,
-    "",
-    `Özet: ${input.previewText}`,
-    "",
-    "Detayları müşteri panelinizden takip edebilirsiniz.",
-    "Bildirim almak istemiyorsanız RET yazabilirsiniz.",
-  ].join("\n");
-}
-
-function buildQuotePublishedMessage(input: {
-  fullName: string;
-  referenceNo: string;
-  title: string;
-  totalAmount: number;
-}) {
-  const firstName = input.fullName.trim().split(/\s+/)[0] ?? "Merhaba";
-
-  return [
-    `Merhaba ${firstName}, teklifiniz hazır.`,
-    `Takip numaranız: ${input.referenceNo}`,
-    `Teklif başlığı: ${input.title}`,
-    `Toplam tutar: ${input.totalAmount.toLocaleString("tr-TR")} TL`,
-    "",
-    "Detayları müşteri panelinizden inceleyebilirsiniz.",
-    "Bildirim almak istemiyorsanız RET yazabilirsiniz.",
-  ].join("\n");
-}
-
-function buildPaymentCreatedMessage(input: {
-  fullName: string;
-  referenceNo: string;
-  title: string;
-  amount: number;
-  dueDate: string | null;
-}) {
-  const firstName = input.fullName.trim().split(/\s+/)[0] ?? "Merhaba";
-
-  return [
-    `Merhaba ${firstName}, ödemeniz için yeni bir kayıt oluşturuldu.`,
-    `Takip numaranız: ${input.referenceNo}`,
-    `Ödeme başlığı: ${input.title}`,
-    `Tutar: ${input.amount.toLocaleString("tr-TR")} TL`,
-    input.dueDate ? `Son ödeme tarihi: ${input.dueDate}` : "",
-    "",
-    "Ödeme detaylarını müşteri panelinizden görüntüleyebilirsiniz.",
-    "Bildirim almak istemiyorsanız RET yazabilirsiniz.",
-  ]
-    .filter(Boolean)
-    .join("\n");
-}
-
-function getNormalizedReplyCommand(body: string) {
-  const firstToken =
-    body
-      .trim()
-      .toLocaleUpperCase("tr-TR")
-      .normalize("NFC")
-      .split(/\s+/)[0]
-      ?.replace(/[^\p{L}]/gu, "") ?? "";
-
-  return firstToken;
 }
 
 async function getCustomerContactPreferenceByPhone(phone: string) {
@@ -234,9 +276,7 @@ async function upsertCustomerContactPreference(input: {
     phone: input.phone.trim() || existingData?.phone || normalizedPhone,
     normalizedPhone,
     whatsappOptOut: nextOptOut,
-    whatsappOptOutAt: nextOptOut
-      ? input.lastInboundAt ?? nowIso
-      : null,
+    whatsappOptOutAt: nextOptOut ? input.lastInboundAt ?? nowIso : null,
     lastInboundText:
       input.lastInboundText ?? existingData?.lastInboundText ?? "",
     lastInboundAt: input.lastInboundAt ?? existingData?.lastInboundAt ?? null,
@@ -252,12 +292,33 @@ async function upsertCustomerContactPreference(input: {
   return nextRecord;
 }
 
-function stringifyTemplateVariables(variables: Record<string, string>) {
-  return JSON.stringify(
-    Object.fromEntries(
-      Object.entries(variables).map(([key, value]) => [key, value.trim()]),
-    ),
-  );
+async function findLatestApplicationByPhone(phone: string) {
+  const normalizedPhone = normalizeMessagingPhone(phone);
+  if (!normalizedPhone) {
+    return null;
+  }
+
+  const db = getAdminDb();
+  const comparablePhone = normalizedPhone.replace(/^\+/, "");
+  const snapshot = await db
+    .collection(APPLICATIONS_COLLECTION)
+    .where("normalizedPhone", "==", comparablePhone)
+    .limit(10)
+    .get();
+
+  if (snapshot.empty) {
+    return null;
+  }
+
+  const items = snapshot.docs
+    .map((doc) => doc.data() as ApplicationLookupRecord)
+    .sort((a, b) => {
+      const aTime = new Date(a.updatedAt ?? a.createdAt).getTime();
+      const bTime = new Date(b.updatedAt ?? b.createdAt).getTime();
+      return bTime - aTime;
+    });
+
+  return items[0] ?? null;
 }
 
 export async function isWhatsAppOptedOut(phone: string) {
@@ -301,13 +362,14 @@ export async function processIncomingWhatsAppReply(input: {
   }
 
   const nowIso = getNowIso();
-  const command = getNormalizedReplyCommand(input.body);
+  const text = input.body.trim();
+  const command = getNormalizedReplyCommand(text);
 
   if (OPT_OUT_COMMANDS.has(command)) {
     await upsertCustomerContactPreference({
       phone: normalizedPhone,
       whatsappOptOut: true,
-      lastInboundText: input.body.trim(),
+      lastInboundText: text,
       lastInboundAt: nowIso,
       profileName: input.profileName ?? null,
     });
@@ -323,7 +385,7 @@ export async function processIncomingWhatsAppReply(input: {
     await upsertCustomerContactPreference({
       phone: normalizedPhone,
       whatsappOptOut: false,
-      lastInboundText: input.body.trim(),
+      lastInboundText: text,
       lastInboundAt: nowIso,
       profileName: input.profileName ?? null,
     });
@@ -337,16 +399,37 @@ export async function processIncomingWhatsAppReply(input: {
 
   await upsertCustomerContactPreference({
     phone: normalizedPhone,
-    lastInboundText: input.body.trim(),
+    lastInboundText: text,
     lastInboundAt: nowIso,
     profileName: input.profileName ?? null,
   });
 
+  const application = await findLatestApplicationByPhone(normalizedPhone);
+  if (application && text) {
+    const senderName =
+      input.profileName?.trim() || application.fullName || "WhatsApp Müşterisi";
+
+    await createMessage(application.id, "customer", senderName, text);
+    await sendAdminPushNotification({
+      title: "Yeni WhatsApp mesajı",
+      body: `${senderName} WhatsApp üzerinden yeni bir mesaj gönderdi.`,
+      data: {
+        type: "customer_message",
+        applicationId: application.id,
+        senderName,
+        screen: "application_messages",
+      },
+    });
+  }
+
   return {
     handled: false,
-    message:
-      "Mesajınız kaydedildi. Bildirimleri kapatmak için RET, yeniden açmak için BAŞLAT yazabilirsiniz.",
-    };
+    message: [
+      "Mesajınız kaydedildi ve ekibimize iletildi.",
+      "Bildirimleri kapatmak için RET, yeniden açmak için BAŞLAT yazabilirsiniz.",
+      ...getDirectSupportFooter(),
+    ].join("\n"),
+  };
 }
 
 export async function sendWhatsAppMessage(input: {
@@ -446,7 +529,7 @@ export async function sendInitialApplicationWhatsApp(applicationId: string) {
     contentSid: getTwilioConfig().initialTemplateSid || undefined,
     contentVariables: getTwilioConfig().initialTemplateSid
       ? {
-          "1": application.fullName.trim().split(/\s+/)[0] ?? "Müşteri",
+          "1": getFirstName(application.fullName),
           "2": application.referenceNo,
           "3": application.serviceArea,
         }
