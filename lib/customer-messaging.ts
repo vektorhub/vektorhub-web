@@ -84,7 +84,45 @@ function getTwilioConfig() {
     initialTemplateSid:
       process.env.TWILIO_WHATSAPP_TEMPLATE_SID_BASVURU_ALINDI?.trim() ||
       TWILIO_WHATSAPP_INITIAL_TEMPLATE_FALLBACK_SID,
+    statusTemplateSid:
+      process.env.TWILIO_WHATSAPP_TEMPLATE_SID_DURUM_GUNCELLENDI?.trim() ?? "",
+    adminMessageTemplateSid:
+      process.env.TWILIO_WHATSAPP_TEMPLATE_SID_YENI_MESAJ?.trim() ?? "",
+    quoteTemplateSid:
+      process.env.TWILIO_WHATSAPP_TEMPLATE_SID_TEKLIF_HAZIR?.trim() ?? "",
+    paymentCreatedTemplateSid:
+      process.env.TWILIO_WHATSAPP_TEMPLATE_SID_ODEME_KAYDI?.trim() ?? "",
+    paymentReviewedTemplateSid:
+      process.env.TWILIO_WHATSAPP_TEMPLATE_SID_ODEME_SONUCU?.trim() ?? "",
   };
+}
+
+function getTemplateSidForEvent(
+  eventType:
+    | "initial_application"
+    | "status_update"
+    | "admin_message"
+    | "quote_published"
+    | "payment_created"
+    | "payment_reviewed",
+) {
+  const config = getTwilioConfig();
+  switch (eventType) {
+    case "initial_application":
+      return config.initialTemplateSid;
+    case "status_update":
+      return config.statusTemplateSid;
+    case "admin_message":
+      return config.adminMessageTemplateSid;
+    case "quote_published":
+      return config.quoteTemplateSid;
+    case "payment_created":
+      return config.paymentCreatedTemplateSid;
+    case "payment_reviewed":
+      return config.paymentReviewedTemplateSid;
+    default:
+      return "";
+  }
 }
 
 function getDirectSupportWhatsAppLine() {
@@ -784,6 +822,7 @@ export async function sendApplicationStatusWhatsApp(input: {
     status: input.status,
     note: input.note,
   });
+  const contentSid = getTemplateSidForEvent("status_update") || undefined;
 
   return sendWhatsAppMessage({
     applicationId: input.applicationId,
@@ -791,6 +830,15 @@ export async function sendApplicationStatusWhatsApp(input: {
     referenceNo: application.referenceNo,
     toPhone: application.phone,
     body: message,
+    contentSid,
+    contentVariables: contentSid
+      ? {
+          "1": getFirstName(application.fullName),
+          "2": application.referenceNo,
+          "3": input.status,
+          "4": input.note.trim(),
+        }
+      : undefined,
   });
 }
 
@@ -817,6 +865,7 @@ export async function sendAdminMessageWhatsApp(input: {
     referenceNo: application.referenceNo,
     previewText,
   });
+  const contentSid = getTemplateSidForEvent("admin_message") || undefined;
 
   return sendWhatsAppMessage({
     applicationId: input.applicationId,
@@ -824,6 +873,14 @@ export async function sendAdminMessageWhatsApp(input: {
     referenceNo: application.referenceNo,
     toPhone: application.phone,
     body: message,
+    contentSid,
+    contentVariables: contentSid
+      ? {
+          "1": getFirstName(application.fullName),
+          "2": application.referenceNo,
+          "3": previewText,
+        }
+      : undefined,
   });
 }
 
@@ -847,6 +904,7 @@ export async function sendQuotePublishedWhatsApp(input: {
     title: input.title,
     totalAmount: input.totalAmount,
   });
+  const contentSid = getTemplateSidForEvent("quote_published") || undefined;
 
   return sendWhatsAppMessage({
     applicationId: input.applicationId,
@@ -854,6 +912,15 @@ export async function sendQuotePublishedWhatsApp(input: {
     referenceNo: application.referenceNo,
     toPhone: application.phone,
     body: message,
+    contentSid,
+    contentVariables: contentSid
+      ? {
+          "1": getFirstName(application.fullName),
+          "2": application.referenceNo,
+          "3": input.title,
+          "4": input.totalAmount.toLocaleString("tr-TR"),
+        }
+      : undefined,
   });
 }
 
@@ -879,6 +946,7 @@ export async function sendPaymentCreatedWhatsApp(input: {
     amount: input.amount,
     dueDate: input.dueDate,
   });
+  const contentSid = getTemplateSidForEvent("payment_created") || undefined;
 
   return sendWhatsAppMessage({
     applicationId: input.applicationId,
@@ -886,6 +954,16 @@ export async function sendPaymentCreatedWhatsApp(input: {
     referenceNo: application.referenceNo,
     toPhone: application.phone,
     body: message,
+    contentSid,
+    contentVariables: contentSid
+      ? {
+          "1": getFirstName(application.fullName),
+          "2": application.referenceNo,
+          "3": input.title,
+          "4": input.amount.toLocaleString("tr-TR"),
+          "5": input.dueDate?.trim() || "-",
+        }
+      : undefined,
   });
 }
 
@@ -911,6 +989,9 @@ export async function sendPaymentReviewedWhatsApp(input: {
     status: input.status,
     adminNote: input.adminNote,
   });
+  const contentSid = getTemplateSidForEvent("payment_reviewed") || undefined;
+  const statusLabel =
+    input.status === "confirmed" ? "Onaylandi" : "Yeniden islem gerekli";
 
   return sendWhatsAppMessage({
     applicationId: input.applicationId,
@@ -918,5 +999,15 @@ export async function sendPaymentReviewedWhatsApp(input: {
     referenceNo: application.referenceNo,
     toPhone: application.phone,
     body: message,
+    contentSid,
+    contentVariables: contentSid
+      ? {
+          "1": getFirstName(application.fullName),
+          "2": application.referenceNo,
+          "3": input.title,
+          "4": statusLabel,
+          "5": input.adminNote?.trim() || "-",
+        }
+      : undefined,
   });
 }
