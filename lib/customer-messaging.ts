@@ -33,6 +33,8 @@ function getTwilioConfig() {
     accountSid: process.env.TWILIO_ACCOUNT_SID?.trim() ?? "",
     authToken: process.env.TWILIO_AUTH_TOKEN?.trim() ?? "",
     whatsappFrom: process.env.TWILIO_WHATSAPP_FROM?.trim() ?? "",
+    initialTemplateSid:
+      process.env.TWILIO_WHATSAPP_TEMPLATE_SID_BASVURU_ALINDI?.trim() ?? "",
   };
 }
 
@@ -190,6 +192,14 @@ async function upsertCustomerContactPreference(input: {
   return nextRecord;
 }
 
+function stringifyTemplateVariables(variables: Record<string, string>) {
+  return JSON.stringify(
+    Object.fromEntries(
+      Object.entries(variables).map(([key, value]) => [key, value.trim()]),
+    ),
+  );
+}
+
 export async function isWhatsAppOptedOut(phone: string) {
   const preference = await getCustomerContactPreferenceByPhone(phone);
   return preference?.whatsappOptOut ?? false;
@@ -282,6 +292,8 @@ export async function processIncomingWhatsAppReply(input: {
 export async function sendWhatsAppMessage(input: {
   toPhone: string;
   body: string;
+  contentSid?: string;
+  contentVariables?: Record<string, string>;
 }) {
   const config = getTwilioConfig();
   if (!isWhatsAppMessagingConfigured()) {
@@ -308,8 +320,17 @@ export async function sendWhatsAppMessage(input: {
   const payload = new URLSearchParams({
     From: config.whatsappFrom,
     To: `whatsapp:${normalizedPhone}`,
-    Body: input.body,
   });
+
+  if (input.contentSid) {
+    payload.set("ContentSid", input.contentSid);
+    payload.set(
+      "ContentVariables",
+      stringifyTemplateVariables(input.contentVariables ?? {}),
+    );
+  } else {
+    payload.set("Body", input.body);
+  }
 
   const response = await fetch(
     `https://api.twilio.com/2010-04-01/Accounts/${config.accountSid}/Messages.json`,
@@ -362,6 +383,14 @@ export async function sendInitialApplicationWhatsApp(applicationId: string) {
   return sendWhatsAppMessage({
     toPhone: application.phone,
     body: message,
+    contentSid: getTwilioConfig().initialTemplateSid || undefined,
+    contentVariables: getTwilioConfig().initialTemplateSid
+      ? {
+          "1": application.fullName.trim().split(/\s+/)[0] ?? "Müşteri",
+          "2": application.referenceNo,
+          "3": application.serviceArea,
+        }
+      : undefined,
   });
 }
 
