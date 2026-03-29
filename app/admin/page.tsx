@@ -241,6 +241,8 @@ function UpdateDrawer({
   const [requestResponses, setRequestResponses] = useState<Record<string, string>>({});
   const [requestLoading, setRequestLoading] = useState(false);
   const [requestError, setRequestError] = useState("");
+  const [sendingInitialWhatsApp, setSendingInitialWhatsApp] = useState(false);
+  const [whatsAppActionMessage, setWhatsAppActionMessage] = useState("");
 
   const detailMetrics = [
     ["Takip No", app.referenceNo],
@@ -371,6 +373,39 @@ function UpdateDrawer({
       setError("Bağlantı hatası. Mesaj gönderilemedi.");
     } finally {
       setSendingReply(false);
+    }
+  };
+
+  const handleResendInitialWhatsApp = async () => {
+    setSendingInitialWhatsApp(true);
+    setWhatsAppActionMessage("");
+
+    try {
+      const res = await fetch(`/api/admin/applications/${app.id}/whatsapp-initial`, {
+        method: "POST",
+      });
+
+      const data = (await res.json().catch(() => ({}))) as {
+        message?: string;
+      };
+
+      if (!res.ok) {
+        setWhatsAppActionMessage(
+          data.message ?? "WhatsApp mesaji yeniden gonderilemedi."
+        );
+        return;
+      }
+
+      setWhatsAppActionMessage(
+        data.message ?? "Ilk WhatsApp mesaji yeniden gonderildi."
+      );
+      onInteractionChanged();
+    } catch {
+      setWhatsAppActionMessage(
+        "Baglanti hatasi. WhatsApp mesaji yeniden gonderilemedi."
+      );
+    } finally {
+      setSendingInitialWhatsApp(false);
     }
   };
 
@@ -592,6 +627,26 @@ function UpdateDrawer({
                   onChange={(e) => setNote(e.target.value)}
                   className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-white/35"
                 />
+                <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <button
+                    type="button"
+                    onClick={handleResendInitialWhatsApp}
+                    disabled={sendingInitialWhatsApp || !app.messaging?.whatsappConfigured}
+                    className="rounded-2xl border border-emerald-400/25 bg-emerald-500/12 px-4 py-2.5 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {sendingInitialWhatsApp
+                      ? "WhatsApp gonderiliyor..."
+                      : "Ilk WhatsApp mesajini tekrar gonder"}
+                  </button>
+                  <div className="text-xs leading-6 text-white/50 sm:max-w-[22rem] sm:text-right">
+                    Bu islem yalnizca ilk karsilama mesajini bir kez daha yollar.
+                  </div>
+                </div>
+                {whatsAppActionMessage ? (
+                  <div className="mt-3 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-xs text-white/70">
+                    {whatsAppActionMessage}
+                  </div>
+                ) : null}
               </div>
 
               <div className="mt-4 rounded-3xl border border-white/10 bg-white/[0.03] p-4">
