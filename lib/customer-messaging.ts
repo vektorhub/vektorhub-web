@@ -59,6 +59,8 @@ const APPLICATIONS_COLLECTION = "customer_applications";
 const DELIVERY_LOGS_COLLECTION = "customer_whatsapp_delivery_logs";
 const TWILIO_WHATSAPP_SANDBOX_FROM = "whatsapp:+14155238886";
 const TWILIO_WHATSAPP_PRODUCTION_FROM = "whatsapp:+12603669449";
+const TWILIO_WHATSAPP_INITIAL_TEMPLATE_FALLBACK_SID =
+  "HXe3989016085af88f353fcdbf23a22b90";
 const STATUS_WHATSAPP_ALLOWLIST = new Set([
   "\u0130nceleniyor",
   "Teklif Haz\u0131rlan\u0131yor",
@@ -80,7 +82,8 @@ function getTwilioConfig() {
     authToken: process.env.TWILIO_AUTH_TOKEN?.trim() ?? "",
     whatsappFrom,
     initialTemplateSid:
-      process.env.TWILIO_WHATSAPP_TEMPLATE_SID_BASVURU_ALINDI?.trim() ?? "",
+      process.env.TWILIO_WHATSAPP_TEMPLATE_SID_BASVURU_ALINDI?.trim() ||
+      TWILIO_WHATSAPP_INITIAL_TEMPLATE_FALLBACK_SID,
   };
 }
 
