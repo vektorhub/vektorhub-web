@@ -374,11 +374,16 @@ async function getRecentWhatsAppDeliveriesByApplication(applicationId: string) {
   const snap = await db
     .collection(DELIVERY_LOGS_COLLECTION)
     .where("applicationId", "==", applicationId)
-    .orderBy("createdAt", "desc")
-    .limit(6)
     .get();
 
-  return snap.docs.map((doc) => doc.data() as WhatsAppDeliveryRecord);
+  return snap.docs
+    .map((doc) => doc.data() as WhatsAppDeliveryRecord)
+    .sort((a, b) => {
+      const aTime = new Date(a.createdAt).getTime();
+      const bTime = new Date(b.createdAt).getTime();
+      return bTime - aTime;
+    })
+    .slice(0, 6);
 }
 
 export function isWhatsAppMessagingConfigured() {
