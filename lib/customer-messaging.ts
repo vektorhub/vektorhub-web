@@ -39,6 +39,8 @@ export type CustomerMessagingOverview = {
 
 const CONTACT_PREFERENCES_COLLECTION = "customer_contact_preferences";
 const APPLICATIONS_COLLECTION = "customer_applications";
+const TWILIO_WHATSAPP_SANDBOX_FROM = "whatsapp:+14155238886";
+const TWILIO_WHATSAPP_PRODUCTION_FROM = "whatsapp:+12603669449";
 const STATUS_WHATSAPP_ALLOWLIST = new Set([
   "\u0130nceleniyor",
   "Teklif Haz\u0131rlan\u0131yor",
@@ -49,10 +51,16 @@ const OPT_OUT_COMMANDS = new Set(["RET", "STOP", "IPTAL", "İPTAL"]);
 const OPT_IN_COMMANDS = new Set(["BASLAT", "BAŞLAT", "START"]);
 
 function getTwilioConfig() {
+  const configuredFrom = process.env.TWILIO_WHATSAPP_FROM?.trim() ?? "";
+  const whatsappFrom =
+    configuredFrom && configuredFrom !== TWILIO_WHATSAPP_SANDBOX_FROM
+      ? configuredFrom
+      : TWILIO_WHATSAPP_PRODUCTION_FROM;
+
   return {
     accountSid: process.env.TWILIO_ACCOUNT_SID?.trim() ?? "",
     authToken: process.env.TWILIO_AUTH_TOKEN?.trim() ?? "",
-    whatsappFrom: process.env.TWILIO_WHATSAPP_FROM?.trim() ?? "",
+    whatsappFrom,
     initialTemplateSid:
       process.env.TWILIO_WHATSAPP_TEMPLATE_SID_BASVURU_ALINDI?.trim() ?? "",
   };
@@ -249,15 +257,15 @@ export function normalizeMessagingPhone(phone: string) {
     return null;
   }
 
-  if (digits.startsWith("90") && digits.length >= 12) {
+  if (digits.startsWith("90") && digits.length === 12 && digits[2] === "5") {
     return `+${digits}`;
   }
 
-  if (digits.startsWith("0") && digits.length === 11) {
+  if (digits.startsWith("0") && digits.length === 11 && digits[1] === "5") {
     return `+90${digits.slice(1)}`;
   }
 
-  if (digits.length === 10) {
+  if (digits.length === 10 && digits[0] === "5") {
     return `+90${digits}`;
   }
 

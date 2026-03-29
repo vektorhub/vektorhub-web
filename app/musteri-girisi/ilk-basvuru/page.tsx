@@ -342,7 +342,7 @@ export default function IlkBasvuruPage() {
               value={phone}
               onChange={(event) => setPhone(event.target.value)}
               className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 outline-none placeholder:text-white/35"
-              placeholder="Telefon"
+              placeholder="Cep telefonu (05xx xxx xx xx)"
             />
             <input
               required
@@ -358,6 +358,9 @@ export default function IlkBasvuruPage() {
                 Bu adres hatal? g?r?n?yor. ?unu mu demek istediniz: <span className="font-semibold text-white">{emailSuggestion}</span>
               </p>
             ) : null}
+            <p className="md:col-span-2 -mt-1 text-sm text-white/55">
+              WhatsApp bilgilendirmeleri bu numaraya gidecegi icin 5 ile baslayan ulasilabilir bir cep telefonu girin.
+            </p>
             </div>
 
             {authenticatedCustomer ? (

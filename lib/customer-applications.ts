@@ -79,6 +79,19 @@ function normalizePhone(phone: string) {
   return phone.replace(/\D/g, "");
 }
 
+function normalizeTurkishMobilePhone(phone: string) {
+  const digits = normalizePhone(phone);
+
+  if (!digits) return null;
+  if (digits.startsWith("90") && digits.length === 12 && digits[2] === "5")
+    return `+${digits}`;
+  if (digits.startsWith("0") && digits.length === 11 && digits[1] === "5")
+    return `+90${digits.slice(1)}`;
+  if (digits.length === 10 && digits[0] === "5") return `+90${digits}`;
+
+  return null;
+}
+
 function getComparablePhone(raw: string) {
   const digits = normalizePhone(raw);
   return digits.length > 10 ? digits.slice(-10) : digits;
@@ -151,7 +164,7 @@ function getSuggestedEmailAddress(email: string) {
 
 function validateInput(input: CustomerApplicationInput) {
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email.trim());
-  const phoneDigits = normalizePhone(input.phone);
+  const normalizedMobilePhone = normalizeTurkishMobilePhone(input.phone);
   const suggestedEmail = getSuggestedEmailAddress(input.email);
 
   if (input.fullName.trim().length < 2)
@@ -159,8 +172,10 @@ function validateInput(input: CustomerApplicationInput) {
   if (input.companyName.trim().length < 2)
     throw new Error("Lütfen geçerli bir firma adı girin.");
   if (!emailValid) throw new Error("Lütfen geçerli bir e-posta adresi girin.");
-  if (phoneDigits.length < 10)
-    throw new Error("Lütfen geçerli bir telefon numarası girin.");
+  if (!normalizedMobilePhone)
+    throw new Error(
+      "Lütfen WhatsApp kullanılan, 5 ile başlayan geçerli bir cep telefonu girin.",
+    );
   if (input.details.trim().length < 10)
     throw new Error("Lütfen ihtiyacınızı en az 10 karakter ile yazın.");
 }
@@ -187,13 +202,20 @@ async function persistCustomerApplication(
   emailVerifiedAt: string,
 ) {
   const db = getAdminDb();
+  const normalizedMobilePhone = normalizeTurkishMobilePhone(input.phone);
+  if (!normalizedMobilePhone) {
+    throw new Error(
+      "Lutfen WhatsApp kullanilan, 5 ile baslayan gecerli bir cep telefonu girin.",
+    );
+  }
+
   const record: CustomerApplicationRecord = {
     id: crypto.randomUUID(),
     referenceNo: await generateUniqueReferenceNo(),
     fullName: input.fullName.trim(),
     companyName: input.companyName.trim(),
-    phone: input.phone.trim(),
-    normalizedPhone: normalizePhone(input.phone),
+    phone: normalizedMobilePhone,
+    normalizedPhone: normalizePhone(normalizedMobilePhone),
     email: input.email.trim().toLowerCase(),
     customerId: input.customerId?.trim() || null,
     emailVerifiedAt,
@@ -228,6 +250,12 @@ export async function createCustomerApplicationVerification(
   input: CustomerApplicationInput,
 ) {
   validateInput(input);
+  const normalizedMobilePhone = normalizeTurkishMobilePhone(input.phone);
+  if (!normalizedMobilePhone) {
+    throw new Error(
+      "Lutfen WhatsApp kullanilan, 5 ile baslayan gecerli bir cep telefonu girin.",
+    );
+  }
 
   const token = createVerificationToken();
   const verificationCode = createVerificationCode();
@@ -248,7 +276,7 @@ export async function createCustomerApplicationVerification(
     codeAttempts: 0,
     fullName: input.fullName.trim(),
     companyName: input.companyName.trim(),
-    phone: input.phone.trim(),
+    phone: normalizedMobilePhone,
     email: input.email.trim().toLowerCase(),
     serviceArea: input.serviceArea,
     details: input.details.trim(),
