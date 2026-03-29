@@ -41,6 +41,9 @@ export type AdminCustomerAccountSummary = {
   onboardingCompletedAt: string | null;
   reviewedAt: string | null;
   lastLoginAt: string;
+  disabledAt: string | null;
+  disabledReason: string | null;
+  disabledBy: string | null;
 };
 
 type CustomerAccountRecord = {
@@ -58,6 +61,9 @@ type CustomerAccountRecord = {
   contactTitle?: string;
   onboardingCompletedAt?: string | null;
   reviewedAt?: string | null;
+  disabledAt?: string | null;
+  disabledReason?: string | null;
+  disabledBy?: string | null;
   createdAt: string;
   updatedAt: string;
   lastLoginAt: string;
@@ -221,6 +227,9 @@ function mapToAdminCustomerAccountSummary(
     onboardingCompletedAt: account.onboardingCompletedAt ?? null,
     reviewedAt: account.reviewedAt ?? null,
     lastLoginAt: account.lastLoginAt,
+    disabledAt: account.disabledAt ?? null,
+    disabledReason: account.disabledReason ?? null,
+    disabledBy: account.disabledBy ?? null,
   };
 }
 
@@ -708,4 +717,49 @@ export async function approveCustomerAccount(accountId: string) {
     fullName: account.fullName,
     status: "active" as CustomerAccountStatus,
   };
+}
+
+export async function disableCustomerAccount(
+  accountId: string,
+  reason: string,
+  disabledBy = "admin"
+) {
+  const normalizedId = accountId.trim();
+  const cleanedReason = reason.trim();
+
+  if (!normalizedId) {
+    throw new Error("Musteri hesabi bulunamadi.");
+  }
+
+  if (cleanedReason.length < 10) {
+    throw new Error("Gerekce en az 10 karakter olmali.");
+  }
+
+  const ref = getAdminDb().collection(ACCOUNTS_COLLECTION).doc(normalizedId);
+  const snap = await ref.get();
+
+  if (!snap.exists) {
+    throw new Error("Musteri hesabi bulunamadi.");
+  }
+
+  const account = snap.data() as CustomerAccountRecord;
+  if (account.status === "disabled") {
+    return mapToAdminCustomerAccountSummary(account);
+  }
+
+  const nowIso = new Date().toISOString();
+  const next: Partial<CustomerAccountRecord> = {
+    status: "disabled",
+    updatedAt: nowIso,
+    disabledAt: nowIso,
+    disabledReason: cleanedReason,
+    disabledBy: disabledBy.trim() || "admin",
+  };
+
+  await ref.update(next);
+
+  return mapToAdminCustomerAccountSummary({
+    ...account,
+    ...next,
+  } as CustomerAccountRecord);
 }

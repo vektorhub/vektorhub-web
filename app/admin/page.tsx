@@ -73,6 +73,9 @@ type ActiveCustomerAccount = {
   onboardingCompletedAt: string | null;
   reviewedAt: string | null;
   lastLoginAt: string;
+  disabledAt: string | null;
+  disabledReason: string | null;
+  disabledBy: string | null;
 };
 
 type AdminMessage = {
@@ -1111,6 +1114,10 @@ export default function AdminPanelPage() {
   const [error, setError] = useState("");
   const [onboardingError, setOnboardingError] = useState("");
   const [activeCustomersError, setActiveCustomersError] = useState("");
+  const [customerRemovalTarget, setCustomerRemovalTarget] = useState<ActiveCustomerAccount | null>(null);
+  const [customerRemovalReason, setCustomerRemovalReason] = useState("");
+  const [customerRemovalError, setCustomerRemovalError] = useState("");
+  const [removingCustomerId, setRemovingCustomerId] = useState("");
   const [cockpitError, setCockpitError] = useState("");
   const [approvingId, setApprovingId] = useState("");
   const [inviteEmail, setInviteEmail] = useState("");
@@ -1292,6 +1299,51 @@ export default function AdminPanelPage() {
       setOnboardingError("Müşteri hesabı onaylanamadı.");
     } finally {
       setApprovingId("");
+    }
+  };
+
+  const handleDisableCustomer = async () => {
+    if (!customerRemovalTarget) {
+      return;
+    }
+
+    const reason = customerRemovalReason.trim();
+    if (reason.length < 10) {
+      setCustomerRemovalError("Gerekce en az 10 karakter olmali.");
+      return;
+    }
+
+    setRemovingCustomerId(customerRemovalTarget.id);
+    setCustomerRemovalError("");
+
+    try {
+      const res = await fetch(`/api/admin/customers/${customerRemovalTarget.id}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason }),
+      });
+
+      if (res.status === 401) {
+        handleUnauthorized();
+        return;
+      }
+
+      const body = (await res.json().catch(() => ({}))) as { message?: string };
+      if (!res.ok) {
+        setCustomerRemovalError(body.message ?? "Musteri kaldirilamadi.");
+        return;
+      }
+
+      setActiveCustomers((prev) => prev.filter((item) => item.id !== customerRemovalTarget.id));
+      setCustomerRemovalTarget(null);
+      setCustomerRemovalReason("");
+      setCustomerRemovalError("");
+      void fetchApplications(false);
+      void fetchCockpit();
+    } catch {
+      setCustomerRemovalError("Baglanti hatasi. Musteri kaldirilamadi.");
+    } finally {
+      setRemovingCustomerId("");
     }
   };
 
@@ -1893,19 +1945,32 @@ export default function AdminPanelPage() {
                         {customer.lastLoginAt ? formatDate(customer.lastLoginAt) : "Henuz giris yok"}
                       </td>
                       <td className="px-4 py-3 text-right">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            window.open(
-                              `/api/admin/customers/${customer.id}/portal`,
-                              "_blank",
-                              "noopener,noreferrer"
-                            )
-                          }
-                          className="rounded-xl border border-emerald-400/30 bg-emerald-500/12 px-3 py-2 text-xs font-semibold text-emerald-100 transition hover:bg-emerald-500/20"
-                        >
-                          Musteri Sayfasini Ac
-                        </button>
+                        <div className="flex flex-col items-end gap-2">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              window.open(
+                                `/api/admin/customers/${customer.id}/portal`,
+                                "_blank",
+                                "noopener,noreferrer"
+                              )
+                            }
+                            className="rounded-xl border border-emerald-400/30 bg-emerald-500/12 px-3 py-2 text-xs font-semibold text-emerald-100 transition hover:bg-emerald-500/20"
+                          >
+                            Musteri Sayfasini Ac
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setCustomerRemovalTarget(customer);
+                              setCustomerRemovalReason("");
+                              setCustomerRemovalError("");
+                            }}
+                            className="rounded-xl border border-rose-400/30 bg-rose-500/10 px-3 py-2 text-xs font-semibold text-rose-200 transition hover:bg-rose-500/20"
+                          >
+                            Musteriyi Kaldir
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -2072,6 +2137,93 @@ export default function AdminPanelPage() {
             void fetchApplications(false);
           }}
         />
+      ) : null}
+
+      {customerRemovalTarget ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+          <div className="w-full max-w-xl rounded-3xl border border-rose-400/20 bg-[#101826] p-6 shadow-2xl shadow-black/40">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-rose-300">
+                  Kontrollu Musteri Kaldirma
+                </div>
+                <h3 className="mt-2 text-2xl font-black text-white">Musteri Erisimini Kaldir</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  if (!removingCustomerId) {
+                    setCustomerRemovalTarget(null);
+                    setCustomerRemovalReason("");
+                    setCustomerRemovalError("");
+                  }
+                }}
+                className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/70 transition hover:bg-white/10 hover:text-white"
+              >
+                Kapat
+              </button>
+            </div>
+
+            <div className="mt-5 rounded-2xl border border-rose-400/20 bg-rose-500/8 p-4 text-sm leading-7 text-white/75">
+              Bu islem musteri hesabini aktif listeden cikarir ve portal girisini kapatir.
+              Basvuru gecmisi silinmez. Hesap daha sonra gerekirse yeniden etkinlestirilebilir.
+            </div>
+
+            <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+              <div className="text-sm font-semibold text-white">{customerRemovalTarget.fullName}</div>
+              <div className="mt-1 text-sm text-white/60">
+                {customerRemovalTarget.companyName || customerRemovalTarget.legalCompanyName || "-"}
+              </div>
+              <div className="mt-2 text-xs text-white/45">
+                {customerRemovalTarget.email} {customerRemovalTarget.phone ? `| ${customerRemovalTarget.phone}` : ""}
+              </div>
+            </div>
+
+            <label className="mt-5 block">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">
+                Kaldirma Gerekcesi
+              </span>
+              <textarea
+                value={customerRemovalReason}
+                onChange={(e) => setCustomerRemovalReason(e.target.value)}
+                rows={4}
+                placeholder="Ornek: test hesabi oldugu icin aktif listeden kaldiriliyor."
+                className="mt-2 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none placeholder:text-white/30"
+              />
+            </label>
+
+            {customerRemovalError ? (
+              <div className="mt-4 rounded-2xl border border-rose-400/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+                {customerRemovalError}
+              </div>
+            ) : null}
+
+            <div className="mt-5 flex flex-wrap justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  if (!removingCustomerId) {
+                    setCustomerRemovalTarget(null);
+                    setCustomerRemovalReason("");
+                    setCustomerRemovalError("");
+                  }
+                }}
+                disabled={Boolean(removingCustomerId)}
+                className="rounded-2xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white/70 transition hover:bg-white/10 hover:text-white disabled:opacity-50"
+              >
+                Vazgec
+              </button>
+              <button
+                type="button"
+                onClick={handleDisableCustomer}
+                disabled={removingCustomerId === customerRemovalTarget.id}
+                className="rounded-2xl border border-rose-400/30 bg-rose-500/15 px-4 py-2.5 text-sm font-semibold text-rose-100 transition hover:bg-rose-500/25 disabled:opacity-50"
+              >
+                {removingCustomerId === customerRemovalTarget.id ? "Kaldiriliyor..." : "Musteriyi Kaldir"}
+              </button>
+            </div>
+          </div>
+        </div>
       ) : null}
     </div>
   );
