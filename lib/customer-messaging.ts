@@ -35,10 +35,28 @@ export type CustomerMessagingOverview = {
   lastInboundText: string;
   lastInboundAt: string | null;
   profileName: string | null;
+  recentOutbound: WhatsAppDeliveryRecord[];
+};
+
+export type WhatsAppDeliveryRecord = {
+  id: string;
+  applicationId: string | null;
+  eventType: string;
+  toPhone: string;
+  sender: string;
+  messageSid: string | null;
+  status: string;
+  bodyPreview: string;
+  referenceNo: string | null;
+  errorCode: string | null;
+  errorMessage: string | null;
+  createdAt: string;
+  updatedAt: string;
 };
 
 const CONTACT_PREFERENCES_COLLECTION = "customer_contact_preferences";
 const APPLICATIONS_COLLECTION = "customer_applications";
+const DELIVERY_LOGS_COLLECTION = "customer_whatsapp_delivery_logs";
 const TWILIO_WHATSAPP_SANDBOX_FROM = "whatsapp:+14155238886";
 const TWILIO_WHATSAPP_PRODUCTION_FROM = "whatsapp:+12603669449";
 const STATUS_WHATSAPP_ALLOWLIST = new Set([
@@ -80,6 +98,15 @@ function getPreferenceDocId(normalizedPhone: string) {
 
 function getNowIso() {
   return new Date().toISOString();
+}
+
+function getMessagingBaseUrl() {
+  const envBaseUrl = process.env.APP_BASE_URL?.trim();
+  if (envBaseUrl) {
+    return envBaseUrl.replace(/\/$/, "");
+  }
+
+  return "https://portal.vektorhub.com";
 }
 
 function getFirstName(fullName: string) {
@@ -245,6 +272,112 @@ function stringifyTemplateVariables(variables: Record<string, string>) {
   );
 }
 
+function buildBodyPreview(input: {
+  body?: string;
+  contentVariables?: Record<string, string>;
+}) {
+  const previewSource =
+    input.body?.trim() ||
+    Object.values(input.contentVariables ?? {})
+      .filter(Boolean)
+      .join(" | ");
+
+  if (!previewSource) {
+    return "";
+  }
+
+  return previewSource.length > 160
+    ? `${previewSource.slice(0, 160).trim()}...`
+    : previewSource;
+}
+
+async function logWhatsAppDeliveryAttempt(input: {
+  applicationId?: string | null;
+  eventType: string;
+  toPhone: string;
+  sender: string;
+  messageSid: string | null;
+  status: string;
+  bodyPreview: string;
+  referenceNo?: string | null;
+  errorCode?: string | null;
+  errorMessage?: string | null;
+}) {
+  const db = getAdminDb();
+  const nowIso = getNowIso();
+  const id = input.messageSid || crypto.randomUUID();
+
+  const record: WhatsAppDeliveryRecord = {
+    id,
+    applicationId: input.applicationId ?? null,
+    eventType: input.eventType,
+    toPhone: input.toPhone,
+    sender: input.sender,
+    messageSid: input.messageSid,
+    status: input.status,
+    bodyPreview: input.bodyPreview,
+    referenceNo: input.referenceNo ?? null,
+    errorCode: input.errorCode ?? null,
+    errorMessage: input.errorMessage ?? null,
+    createdAt: nowIso,
+    updatedAt: nowIso,
+  };
+
+  await db.collection(DELIVERY_LOGS_COLLECTION).doc(id).set(record, { merge: true });
+}
+
+export async function updateWhatsAppDeliveryStatus(input: {
+  messageSid: string;
+  status: string;
+  errorCode?: string | null;
+  errorMessage?: string | null;
+}) {
+  const db = getAdminDb();
+  const ref = db.collection(DELIVERY_LOGS_COLLECTION).doc(input.messageSid);
+  const snap = await ref.get();
+
+  if (!snap.exists) {
+    await ref.set({
+      id: input.messageSid,
+      applicationId: null,
+      eventType: "unknown",
+      toPhone: "",
+      sender: "",
+      messageSid: input.messageSid,
+      status: input.status,
+      bodyPreview: "",
+      referenceNo: null,
+      errorCode: input.errorCode ?? null,
+      errorMessage: input.errorMessage ?? null,
+      createdAt: getNowIso(),
+      updatedAt: getNowIso(),
+    });
+    return;
+  }
+
+  await ref.set(
+    {
+      status: input.status,
+      errorCode: input.errorCode ?? null,
+      errorMessage: input.errorMessage ?? null,
+      updatedAt: getNowIso(),
+    },
+    { merge: true },
+  );
+}
+
+async function getRecentWhatsAppDeliveriesByApplication(applicationId: string) {
+  const db = getAdminDb();
+  const snap = await db
+    .collection(DELIVERY_LOGS_COLLECTION)
+    .where("applicationId", "==", applicationId)
+    .orderBy("createdAt", "desc")
+    .limit(6)
+    .get();
+
+  return snap.docs.map((doc) => doc.data() as WhatsAppDeliveryRecord);
+}
+
 export function isWhatsAppMessagingConfigured() {
   const config = getTwilioConfig();
   return Boolean(config.accountSid && config.authToken && config.whatsappFrom);
@@ -377,9 +510,13 @@ export async function isWhatsAppOptedOut(phone: string) {
 
 export async function getCustomerMessagingOverviewByPhone(
   phone: string,
+  applicationId?: string,
 ): Promise<CustomerMessagingOverview> {
   const preference = await getCustomerContactPreferenceByPhone(phone);
   const optedOut = preference?.whatsappOptOut ?? false;
+  const recentOutbound = applicationId
+    ? await getRecentWhatsAppDeliveriesByApplication(applicationId)
+    : [];
 
   return {
     whatsappConfigured: isWhatsAppMessagingConfigured(),
@@ -393,6 +530,7 @@ export async function getCustomerMessagingOverviewByPhone(
     lastInboundText: preference?.lastInboundText ?? "",
     lastInboundAt: preference?.lastInboundAt ?? null,
     profileName: preference?.profileName ?? null,
+    recentOutbound,
   };
 }
 
@@ -482,6 +620,9 @@ export async function processIncomingWhatsAppReply(input: {
 }
 
 export async function sendWhatsAppMessage(input: {
+  applicationId?: string;
+  eventType: string;
+  referenceNo?: string;
   toPhone: string;
   body: string;
   contentSid?: string;
@@ -513,6 +654,10 @@ export async function sendWhatsAppMessage(input: {
     From: config.whatsappFrom,
     To: `whatsapp:${normalizedPhone}`,
   });
+  payload.set(
+    "StatusCallback",
+    `${getMessagingBaseUrl()}/api/twilio/whatsapp/status`,
+  );
 
   if (input.contentSid) {
     payload.set("ContentSid", input.contentSid);
@@ -547,6 +692,20 @@ export async function sendWhatsAppMessage(input: {
     status?: string;
   };
 
+  await logWhatsAppDeliveryAttempt({
+    applicationId: input.applicationId,
+    eventType: input.eventType,
+    toPhone: normalizedPhone,
+    sender: config.whatsappFrom,
+    messageSid: result.sid ?? null,
+    status: result.status ?? "queued",
+    bodyPreview: buildBodyPreview({
+      body: input.body,
+      contentVariables: input.contentVariables,
+    }),
+    referenceNo: input.referenceNo ?? null,
+  });
+
   return {
     skipped: false,
     reason: null,
@@ -573,6 +732,9 @@ export async function sendInitialApplicationWhatsApp(applicationId: string) {
   });
 
   return sendWhatsAppMessage({
+    applicationId,
+    eventType: "initial_application",
+    referenceNo: application.referenceNo,
     toPhone: application.phone,
     body: message,
     contentSid: getTwilioConfig().initialTemplateSid || undefined,
@@ -616,6 +778,9 @@ export async function sendApplicationStatusWhatsApp(input: {
   });
 
   return sendWhatsAppMessage({
+    applicationId: input.applicationId,
+    eventType: "status_update",
+    referenceNo: application.referenceNo,
     toPhone: application.phone,
     body: message,
   });
@@ -646,6 +811,9 @@ export async function sendAdminMessageWhatsApp(input: {
   });
 
   return sendWhatsAppMessage({
+    applicationId: input.applicationId,
+    eventType: "admin_message",
+    referenceNo: application.referenceNo,
     toPhone: application.phone,
     body: message,
   });
@@ -673,6 +841,9 @@ export async function sendQuotePublishedWhatsApp(input: {
   });
 
   return sendWhatsAppMessage({
+    applicationId: input.applicationId,
+    eventType: "quote_published",
+    referenceNo: application.referenceNo,
     toPhone: application.phone,
     body: message,
   });
@@ -702,6 +873,9 @@ export async function sendPaymentCreatedWhatsApp(input: {
   });
 
   return sendWhatsAppMessage({
+    applicationId: input.applicationId,
+    eventType: "payment_created",
+    referenceNo: application.referenceNo,
     toPhone: application.phone,
     body: message,
   });
@@ -731,6 +905,9 @@ export async function sendPaymentReviewedWhatsApp(input: {
   });
 
   return sendWhatsAppMessage({
+    applicationId: input.applicationId,
+    eventType: "payment_reviewed",
+    referenceNo: application.referenceNo,
     toPhone: application.phone,
     body: message,
   });

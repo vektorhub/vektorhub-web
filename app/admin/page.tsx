@@ -37,6 +37,20 @@ type Application = {
     lastInboundText: string;
     lastInboundAt: string | null;
     profileName: string | null;
+    recentOutbound: Array<{
+      id: string;
+      eventType: string;
+      toPhone: string;
+      sender: string;
+      messageSid: string | null;
+      status: string;
+      bodyPreview: string;
+      referenceNo: string | null;
+      errorCode: string | null;
+      errorMessage: string | null;
+      createdAt: string;
+      updatedAt: string;
+    }>;
   };
 };
 
@@ -177,6 +191,43 @@ function truncateText(value: string, length = 96) {
     return value;
   }
   return `${value.slice(0, length).trim()}...`;
+}
+
+function getWhatsAppEventLabel(eventType: string) {
+  switch (eventType) {
+    case "initial_application":
+      return "Ilk Basvuru Mesaji";
+    case "status_update":
+      return "Durum Guncellemesi";
+    case "admin_message":
+      return "Admin Mesaji";
+    case "quote_published":
+      return "Teklif Yayinlandi";
+    case "payment_created":
+      return "Odeme Kaydi";
+    case "payment_reviewed":
+      return "Odeme Sonucu";
+    default:
+      return eventType;
+  }
+}
+
+function getWhatsAppDeliveryBadgeClass(status: string) {
+  const normalized = status.trim().toLowerCase();
+
+  if (["delivered", "read", "sent"].includes(normalized)) {
+    return "border-emerald-400/30 bg-emerald-500/10 text-emerald-200";
+  }
+
+  if (["queued", "accepted", "scheduled", "sending"].includes(normalized)) {
+    return "border-sky-400/30 bg-sky-500/10 text-sky-200";
+  }
+
+  if (["failed", "undelivered", "canceled"].includes(normalized)) {
+    return "border-rose-400/30 bg-rose-500/10 text-rose-200";
+  }
+
+  return "border-white/10 bg-white/5 text-white/60";
 }
 
 function StatusBadge({ status }: { status: ApplicationStatus }) {
@@ -647,6 +698,59 @@ function UpdateDrawer({
                     {whatsAppActionMessage}
                   </div>
                 ) : null}
+                <div className="mt-3 rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+                  <div className="mb-3 flex items-center justify-between gap-3">
+                    <div className="text-[10px] uppercase tracking-[0.18em] text-white/40">
+                      Son WhatsApp Gonderimleri
+                    </div>
+                    <span className="text-xs text-white/45">
+                      {app.messaging?.recentOutbound?.length ?? 0} kayit
+                    </span>
+                  </div>
+                  {app.messaging?.recentOutbound?.length ? (
+                    <div className="space-y-2">
+                      {app.messaging.recentOutbound.map((item) => (
+                        <div
+                          key={item.id}
+                          className="rounded-2xl border border-white/10 bg-black/10 p-3"
+                        >
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <div className="text-sm font-semibold text-white/85">
+                              {getWhatsAppEventLabel(item.eventType)}
+                            </div>
+                            <span
+                              className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${getWhatsAppDeliveryBadgeClass(item.status)}`}
+                            >
+                              {item.status}
+                            </span>
+                          </div>
+                          <div className="mt-2 grid gap-2 text-xs text-white/60 sm:grid-cols-2">
+                            <div>Hedef numara: {item.toPhone || "-"}</div>
+                            <div>Referans: {item.referenceNo || app.referenceNo}</div>
+                            <div>Mesaj SID: {item.messageSid || "-"}</div>
+                            <div>Tarih: {formatDate(item.createdAt)}</div>
+                          </div>
+                          {item.bodyPreview ? (
+                            <div className="mt-2 text-xs leading-6 text-white/70">
+                              {item.bodyPreview}
+                            </div>
+                          ) : null}
+                          {item.errorCode || item.errorMessage ? (
+                            <div className="mt-2 rounded-xl border border-rose-400/20 bg-rose-500/10 px-3 py-2 text-xs text-rose-100">
+                              Hata
+                              {item.errorCode ? ` (${item.errorCode})` : ""}:{" "}
+                              {item.errorMessage || "Twilio teslim edemedi."}
+                            </div>
+                          ) : null}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-sm text-white/45">
+                      Henuz kaydedilmis bir WhatsApp gonderimi yok.
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="mt-4 rounded-3xl border border-white/10 bg-white/[0.03] p-4">

@@ -46,7 +46,10 @@ export async function GET(
       {
         application: {
           ...toCustomerApplicationView(application),
-          messaging: await getCustomerMessagingOverviewByPhone(application.phone),
+          messaging: await getCustomerMessagingOverviewByPhone(
+            application.phone,
+            application.id,
+          ),
         },
       },
       { headers: { "Cache-Control": "no-store, max-age=0" } }
