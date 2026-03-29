@@ -5,7 +5,7 @@ import {
   getCustomerSessionMaxAge,
   makeCustomerSessionToken,
 } from "@/lib/customer-session";
-import { shouldUseSecureCookies } from "@/lib/session-config";
+import { getSharedCookieDomain, shouldUseSecureCookies } from "@/lib/session-config";
 
 export const dynamic = "force-dynamic";
 
@@ -49,6 +49,7 @@ export async function POST(request: Request) {
     }
 
     const token = makeCustomerSessionToken(account.id, account.email);
+    const cookieDomain = getSharedCookieDomain(request.url);
     const response = NextResponse.json({
       ok: true,
       customer: {
@@ -64,6 +65,7 @@ export async function POST(request: Request) {
       sameSite: "lax",
       path: "/",
       maxAge: getCustomerSessionMaxAge(),
+      ...(cookieDomain ? { domain: cookieDomain } : {}),
     });
 
     return response;
@@ -75,12 +77,16 @@ export async function POST(request: Request) {
 
 export async function DELETE() {
   const response = NextResponse.json({ ok: true });
+  const cookieDomain = process.env.APP_BASE_URL
+    ? getSharedCookieDomain(process.env.APP_BASE_URL)
+    : undefined;
   response.cookies.set(getCustomerCookieName(), "", {
     httpOnly: true,
     secure: false,
     sameSite: "lax",
     path: "/",
     maxAge: 0,
+    ...(cookieDomain ? { domain: cookieDomain } : {}),
   });
   return response;
 }

@@ -5,6 +5,7 @@ import {
   getCustomerSessionMaxAge,
   makeCustomerSessionToken,
 } from "@/lib/customer-session";
+import { getSharedCookieDomain, shouldUseSecureCookies } from "@/lib/session-config";
 import { getCustomerById } from "@/lib/customer-accounts";
 import { listCustomerApplicationsForCustomer } from "@/lib/customer-applications";
 
@@ -43,13 +44,15 @@ export async function GET(request: Request, context: Context) {
 
   const token = makeCustomerSessionToken(customer.id, customer.email);
   const response = NextResponse.redirect(new URL(latestHref, getBaseUrl(request)));
+  const cookieDomain = getSharedCookieDomain(getBaseUrl(request));
 
   response.cookies.set(getCustomerCookieName(), token, {
     httpOnly: true,
     sameSite: "lax",
-    secure: true,
+    secure: shouldUseSecureCookies(getBaseUrl(request)),
     path: "/",
     maxAge: getCustomerSessionMaxAge(),
+    ...(cookieDomain ? { domain: cookieDomain } : {}),
   });
 
   return response;

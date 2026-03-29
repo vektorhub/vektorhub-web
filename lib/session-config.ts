@@ -56,3 +56,27 @@ export function shouldUseSecureCookies(requestUrl: string) {
     return process.env.NODE_ENV === "production";
   }
 }
+
+export function getSharedCookieDomain(requestUrl: string) {
+  try {
+    const hostname = new URL(requestUrl).hostname.toLowerCase();
+
+    if (
+      hostname === "localhost" ||
+      hostname === "127.0.0.1" ||
+      hostname === "::1" ||
+      /^\d{1,3}(\.\d{1,3}){3}$/.test(hostname)
+    ) {
+      return undefined;
+    }
+
+    const parts = hostname.split(".").filter(Boolean);
+    if (parts.length < 2) {
+      return undefined;
+    }
+
+    return parts.slice(-2).join(".");
+  } catch {
+    return undefined;
+  }
+}

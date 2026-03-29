@@ -8,7 +8,7 @@ import {
   getCustomerSessionMaxAge,
   makeCustomerSessionToken,
 } from "@/lib/customer-session";
-import { shouldUseSecureCookies } from "@/lib/session-config";
+import { getSharedCookieDomain, shouldUseSecureCookies } from "@/lib/session-config";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +30,7 @@ export async function POST(request: Request) {
 
     if (account.status === "active") {
       const token = makeCustomerSessionToken(account.id, account.email);
+      const cookieDomain = getSharedCookieDomain(request.url);
       const response = NextResponse.json({
         ok: true,
         status: account.status,
@@ -46,6 +47,7 @@ export async function POST(request: Request) {
         sameSite: "lax",
         path: "/",
         maxAge: getCustomerSessionMaxAge(),
+        ...(cookieDomain ? { domain: cookieDomain } : {}),
       });
 
       return response;
