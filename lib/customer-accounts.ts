@@ -23,6 +23,26 @@ export type CustomerOfficialProfile = {
   contactTitle: string;
 };
 
+export type AdminCustomerAccountSummary = {
+  id: string;
+  email: string;
+  fullName: string;
+  companyName: string;
+  legalCompanyName: string;
+  taxOffice: string;
+  taxNumber: string;
+  address: string;
+  billingEmail: string;
+  phone: string;
+  contactTitle: string;
+  status: CustomerAccountStatus;
+  createdAt: string;
+  updatedAt: string;
+  onboardingCompletedAt: string | null;
+  reviewedAt: string | null;
+  lastLoginAt: string;
+};
+
 type CustomerAccountRecord = {
   id: string;
   email: string;
@@ -180,6 +200,30 @@ async function getAccountByEmail(email: string) {
   return snap.docs[0]!.data() as CustomerAccountRecord;
 }
 
+function mapToAdminCustomerAccountSummary(
+  account: CustomerAccountRecord
+): AdminCustomerAccountSummary {
+  return {
+    id: account.id,
+    email: account.email,
+    fullName: account.fullName,
+    companyName: account.companyName ?? "",
+    legalCompanyName: account.legalCompanyName ?? "",
+    taxOffice: account.taxOffice ?? "",
+    taxNumber: account.taxNumber ?? "",
+    address: account.address ?? "",
+    billingEmail: account.billingEmail ?? account.email,
+    phone: account.phone ?? "",
+    contactTitle: account.contactTitle ?? "",
+    status: account.status,
+    createdAt: account.createdAt,
+    updatedAt: account.updatedAt,
+    onboardingCompletedAt: account.onboardingCompletedAt ?? null,
+    reviewedAt: account.reviewedAt ?? null,
+    lastLoginAt: account.lastLoginAt,
+  };
+}
+
 export async function getCustomerByEmail(email: string) {
   const account = await getAccountByEmail(email);
 
@@ -194,6 +238,34 @@ export async function getCustomerByEmail(email: string) {
     createdAt: account.createdAt,
     lastLoginAt: account.lastLoginAt,
   };
+}
+
+export async function getActiveCustomerAccountSummary(options: {
+  id?: string | null;
+  email?: string | null;
+}) {
+  const normalizedId = options.id?.trim();
+  if (normalizedId) {
+    const snap = await getAdminDb().collection(ACCOUNTS_COLLECTION).doc(normalizedId).get();
+    if (snap.exists) {
+      const account = snap.data() as CustomerAccountRecord;
+      if (account.status === "active") {
+        return mapToAdminCustomerAccountSummary(account);
+      }
+    }
+  }
+
+  const normalizedEmail = options.email?.trim();
+  if (!normalizedEmail) {
+    return null;
+  }
+
+  const account = await getAccountByEmail(normalizedEmail);
+  if (!account || account.status !== "active") {
+    return null;
+  }
+
+  return mapToAdminCustomerAccountSummary(account);
 }
 
 function getPhoneVariants(phone: string) {
@@ -551,6 +623,14 @@ export async function getCustomerById(id: string) {
     id: account.id,
     email: account.email,
     fullName: account.fullName,
+    companyName: account.companyName ?? "",
+    legalCompanyName: account.legalCompanyName ?? "",
+    taxOffice: account.taxOffice ?? "",
+    taxNumber: account.taxNumber ?? "",
+    address: account.address ?? "",
+    billingEmail: account.billingEmail ?? account.email,
+    phone: account.phone ?? "",
+    contactTitle: account.contactTitle ?? "",
     createdAt: account.createdAt,
     lastLoginAt: account.lastLoginAt,
   };
@@ -587,6 +667,22 @@ export async function listPendingCustomerAccounts(limit = 50) {
     const bTime = new Date(b.onboardingCompletedAt ?? b.createdAt).getTime();
     return bTime - aTime;
   });
+}
+
+export async function listActiveCustomerAccounts(limit = 200) {
+  const snap = await getAdminDb()
+    .collection(ACCOUNTS_COLLECTION)
+    .where("status", "==", "active")
+    .limit(limit)
+    .get();
+
+  return snap.docs
+    .map((doc) => mapToAdminCustomerAccountSummary(doc.data() as CustomerAccountRecord))
+    .sort((a, b) => {
+      const aTime = new Date(a.reviewedAt ?? a.updatedAt).getTime();
+      const bTime = new Date(b.reviewedAt ?? b.updatedAt).getTime();
+      return bTime - aTime;
+    });
 }
 
 export async function approveCustomerAccount(accountId: string) {

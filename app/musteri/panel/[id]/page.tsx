@@ -84,6 +84,22 @@ type Payment = {
   updatedAt: string;
 };
 
+type Customer = {
+  id: string;
+  email: string;
+  fullName: string;
+  companyName: string;
+  legalCompanyName: string;
+  taxOffice: string;
+  taxNumber: string;
+  address: string;
+  billingEmail: string;
+  phone: string;
+  contactTitle: string;
+  createdAt: string;
+  lastLoginAt: string;
+};
+
 type Application = {
   id: string;
   referenceNumber: string;
@@ -111,6 +127,65 @@ function formatAmount(amount: number) {
     currency: "TRY",
     maximumFractionDigits: 2,
   }).format(amount);
+}
+
+function CustomerProfilePanel({ customer }: { customer: Customer | null }) {
+  if (!customer) {
+    return null;
+  }
+
+  const companyLabel = customer.companyName || customer.legalCompanyName || "Belirtilmedi";
+  const legalLabel = customer.legalCompanyName || "Belirtilmedi";
+  const taxLabel =
+    customer.taxOffice || customer.taxNumber
+      ? `${customer.taxOffice || "-"} / ${customer.taxNumber || "-"}`
+      : "Belirtilmedi";
+
+  const infoItems = [
+    { label: "Ad Soyad", value: customer.fullName || "Belirtilmedi" },
+    { label: "Firma", value: companyLabel },
+    { label: "Resmi Unvan", value: legalLabel },
+    { label: "Yetkili", value: customer.contactTitle || "Belirtilmedi" },
+    { label: "Telefon", value: customer.phone || "Belirtilmedi" },
+    { label: "E-posta", value: customer.email || "Belirtilmedi" },
+    { label: "Fatura E-postasi", value: customer.billingEmail || customer.email || "Belirtilmedi" },
+    { label: "Vergi", value: taxLabel },
+    { label: "Acik Adres", value: customer.address || "Belirtilmedi", wide: true },
+    { label: "Son Giris", value: formatDate(customer.lastLoginAt) },
+  ];
+
+  return (
+    <div className="sticky top-4 z-20 rounded-[32px] border border-emerald-400/15 bg-[linear-gradient(160deg,rgba(8,15,28,0.98),rgba(13,27,35,0.96))] p-5 shadow-[0_24px_60px_rgba(0,0,0,0.28)] backdrop-blur">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-200/85">
+            Musteri Bilgileri
+          </div>
+          <h2 className="mt-2 text-2xl font-black text-white">{customer.fullName}</h2>
+          <p className="mt-2 text-sm text-white/62">
+            Portal aktif musteri hesabi. Parola guvenlik nedeniyle gosterilmez.
+          </p>
+        </div>
+        <div className="rounded-full border border-emerald-400/20 bg-emerald-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-200">
+          Aktif Hesap
+        </div>
+      </div>
+
+      <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        {infoItems.map((item) => (
+          <div
+            key={item.label}
+            className={`rounded-[24px] border border-white/10 bg-white/[0.03] p-4 ${
+              item.wide ? "md:col-span-2 xl:col-span-3" : ""
+            }`}
+          >
+            <div className="text-[11px] uppercase tracking-[0.18em] text-white/40">{item.label}</div>
+            <div className="mt-2 text-sm font-semibold leading-7 text-white/86">{item.value}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 function QuoteStatusBadge({ status }: { status: Quote["status"] }) {
@@ -172,6 +247,7 @@ function DetailPageContent() {
       : "messages";
 
   const [application, setApplication] = useState<Application | null>(null);
+  const [customer, setCustomer] = useState<Customer | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [quotes, setQuotes] = useState<Quote[]>([]);
@@ -205,6 +281,7 @@ function DetailPageContent() {
 
       if (profileRes.ok) {
         const profileData = await profileRes.json();
+        setCustomer(profileData.customer ?? null);
         const nextApplication = profileData.applications.find((item: Application) => item.id === applicationId);
         setApplication(nextApplication ?? null);
       }
@@ -456,6 +533,7 @@ function DetailPageContent() {
   return (
     <div className="page-content-template min-h-[calc(100vh-7rem)] pb-16 pt-5 text-white">
       <div className="grid gap-5">
+        <CustomerProfilePanel customer={customer} />
         <div className="rounded-[32px] border border-white/10 bg-[linear-gradient(160deg,rgba(13,19,32,0.98),rgba(11,18,30,0.96))] p-6 shadow-[0_24px_60px_rgba(0,0,0,0.24)]">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>

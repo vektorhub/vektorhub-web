@@ -29,6 +29,7 @@ type Application = {
   note: string;
   createdAt: string;
   updatedAt: string;
+  customerAccount?: ActiveCustomerAccount | null;
   messaging?: {
     whatsappConfigured: boolean;
     whatsappOptOut: boolean;
@@ -52,6 +53,26 @@ type Application = {
       updatedAt: string;
     }>;
   };
+};
+
+type ActiveCustomerAccount = {
+  id: string;
+  email: string;
+  fullName: string;
+  companyName: string;
+  legalCompanyName: string;
+  taxOffice: string;
+  taxNumber: string;
+  address: string;
+  billingEmail: string;
+  phone: string;
+  contactTitle: string;
+  status: "active";
+  createdAt: string;
+  updatedAt: string;
+  onboardingCompletedAt: string | null;
+  reviewedAt: string | null;
+  lastLoginAt: string;
 };
 
 type AdminMessage = {
@@ -240,6 +261,14 @@ function StatusBadge({ status }: { status: ApplicationStatus }) {
   );
 }
 
+function ActiveCustomerBadge() {
+  return (
+    <span className="inline-flex items-center rounded-full border border-emerald-400/30 bg-emerald-500/12 px-2.5 py-1 text-[11px] font-semibold text-emerald-200">
+      Portal Aktif
+    </span>
+  );
+}
+
 function MetricCard({
   label,
   value,
@@ -303,6 +332,8 @@ function UpdateDrawer({
     ["Lead Yaşı", `${getApplicationAgeHours(app.createdAt)}s`],
     ["Son Güncelleme", formatDate(app.updatedAt)],
   ];
+
+  const activeCustomer = app.customerAccount ?? null;
 
   const quickNotes = [
     "İlk dönüş planlandı, kısa süre içinde iletişime geçilecek.",
@@ -572,6 +603,72 @@ function UpdateDrawer({
                 ))}
               </div>
             </div>
+
+            {activeCustomer ? (
+              <div className="rounded-3xl border border-emerald-400/20 bg-emerald-500/[0.05] p-4">
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <div>
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-300">
+                      Aktif Musteri Hesabi
+                    </div>
+                    <div className="mt-1 text-base font-black text-white">
+                      {activeCustomer.companyName || activeCustomer.fullName}
+                    </div>
+                  </div>
+                  <ActiveCustomerBadge />
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-2xl border border-white/10 bg-black/10 p-3">
+                    <div className="text-[10px] uppercase tracking-[0.18em] text-white/40">
+                      Resmi Unvan
+                    </div>
+                    <div className="mt-2 text-sm font-semibold text-white">
+                      {activeCustomer.legalCompanyName || "-"}
+                    </div>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-black/10 p-3">
+                    <div className="text-[10px] uppercase tracking-[0.18em] text-white/40">
+                      Vergi
+                    </div>
+                    <div className="mt-2 text-sm font-semibold text-white">
+                      {activeCustomer.taxOffice || "-"} / {activeCustomer.taxNumber || "-"}
+                    </div>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-black/10 p-3">
+                    <div className="text-[10px] uppercase tracking-[0.18em] text-white/40">
+                      Fatura E-postasi
+                    </div>
+                    <div className="mt-2 break-all text-sm font-semibold text-white">
+                      {activeCustomer.billingEmail || activeCustomer.email}
+                    </div>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-black/10 p-3">
+                    <div className="text-[10px] uppercase tracking-[0.18em] text-white/40">
+                      Son Giris
+                    </div>
+                    <div className="mt-2 text-sm font-semibold text-white">
+                      {activeCustomer.lastLoginAt
+                        ? formatDate(activeCustomer.lastLoginAt)
+                        : "Henuz giris yok"}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-3 rounded-2xl border border-white/10 bg-black/10 p-3">
+                  <div className="text-[10px] uppercase tracking-[0.18em] text-white/40">
+                    Acik Adres
+                  </div>
+                  <div className="mt-2 text-sm leading-6 text-white/80">
+                    {activeCustomer.address || "Adres bilgisi yok"}
+                  </div>
+                </div>
+
+                <p className="mt-3 text-xs leading-6 text-white/55">
+                  Parola guvenlik nedeniyle gosterilmez. Gerekirse musteri giris ekranindaki sifre sifirlama akisi kullanilir.
+                </p>
+              </div>
+            ) : null}
 
             <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4">
               <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-orange-300">
@@ -1008,10 +1105,12 @@ export default function AdminPanelPage() {
   const router = useRouter();
   const [items, setItems] = useState<Application[]>([]);
   const [onboardingItems, setOnboardingItems] = useState<PendingOnboardingAccount[]>([]);
+  const [activeCustomers, setActiveCustomers] = useState<ActiveCustomerAccount[]>([]);
   const [cockpit, setCockpit] = useState<CockpitPayload | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [onboardingError, setOnboardingError] = useState("");
+  const [activeCustomersError, setActiveCustomersError] = useState("");
   const [cockpitError, setCockpitError] = useState("");
   const [approvingId, setApprovingId] = useState("");
   const [inviteEmail, setInviteEmail] = useState("");
@@ -1086,6 +1185,31 @@ export default function AdminPanelPage() {
     }
   }, [handleUnauthorized]);
 
+  const fetchActiveCustomers = useCallback(async () => {
+    setActiveCustomersError("");
+
+    try {
+      const res = await fetch("/api/admin/customers/active", { cache: "no-store" });
+      if (res.status === 401) {
+        handleUnauthorized();
+        return;
+      }
+
+      if (!res.ok) {
+        const body = (await res.json().catch(() => ({}))) as { message?: string };
+        setActiveCustomersError(body.message ?? "Aktif musteriler alinamadi.");
+        setActiveCustomers([]);
+        return;
+      }
+
+      const data = (await res.json()) as { items?: ActiveCustomerAccount[] };
+      setActiveCustomers(data.items ?? []);
+    } catch {
+      setActiveCustomersError("Aktif musteriler alinamadi.");
+      setActiveCustomers([]);
+    }
+  }, [handleUnauthorized]);
+
   const fetchCockpit = useCallback(async () => {
     setCockpitError("");
     try {
@@ -1111,8 +1235,13 @@ export default function AdminPanelPage() {
   }, [handleUnauthorized]);
 
   const refreshAll = useCallback(async () => {
-    await Promise.all([fetchApplications(true), fetchOnboardingData(), fetchCockpit()]);
-  }, [fetchApplications, fetchOnboardingData, fetchCockpit]);
+    await Promise.all([
+      fetchApplications(true),
+      fetchOnboardingData(),
+      fetchActiveCustomers(),
+      fetchCockpit(),
+    ]);
+  }, [fetchApplications, fetchOnboardingData, fetchActiveCustomers, fetchCockpit]);
 
   useEffect(() => {
     void refreshAll();
@@ -1156,6 +1285,8 @@ export default function AdminPanelPage() {
       }
 
       setOnboardingItems((prev) => prev.filter((item) => item.id !== accountId));
+      void fetchActiveCustomers();
+      void fetchApplications(false);
       void fetchCockpit();
     } catch {
       setOnboardingError("Müşteri hesabı onaylanamadı.");
@@ -1679,6 +1810,116 @@ export default function AdminPanelPage() {
           </div>
         </section>
 
+        <div className="mt-6 rounded-3xl border border-emerald-400/15 bg-emerald-500/[0.04] p-4">
+          <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-300">
+                Aktif Musteriler
+              </div>
+              <p className="mt-1 text-sm text-white/60">
+                Portali kullanan ve resmi kaydi tamamlanan hesaplar burada listelenir.
+              </p>
+            </div>
+            <div className="rounded-full border border-emerald-400/20 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-200">
+              {activeCustomers.length} hesap
+            </div>
+          </div>
+
+          {activeCustomersError ? (
+            <div className="mb-3 rounded-2xl border border-rose-400/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+              {activeCustomersError}
+            </div>
+          ) : null}
+
+          {activeCustomers.length === 0 ? (
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-5 text-sm text-white/45">
+              Henuz aktif musteri hesabi yok.
+            </div>
+          ) : (
+            <div className="overflow-x-auto rounded-3xl border border-white/8">
+              <table className="w-full min-w-[1100px] text-sm">
+                <thead>
+                  <tr className="border-b border-white/8 bg-white/[0.03]">
+                    {[
+                      "Musteri",
+                      "Firma",
+                      "Vergi",
+                      "Telefon",
+                      "E-posta",
+                      "Acik Adres",
+                      "Son Giris",
+                      "",
+                    ].map((heading) => (
+                      <th
+                        key={heading}
+                        className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-white/45"
+                      >
+                        {heading}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {activeCustomers.map((customer) => (
+                    <tr key={customer.id} className="bg-emerald-500/[0.03]">
+                      <td className="px-4 py-3">
+                        <div className="font-semibold text-white">{customer.fullName}</div>
+                        <div className="mt-2">
+                          <ActiveCustomerBadge />
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-[13px] text-white/72">
+                        <div className="font-semibold text-white">
+                          {customer.companyName || customer.legalCompanyName || "-"}
+                        </div>
+                        <div className="mt-1 text-[12px] text-white/45">
+                          Resmi unvan: {customer.legalCompanyName || "-"}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-[13px] text-white/72">
+                        {customer.taxOffice || "-"} / {customer.taxNumber || "-"}
+                      </td>
+                      <td className="px-4 py-3 text-[13px] text-white/72">{customer.phone || "-"}</td>
+                      <td className="px-4 py-3 text-[13px] text-white/72">
+                        <div>{customer.email || "-"}</div>
+                        <div className="mt-1 text-[12px] text-white/45">
+                          Fatura: {customer.billingEmail || "-"}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-[13px] leading-6 text-white/72">
+                        {customer.address || "-"}
+                      </td>
+                      <td className="px-4 py-3 text-[13px] text-white/72">
+                        {customer.lastLoginAt ? formatDate(customer.lastLoginAt) : "Henuz giris yok"}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            window.open(
+                              `/api/admin/customers/${customer.id}/portal`,
+                              "_blank",
+                              "noopener,noreferrer"
+                            )
+                          }
+                          className="rounded-xl border border-emerald-400/30 bg-emerald-500/12 px-3 py-2 text-xs font-semibold text-emerald-100 transition hover:bg-emerald-500/20"
+                        >
+                          Musteri Sayfasini Ac
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          <p className="mt-3 text-xs text-white/40">
+            Parolalar guvenlik nedeniyle gosterilmez. Gerekirse musteri giris ekranindaki sifre sifirlama
+            akisi kullanilir.
+          </p>
+        </div>
+
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-5">
           {FILTER_OPTIONS.filter((status) => status !== "Tümü").map((status) => (
             <button
@@ -1765,13 +2006,23 @@ export default function AdminPanelPage() {
               </thead>
               <tbody className="divide-y divide-white/5">
                 {filtered.map((item) => (
-                  <tr key={item.id} className="group transition hover:bg-white/[0.03]">
+                  <tr
+                    key={item.id}
+                    className={`group transition hover:bg-white/[0.03] ${
+                      item.customerAccount ? "bg-emerald-500/[0.04]" : ""
+                    }`}
+                  >
                     <td className="px-4 py-3 font-mono text-[13px] font-semibold text-orange-300">
                       {item.referenceNo}
                     </td>
                     <td className="px-4 py-3">
                       <div className="font-semibold text-white">{item.fullName}</div>
                       <div className="text-[12px] text-white/50">{item.companyName}</div>
+                      {item.customerAccount ? (
+                        <div className="mt-2">
+                          <ActiveCustomerBadge />
+                        </div>
+                      ) : null}
                     </td>
                     <td className="px-4 py-3 text-[12px] text-white/70">{item.serviceArea}</td>
                     <td className="px-4 py-3 text-[12px] text-white/70">{item.phone}</td>

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAuthenticatedAdminSession } from "@/lib/admin-auth";
+import { getActiveCustomerAccountSummary } from "@/lib/customer-accounts";
 import {
   listAllApplications,
   toCustomerApplicationView,
@@ -17,10 +18,18 @@ export async function GET(request: Request) {
 
     const items = await listAllApplications(200);
     const applications = await Promise.all(
-      items.map(async (item) => ({
-        ...toCustomerApplicationView(item),
-        messaging: await getCustomerMessagingOverviewByPhone(item.phone, item.id),
-      })),
+      items.map(async (item) => {
+        const customerAccount = await getActiveCustomerAccountSummary({
+          id: item.customerId ?? null,
+          email: item.email,
+        });
+
+        return {
+          ...toCustomerApplicationView(item),
+          customerAccount,
+          messaging: await getCustomerMessagingOverviewByPhone(item.phone, item.id),
+        };
+      }),
     );
 
     return NextResponse.json({ applications }, {
