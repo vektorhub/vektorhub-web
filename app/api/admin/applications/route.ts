@@ -19,7 +19,7 @@ export async function GET(request: Request) {
     const applications = await Promise.all(
       items.map(async (item) => ({
         ...toCustomerApplicationView(item),
-        messaging: await getCustomerMessagingOverviewByPhone(item.phone),
+        messaging: await getCustomerMessagingOverviewByPhone(item.phone, item.id),
       })),
     );
 

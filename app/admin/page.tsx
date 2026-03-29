@@ -1118,6 +1118,21 @@ export default function AdminPanelPage() {
     void refreshAll();
   }, [refreshAll]);
 
+  useEffect(() => {
+    if (!editing) {
+      return;
+    }
+
+    const nextEditing = items.find((item) => item.id === editing.id);
+    if (!nextEditing) {
+      return;
+    }
+
+    if (nextEditing !== editing) {
+      setEditing(nextEditing);
+    }
+  }, [editing, items]);
+
   const handleApproveOnboarding = async (accountId: string) => {
     setApprovingId(accountId);
     setOnboardingError("");
