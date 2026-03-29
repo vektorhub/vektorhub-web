@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import { getAuthenticatedAdminSession } from "@/lib/admin-auth";
 import { createPayment, listPayments, reviewPayment } from "@/lib/customer-commerce";
-import { sendPaymentCreatedWhatsApp } from "@/lib/customer-messaging";
+import {
+  sendPaymentCreatedWhatsApp,
+  sendPaymentReviewedWhatsApp,
+} from "@/lib/customer-messaging";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -98,6 +101,15 @@ export async function PATCH(
       status: body.status,
       adminNote: body.adminNote,
     }, "Yönetici");
+
+    void sendPaymentReviewedWhatsApp({
+      applicationId: id,
+      title: payment.title,
+      status: body.status,
+      adminNote: body.adminNote,
+    }).catch((error) => {
+      console.error("WhatsApp odeme sonuc bildirimi gonderilemedi:", error);
+    });
 
     return NextResponse.json({ payment });
   } catch (error) {

@@ -39,6 +39,12 @@ export type CustomerMessagingOverview = {
 
 const CONTACT_PREFERENCES_COLLECTION = "customer_contact_preferences";
 const APPLICATIONS_COLLECTION = "customer_applications";
+const STATUS_WHATSAPP_ALLOWLIST = new Set([
+  "\u0130nceleniyor",
+  "Teklif Haz\u0131rlan\u0131yor",
+  "Tamamland\u0131",
+  "\u0130ptal Edildi",
+]);
 const OPT_OUT_COMMANDS = new Set(["RET", "STOP", "IPTAL", "İPTAL"]);
 const OPT_IN_COMMANDS = new Set(["BASLAT", "BAŞLAT", "START"]);
 
@@ -174,6 +180,41 @@ function buildPaymentCreatedMessage(input: {
   ]
     .filter(Boolean)
     .join("\n");
+}
+
+function buildPaymentReviewedMessage(input: {
+  fullName: string;
+  referenceNo: string;
+  title: string;
+  status: "confirmed" | "rejected";
+  adminNote?: string;
+}) {
+  const intro =
+    input.status === "confirmed"
+      ? `Merhaba ${getFirstName(input.fullName)}, \u00f6demeniz onayland\u0131.`
+      : `Merhaba ${getFirstName(input.fullName)}, \u00f6deme bildiriminiz yeniden i\u015flem gerektiriyor.`;
+  const statusLabel =
+    input.status === "confirmed"
+      ? "\u00d6deme durumu: Onayland\u0131"
+      : "\u00d6deme durumu: Yeniden i\u015flem gerekli";
+
+  return [
+    intro,
+    `Takip numaran\u0131z: ${input.referenceNo}`,
+    `\u00d6deme ba\u015fl\u0131\u011f\u0131: ${input.title}`,
+    statusLabel,
+    input.adminNote?.trim() ? "" : null,
+    input.adminNote?.trim() || null,
+    "",
+    "Bildirim almak istemiyorsan\u0131z RET yazabilirsiniz.",
+    ...getDirectSupportFooter(),
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
+function shouldSendStatusWhatsApp(status: string) {
+  return STATUS_WHATSAPP_ALLOWLIST.has(status.trim());
 }
 
 function getNormalizedReplyCommand(body: string) {
@@ -546,6 +587,14 @@ export async function sendApplicationStatusWhatsApp(input: {
     return null;
   }
 
+  if (!shouldSendStatusWhatsApp(input.status)) {
+    return {
+      skipped: true,
+      reason: "status_not_notifiable",
+      status: input.status,
+    };
+  }
+
   const application = await getApplicationById(input.applicationId);
   if (!application) {
     return null;
@@ -642,6 +691,35 @@ export async function sendPaymentCreatedWhatsApp(input: {
     title: input.title,
     amount: input.amount,
     dueDate: input.dueDate,
+  });
+
+  return sendWhatsAppMessage({
+    toPhone: application.phone,
+    body: message,
+  });
+}
+
+export async function sendPaymentReviewedWhatsApp(input: {
+  applicationId: string;
+  title: string;
+  status: "confirmed" | "rejected";
+  adminNote?: string;
+}) {
+  if (!isWhatsAppMessagingConfigured()) {
+    return null;
+  }
+
+  const application = await getApplicationById(input.applicationId);
+  if (!application) {
+    return null;
+  }
+
+  const message = buildPaymentReviewedMessage({
+    fullName: application.fullName,
+    referenceNo: application.referenceNo,
+    title: input.title,
+    status: input.status,
+    adminNote: input.adminNote,
   });
 
   return sendWhatsAppMessage({

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAdminDb } from "@/lib/firebase-admin";
 import { getAuthenticatedAdminSession } from "@/lib/admin-auth";
+import { sendApplicationStatusWhatsApp } from "@/lib/customer-messaging";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -112,6 +113,16 @@ export async function PATCH(
         status: "İptal Edildi",
         note: adminResponse || "Müşteri talebi üzerine süreç iptal edildi.",
         updatedAt,
+      });
+    }
+
+    if (status === "completed" && requestData.type === "cancel_application") {
+      void sendApplicationStatusWhatsApp({
+        applicationId: id,
+        status: "\u0130ptal Edildi",
+        note: adminResponse || "M\u00fc\u015fteri talebi \u00fczerine s\u00fcre\u00e7 iptal edildi.",
+      }).catch((error) => {
+        console.error("WhatsApp iptal bildirimi gonderilemedi:", error);
       });
     }
 
