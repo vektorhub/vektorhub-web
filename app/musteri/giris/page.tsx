@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, Suspense, useState } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
 function MusteriGirisContent() {
@@ -12,6 +13,42 @@ function MusteriGirisContent() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetMessage, setResetMessage] = useState("");
+
+  const handleReset = async () => {
+    if (!resetEmail.trim()) {
+      setError("Şifre yenileme için e-posta adresinizi girin.");
+      return;
+    }
+
+    setResetLoading(true);
+    setError("");
+    setResetMessage("");
+
+    try {
+      const res = await fetch("/api/customer/session/password-reset/request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: resetEmail }),
+      });
+
+      const data = (await res.json()) as { message?: string };
+      if (!res.ok) {
+        setError(data.message ?? "Şifre yenileme bağlantısı gönderilemedi.");
+        return;
+      }
+
+      setResetMessage(
+        data.message ?? "E-posta adresi sistemde varsa şifre yenileme bağlantısı gönderildi."
+      );
+    } catch {
+      setError("Bağlantı hatası. Tekrar deneyin.");
+    } finally {
+      setResetLoading(false);
+    }
+  };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -56,7 +93,10 @@ function MusteriGirisContent() {
             required
             type="email"
             value={email}
-            onChange={(event) => setEmail(event.target.value)}
+            onChange={(event) => {
+              setEmail(event.target.value);
+              setResetEmail(event.target.value);
+            }}
             placeholder="E-posta"
             className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none placeholder:text-white/35"
           />
@@ -78,6 +118,30 @@ function MusteriGirisContent() {
           >
             {loading ? "Giriş yapılıyor..." : "Aktif Hesapla Giriş Yap"}
           </button>
+
+          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+            <div className="text-sm font-semibold text-white">Şifremi unuttum</div>
+            <p className="mt-1 text-sm leading-6 text-white/58">
+              Davet sonrası belirlediğiniz şifreyi hatırlamıyorsanız bağlantıyı yeniden alın.
+            </p>
+            <div className="mt-3 flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={handleReset}
+                disabled={resetLoading}
+                className="rounded-2xl border border-white/15 bg-white/8 px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {resetLoading ? "Gönderiliyor..." : "Şifre Yenileme Bağlantısı Gönder"}
+              </button>
+              <Link
+                href="/musteri-girisi"
+                className="rounded-2xl border border-white/10 px-4 py-2 text-sm font-semibold text-white/70 transition hover:text-white"
+              >
+                Süreç ekranına dön
+              </Link>
+            </div>
+            {resetMessage ? <p className="mt-3 text-sm text-emerald-300">{resetMessage}</p> : null}
+          </div>
         </form>
       </div>
     </section>

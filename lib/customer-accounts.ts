@@ -6,7 +6,9 @@ const scryptAsync = promisify(crypto.scrypt);
 
 const ACCOUNTS_COLLECTION = "customer_accounts";
 const INVITES_COLLECTION = "customer_invites";
+const PASSWORD_RESETS_COLLECTION = "customer_password_resets";
 const INVITE_WINDOW_MS = 1000 * 60 * 60 * 24;
+const PASSWORD_RESET_WINDOW_MS = 1000 * 60 * 60 * 2;
 
 export type CustomerAccountStatus = "active" | "pending_review" | "disabled";
 
@@ -52,6 +54,16 @@ type CustomerInviteRecord = {
   expiresAt: string;
   usedAt: string | null;
   accountId: string | null;
+};
+
+type CustomerPasswordResetRecord = {
+  id: string;
+  tokenHash: string;
+  accountId: string;
+  email: string;
+  createdAt: string;
+  expiresAt: string;
+  usedAt: string | null;
 };
 
 export type PendingCustomerAccountReview = {
@@ -355,6 +367,99 @@ export async function authenticateCustomer(email: string, password: string) {
     email: account.email,
     fullName: account.fullName,
     lastLoginAt: nowIso,
+  };
+}
+
+export async function createCustomerPasswordReset(email: string) {
+  const normalizedEmail = normalizeEmail(email);
+  const account = await getAccountByEmail(normalizedEmail);
+
+  if (!account) {
+    return null;
+  }
+
+  if (account.status === "disabled") {
+    return null;
+  }
+
+  const token = crypto.randomBytes(32).toString("hex");
+  const tokenHash = hashToken(token);
+  const now = new Date();
+  const nowIso = now.toISOString();
+  const expiresAt = new Date(now.getTime() + PASSWORD_RESET_WINDOW_MS).toISOString();
+
+  const record: CustomerPasswordResetRecord = {
+    id: crypto.randomUUID(),
+    tokenHash,
+    accountId: account.id,
+    email: account.email,
+    createdAt: nowIso,
+    expiresAt,
+    usedAt: null,
+  };
+
+  await getAdminDb().collection(PASSWORD_RESETS_COLLECTION).doc(record.id).set(record);
+
+  return {
+    token,
+    email: account.email,
+    fullName: account.fullName,
+    expiresAt,
+    status: account.status,
+  };
+}
+
+export async function resetCustomerPassword(token: string, password: string) {
+  validatePassword(password);
+
+  const tokenHash = hashToken(token.trim());
+  const db = getAdminDb();
+  const snap = await db
+    .collection(PASSWORD_RESETS_COLLECTION)
+    .where("tokenHash", "==", tokenHash)
+    .limit(1)
+    .get();
+
+  if (snap.empty) {
+    throw new Error("Şifre sıfırlama bağlantısı geçersiz.");
+  }
+
+  const resetDoc = snap.docs[0]!;
+  const reset = resetDoc.data() as CustomerPasswordResetRecord;
+
+  if (reset.usedAt) {
+    throw new Error("Bu şifre sıfırlama bağlantısı daha önce kullanılmış.");
+  }
+
+  if (new Date(reset.expiresAt).getTime() < Date.now()) {
+    throw new Error("Şifre sıfırlama bağlantısının süresi dolmuş.");
+  }
+
+  const accountRef = db.collection(ACCOUNTS_COLLECTION).doc(reset.accountId);
+  const accountSnap = await accountRef.get();
+
+  if (!accountSnap.exists) {
+    throw new Error("Müşteri hesabı bulunamadı.");
+  }
+
+  const account = accountSnap.data() as CustomerAccountRecord;
+  const nowIso = new Date().toISOString();
+  const passwordHash = await hashPassword(password);
+
+  await accountRef.update({
+    passwordHash,
+    updatedAt: nowIso,
+  });
+
+  await resetDoc.ref.update({
+    usedAt: nowIso,
+  });
+
+  return {
+    id: account.id,
+    email: account.email,
+    fullName: account.fullName,
+    status: account.status,
   };
 }
 

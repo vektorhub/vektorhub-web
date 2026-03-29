@@ -107,6 +107,13 @@ type CustomerInviteMailInput = {
   expiresAt: string;
 };
 
+type CustomerPasswordResetMailInput = {
+  to: string;
+  fullName: string;
+  resetUrl: string;
+  expiresAt: string;
+};
+
 type ApplicationDeletedMailInput = {
   to: string;
   fullName: string;
@@ -177,6 +184,41 @@ export async function sendApplicationDeletedMail(input: ApplicationDeletedMailIn
             <p style="margin-top:10px;font-size:15px;color:#ffffff;word-break:break-word;">${input.reason}</p>
           </div>
           <p style="margin:0;color:rgba(255,255,255,0.62);font-size:13px;">Detay veya yeniden başvuru için bizimle iletişime geçebilirsiniz.</p>
+        </div>
+      </div>
+    `,
+  });
+}
+
+export async function sendCustomerPasswordResetMail(input: CustomerPasswordResetMailInput) {
+  const config = getMailConfig();
+  const transporter = getTransporter();
+  const expiresAtText = new Date(input.expiresAt).toLocaleString("tr-TR");
+
+  await transporter.sendMail({
+    from: config.from,
+    to: input.to,
+    subject: "VektörHUB müşteri paneli şifre sıfırlama",
+    text: [
+      `Merhaba ${input.fullName},`,
+      "",
+      "Müşteri paneli şifrenizi yenilemek için aşağıdaki bağlantıyı kullanın:",
+      input.resetUrl,
+      "",
+      `Bağlantı son geçerlilik zamanı: ${expiresAtText}`,
+      "",
+      "Bu isteği siz yapmadıysanız bu e-postayı dikkate almayın.",
+    ].join("\n"),
+    html: `
+      <div style="font-family:Arial,sans-serif;background:#0b1220;color:#ffffff;padding:32px;line-height:1.6;">
+        <div style="max-width:640px;margin:0 auto;background:#111827;border:1px solid rgba(255,255,255,0.08);border-radius:24px;padding:32px;">
+          <div style="font-size:12px;letter-spacing:0.28em;text-transform:uppercase;color:#fdba74;font-weight:700;">VektörHUB</div>
+          <h1 style="margin:16px 0 8px;font-size:28px;line-height:1.2;">Şifrenizi yenileyin</h1>
+          <p style="margin:0 0 16px;color:rgba(255,255,255,0.74);">Merhaba ${input.fullName}, müşteri paneli hesabınız için şifre yenileme isteği aldık.</p>
+          <a href="${input.resetUrl}" style="display:inline-block;margin-top:8px;background:#f97316;color:#ffffff;text-decoration:none;padding:14px 22px;border-radius:16px;font-weight:700;">Yeni Şifre Belirle</a>
+          <p style="margin:14px 0 0;font-size:13px;color:rgba(255,255,255,0.62);">Bağlantı son geçerlilik zamanı: ${expiresAtText}</p>
+          <p style="margin:18px 0 0;color:rgba(255,255,255,0.54);font-size:13px;">Buton çalışmazsa bu bağlantıyı tarayıcıya yapıştırın:</p>
+          <p style="word-break:break-all;font-size:13px;color:#fdba74;">${input.resetUrl}</p>
         </div>
       </div>
     `,
