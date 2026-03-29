@@ -635,11 +635,11 @@ function UpdateDrawer({
                     className="rounded-2xl border border-emerald-400/25 bg-emerald-500/12 px-4 py-2.5 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {sendingInitialWhatsApp
-                      ? "WhatsApp gonderiliyor..."
-                      : "Ilk WhatsApp mesajini tekrar gonder"}
+                      ? "WhatsApp gönderiliyor..."
+                      : "İlk WhatsApp mesajını tekrar gönder"}
                   </button>
                   <div className="text-xs leading-6 text-white/50 sm:max-w-[22rem] sm:text-right">
-                    Bu islem yalnizca ilk karsilama mesajini bir kez daha yollar.
+                    Bu işlem yalnızca ilk karşılama mesajını bir kez daha yollar.
                   </div>
                 </div>
                 {whatsAppActionMessage ? (
