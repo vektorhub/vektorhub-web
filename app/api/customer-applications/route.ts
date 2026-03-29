@@ -3,6 +3,7 @@ import {
   createCustomerApplicationVerification,
   type CustomerApplicationInput,
 } from "@/lib/customer-applications";
+import { findActiveCustomerConflict } from "@/lib/customer-accounts";
 import {
   isMailConfigured,
   sendApplicationVerificationMail,
@@ -125,6 +126,29 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { message: "Geçerli bir hizmet alanı seçin." },
         { status: 400 },
+      );
+    }
+
+    const activeConflict = await findActiveCustomerConflict(
+      body.email ?? "",
+      body.phone ?? "",
+    );
+
+    if (activeConflict) {
+      const matchedParts = [
+        activeConflict.emailMatched ? "mail adresi" : null,
+        activeConflict.phoneMatched ? "telefon numarasi" : null,
+      ].filter(Boolean);
+
+      return NextResponse.json(
+        {
+          code: "ACTIVE_CUSTOMER_EXISTS",
+          message: `${matchedParts.join(
+            " ve ",
+          )} zaten aktif bir musteri hesabina ait. Lutfen giris yaparak talep olusturun.`,
+          loginPath: "/musteri/giris",
+        },
+        { status: 409 },
       );
     }
 

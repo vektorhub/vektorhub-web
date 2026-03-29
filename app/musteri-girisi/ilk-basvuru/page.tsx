@@ -41,6 +41,12 @@ type SessionProfileResponse = {
   customer: SessionCustomer;
 };
 
+type ApiErrorResponse = {
+  message?: string;
+  code?: string;
+  loginPath?: string;
+};
+
 
 const COMMON_EMAIL_DOMAIN_TYPOS = new Map<string, string>([
   ["gmil.com", "gmail.com"],
@@ -95,6 +101,7 @@ export default function IlkBasvuruPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [existingAccountLoginPath, setExistingAccountLoginPath] = useState("");
   const [verifyErrorMessage, setVerifyErrorMessage] = useState("");
   const [result, setResult] = useState<SubmitResult | null>(null);
   const [verifiedResult, setVerifiedResult] = useState<VerifiedResult | null>(null);
@@ -177,6 +184,7 @@ export default function IlkBasvuruPage() {
 
     setIsSubmitting(true);
     setErrorMessage("");
+    setExistingAccountLoginPath("");
 
     try {
       const endpoint = authenticatedCustomer
@@ -201,7 +209,7 @@ export default function IlkBasvuruPage() {
       const data = (await response.json()) as
         | SubmitResult
         | VerifiedResult
-        | { message?: string };
+        | ApiErrorResponse;
 
       if (authenticatedCustomer) {
         if (!response.ok || !("referenceNo" in data)) {
@@ -218,6 +226,9 @@ export default function IlkBasvuruPage() {
 
       if (!response.ok || !("verificationRequired" in data)) {
         const message = "message" in data && data.message ? data.message : "Başvuru gönderilemedi.";
+        if ("code" in data && data.code === "ACTIVE_CUSTOMER_EXISTS" && data.loginPath) {
+          setExistingAccountLoginPath(data.loginPath);
+        }
         setErrorMessage(message);
         return;
       }
@@ -413,7 +424,19 @@ export default function IlkBasvuruPage() {
               Başvuru formunu gönderdiğinizde iletişim bilgileriniz yalnızca talep sürecinin yürütülmesi amacıyla işlenir.
             </p>
 
-            {errorMessage ? <p className="mt-3 text-sm text-rose-300">{errorMessage}</p> : null}
+            {errorMessage ? (
+              <div className="mt-3 space-y-3">
+                <p className="text-sm text-rose-300">{errorMessage}</p>
+                {existingAccountLoginPath ? (
+                  <Link
+                    href={existingAccountLoginPath}
+                    className="inline-flex rounded-2xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
+                  >
+                    Giriş ekranına git
+                  </Link>
+                ) : null}
+              </div>
+            ) : null}
 
             <button
               type="submit"

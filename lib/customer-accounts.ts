@@ -196,6 +196,79 @@ export async function getCustomerByEmail(email: string) {
   };
 }
 
+function getPhoneVariants(phone: string) {
+  const digits = normalizeDigits(phone);
+  const variants = new Set<string>();
+
+  if (!digits) {
+    return [];
+  }
+
+  variants.add(digits);
+
+  if (digits.startsWith("90") && digits.length === 12) {
+    variants.add(digits.slice(2));
+    variants.add(`0${digits.slice(2)}`);
+  }
+
+  if (digits.startsWith("0") && digits.length === 11) {
+    variants.add(digits.slice(1));
+    variants.add(`90${digits.slice(1)}`);
+  }
+
+  if (digits.length === 10 && digits.startsWith("5")) {
+    variants.add(`0${digits}`);
+    variants.add(`90${digits}`);
+  }
+
+  return [...variants];
+}
+
+async function getActiveCustomerByPhone(phone: string) {
+  const variants = getPhoneVariants(phone);
+  if (variants.length === 0) {
+    return null;
+  }
+
+  const db = getAdminDb();
+
+  for (const candidate of variants) {
+    const snap = await db
+      .collection(ACCOUNTS_COLLECTION)
+      .where("phone", "==", candidate)
+      .where("status", "==", "active")
+      .limit(1)
+      .get();
+
+    if (!snap.empty) {
+      return snap.docs[0]!.data() as CustomerAccountRecord;
+    }
+  }
+
+  return null;
+}
+
+export async function findActiveCustomerConflict(email: string, phone: string) {
+  const normalizedEmail = normalizeEmail(email);
+  const emailAccount = normalizedEmail
+    ? await getCustomerByEmail(normalizedEmail)
+    : null;
+
+  const phoneAccount = phone.trim() ? await getActiveCustomerByPhone(phone) : null;
+
+  if (!emailAccount && !phoneAccount) {
+    return null;
+  }
+
+  return {
+    emailMatched: Boolean(emailAccount),
+    phoneMatched: Boolean(phoneAccount),
+    accountId: emailAccount?.id ?? phoneAccount?.id ?? null,
+    email: emailAccount?.email ?? phoneAccount?.email ?? normalizedEmail,
+    fullName: emailAccount?.fullName ?? phoneAccount?.fullName ?? "",
+  };
+}
+
 export async function createCustomerInvite(
   email: string,
   fullName: string,
