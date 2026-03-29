@@ -113,6 +113,66 @@ function buildStatusUpdateMessage(input: {
   ].join("\n");
 }
 
+function buildAdminMessageNotification(input: {
+  fullName: string;
+  referenceNo: string;
+  previewText: string;
+}) {
+  const firstName = input.fullName.trim().split(/\s+/)[0] ?? "Merhaba";
+
+  return [
+    `Merhaba ${firstName}, VektörHUB ekibinden yeni bir mesajınız var.`,
+    `Takip numaranız: ${input.referenceNo}`,
+    "",
+    `Özet: ${input.previewText}`,
+    "",
+    "Detayları müşteri panelinizden takip edebilirsiniz.",
+    "Bildirim almak istemiyorsanız RET yazabilirsiniz.",
+  ].join("\n");
+}
+
+function buildQuotePublishedMessage(input: {
+  fullName: string;
+  referenceNo: string;
+  title: string;
+  totalAmount: number;
+}) {
+  const firstName = input.fullName.trim().split(/\s+/)[0] ?? "Merhaba";
+
+  return [
+    `Merhaba ${firstName}, teklifiniz hazır.`,
+    `Takip numaranız: ${input.referenceNo}`,
+    `Teklif başlığı: ${input.title}`,
+    `Toplam tutar: ${input.totalAmount.toLocaleString("tr-TR")} TL`,
+    "",
+    "Detayları müşteri panelinizden inceleyebilirsiniz.",
+    "Bildirim almak istemiyorsanız RET yazabilirsiniz.",
+  ].join("\n");
+}
+
+function buildPaymentCreatedMessage(input: {
+  fullName: string;
+  referenceNo: string;
+  title: string;
+  amount: number;
+  dueDate: string | null;
+}) {
+  const firstName = input.fullName.trim().split(/\s+/)[0] ?? "Merhaba";
+
+  return [
+    `Merhaba ${firstName}, ödemeniz için yeni bir kayıt oluşturuldu.`,
+    `Takip numaranız: ${input.referenceNo}`,
+    `Ödeme başlığı: ${input.title}`,
+    `Tutar: ${input.amount.toLocaleString("tr-TR")} TL`,
+    input.dueDate ? `Son ödeme tarihi: ${input.dueDate}` : "",
+    "",
+    "Ödeme detaylarını müşteri panelinizden görüntüleyebilirsiniz.",
+    "Bildirim almak istemiyorsanız RET yazabilirsiniz.",
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
 function getNormalizedReplyCommand(body: string) {
   const firstToken =
     body
@@ -413,6 +473,92 @@ export async function sendApplicationStatusWhatsApp(input: {
     referenceNo: application.referenceNo,
     status: input.status,
     note: input.note,
+  });
+
+  return sendWhatsAppMessage({
+    toPhone: application.phone,
+    body: message,
+  });
+}
+
+export async function sendAdminMessageWhatsApp(input: {
+  applicationId: string;
+  messageText: string;
+}) {
+  if (!isWhatsAppMessagingConfigured()) {
+    return null;
+  }
+
+  const application = await getApplicationById(input.applicationId);
+  if (!application) {
+    return null;
+  }
+
+  const previewText =
+    input.messageText.trim().length > 96
+      ? `${input.messageText.trim().slice(0, 96).trim()}...`
+      : input.messageText.trim();
+
+  const message = buildAdminMessageNotification({
+    fullName: application.fullName,
+    referenceNo: application.referenceNo,
+    previewText,
+  });
+
+  return sendWhatsAppMessage({
+    toPhone: application.phone,
+    body: message,
+  });
+}
+
+export async function sendQuotePublishedWhatsApp(input: {
+  applicationId: string;
+  title: string;
+  totalAmount: number;
+}) {
+  if (!isWhatsAppMessagingConfigured()) {
+    return null;
+  }
+
+  const application = await getApplicationById(input.applicationId);
+  if (!application) {
+    return null;
+  }
+
+  const message = buildQuotePublishedMessage({
+    fullName: application.fullName,
+    referenceNo: application.referenceNo,
+    title: input.title,
+    totalAmount: input.totalAmount,
+  });
+
+  return sendWhatsAppMessage({
+    toPhone: application.phone,
+    body: message,
+  });
+}
+
+export async function sendPaymentCreatedWhatsApp(input: {
+  applicationId: string;
+  title: string;
+  amount: number;
+  dueDate: string | null;
+}) {
+  if (!isWhatsAppMessagingConfigured()) {
+    return null;
+  }
+
+  const application = await getApplicationById(input.applicationId);
+  if (!application) {
+    return null;
+  }
+
+  const message = buildPaymentCreatedMessage({
+    fullName: application.fullName,
+    referenceNo: application.referenceNo,
+    title: input.title,
+    amount: input.amount,
+    dueDate: input.dueDate,
   });
 
   return sendWhatsAppMessage({

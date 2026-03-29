@@ -5,6 +5,7 @@ import {
   getMessages,
   markMessagesAsReadBySender,
 } from "@/lib/customer-applications-extended";
+import { sendAdminMessageWhatsApp } from "@/lib/customer-messaging";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -48,6 +49,12 @@ export async function POST(
     }
 
     const message = await createMessage(id, "admin", "Vektorhub Ekibi", text);
+    void sendAdminMessageWhatsApp({
+      applicationId: id,
+      messageText: text,
+    }).catch((error) => {
+      console.error("WhatsApp admin mesaj bildirimi gonderilemedi:", error);
+    });
 
     return NextResponse.json({ message }, { status: 201 });
   } catch (error) {

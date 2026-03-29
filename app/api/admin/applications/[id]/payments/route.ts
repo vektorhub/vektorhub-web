@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthenticatedAdminSession } from "@/lib/admin-auth";
 import { createPayment, listPayments, reviewPayment } from "@/lib/customer-commerce";
+import { sendPaymentCreatedWhatsApp } from "@/lib/customer-messaging";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -56,6 +57,15 @@ export async function POST(
       },
       "Yönetici"
     );
+
+    void sendPaymentCreatedWhatsApp({
+      applicationId: id,
+      title: payment.title,
+      amount: payment.amount,
+      dueDate: payment.dueDate,
+    }).catch((error) => {
+      console.error("WhatsApp odeme bildirimi gonderilemedi:", error);
+    });
 
     return NextResponse.json({ payment }, { status: 201 });
   } catch (error) {

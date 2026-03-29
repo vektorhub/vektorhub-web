@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthenticatedAdminSession } from "@/lib/admin-auth";
 import { createQuote, listQuotes, updateQuoteStatus } from "@/lib/customer-commerce";
+import { sendQuotePublishedWhatsApp } from "@/lib/customer-messaging";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -81,6 +82,17 @@ export async function PATCH(
     }
 
     const quote = await updateQuoteStatus(id, body.quoteId, body.status, "Yönetici");
+
+    if (body.status === "published") {
+      void sendQuotePublishedWhatsApp({
+        applicationId: id,
+        title: quote.title,
+        totalAmount: quote.totalAmount,
+      }).catch((error) => {
+        console.error("WhatsApp teklif bildirimi gonderilemedi:", error);
+      });
+    }
+
     return NextResponse.json({ quote });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Teklif güncellenemedi.";
