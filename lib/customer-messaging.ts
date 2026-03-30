@@ -76,10 +76,13 @@ function getTwilioConfig() {
     configuredFrom && configuredFrom !== TWILIO_WHATSAPP_SANDBOX_FROM
       ? configuredFrom
       : TWILIO_WHATSAPP_PRODUCTION_FROM;
+  const messagingServiceSid =
+    process.env.TWILIO_MESSAGING_SERVICE_SID?.trim() ?? "";
 
   return {
     accountSid: process.env.TWILIO_ACCOUNT_SID?.trim() ?? "",
     authToken: process.env.TWILIO_AUTH_TOKEN?.trim() ?? "",
+    messagingServiceSid,
     whatsappFrom,
     initialTemplateSid:
       process.env.TWILIO_WHATSAPP_TEMPLATE_SID_BASVURU_ALINDI?.trim() ||
@@ -133,6 +136,10 @@ function getDirectSupportWhatsAppLine() {
   );
 }
 
+function getDirectSupportDisplayName() {
+  return process.env.CUSTOMER_SUPPORT_WHATSAPP_LABEL?.trim() || "VektörHUB Dijital";
+}
+
 function getPreferenceDocId(normalizedPhone: string) {
   return normalizedPhone.replace(/^\+/, "");
 }
@@ -156,14 +163,14 @@ function getFirstName(fullName: string) {
 
 function getDirectSupportFooter() {
   const directLine = getDirectSupportWhatsAppLine();
-  if (!directLine) {
-    return [] as string[];
-  }
+  const displayName = getDirectSupportDisplayName();
 
   return [
     "",
     "Bu hat otomatik bilgilendirme hattıdır.",
-    `Doğrudan yazışma için işletme hattımız: ${directLine}`,
+    directLine
+      ? `Doğrudan yazışma için işletme hattı: ${displayName}`
+      : `Doğrudan yazışma için işletme hattı: ${displayName}`,
   ];
 }
 
@@ -426,7 +433,11 @@ async function getRecentWhatsAppDeliveriesByApplication(applicationId: string) {
 
 export function isWhatsAppMessagingConfigured() {
   const config = getTwilioConfig();
-  return Boolean(config.accountSid && config.authToken && config.whatsappFrom);
+  return Boolean(
+    config.accountSid &&
+      config.authToken &&
+      (config.messagingServiceSid || config.whatsappFrom),
+  );
 }
 
 export function normalizeMessagingPhone(phone: string) {
@@ -697,9 +708,13 @@ export async function sendWhatsAppMessage(input: {
   ).toString("base64");
 
   const payload = new URLSearchParams({
-    From: config.whatsappFrom,
     To: `whatsapp:${normalizedPhone}`,
   });
+  if (config.messagingServiceSid) {
+    payload.set("MessagingServiceSid", config.messagingServiceSid);
+  } else {
+    payload.set("From", config.whatsappFrom);
+  }
   payload.set(
     "StatusCallback",
     `${getMessagingBaseUrl()}/api/twilio/whatsapp/status`,
@@ -742,7 +757,7 @@ export async function sendWhatsAppMessage(input: {
     applicationId: input.applicationId,
     eventType: input.eventType,
     toPhone: normalizedPhone,
-    sender: config.whatsappFrom,
+    sender: config.messagingServiceSid || config.whatsappFrom,
     messageSid: result.sid ?? null,
     status: result.status ?? "queued",
     bodyPreview: buildBodyPreview({
