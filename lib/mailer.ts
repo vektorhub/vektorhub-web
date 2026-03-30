@@ -114,6 +114,13 @@ type CustomerPasswordResetMailInput = {
   expiresAt: string;
 };
 
+type CustomerRegistrationVerificationMailInput = {
+  to: string;
+  fullName: string;
+  verificationUrl: string;
+  expiresAt: string;
+};
+
 type ApplicationDeletedMailInput = {
   to: string;
   fullName: string;
@@ -219,6 +226,43 @@ export async function sendCustomerPasswordResetMail(input: CustomerPasswordReset
           <p style="margin:14px 0 0;font-size:13px;color:rgba(255,255,255,0.62);">Bağlantı son geçerlilik zamanı: ${expiresAtText}</p>
           <p style="margin:18px 0 0;color:rgba(255,255,255,0.54);font-size:13px;">Buton çalışmazsa bu bağlantıyı tarayıcıya yapıştırın:</p>
           <p style="word-break:break-all;font-size:13px;color:#fdba74;">${input.resetUrl}</p>
+        </div>
+      </div>
+    `,
+  });
+}
+
+export async function sendCustomerRegistrationVerificationMail(
+  input: CustomerRegistrationVerificationMailInput
+) {
+  const config = getMailConfig();
+  const transporter = getTransporter();
+  const expiresAtText = new Date(input.expiresAt).toLocaleString("tr-TR");
+
+  await transporter.sendMail({
+    from: config.from,
+    to: input.to,
+    subject: "VektörHUB müşteri hesabı e-posta doğrulama",
+    text: [
+      `Merhaba ${input.fullName},`,
+      "",
+      "Müşteri hesabınızı tamamlamak için e-posta adresinizi doğrulayın:",
+      input.verificationUrl,
+      "",
+      `Bağlantı son geçerlilik zamanı: ${expiresAtText}`,
+      "",
+      "Doğrulama tamamlandıktan sonra hesabınız yönetici onayına düşecektir.",
+    ].join("\n"),
+    html: `
+      <div style="font-family:Arial,sans-serif;background:#0b1220;color:#ffffff;padding:32px;line-height:1.6;">
+        <div style="max-width:640px;margin:0 auto;background:#111827;border:1px solid rgba(255,255,255,0.08);border-radius:24px;padding:32px;">
+          <div style="font-size:12px;letter-spacing:0.28em;text-transform:uppercase;color:#fdba74;font-weight:700;">VektörHUB</div>
+          <h1 style="margin:16px 0 8px;font-size:28px;line-height:1.2;">E-posta adresinizi doğrulayın</h1>
+          <p style="margin:0 0 16px;color:rgba(255,255,255,0.74);">Merhaba ${input.fullName}, müşteri hesabınızı güvenli biçimde açmak için önce e-posta doğrulaması gerekiyor.</p>
+          <a href="${input.verificationUrl}" style="display:inline-block;margin-top:8px;background:#f97316;color:#ffffff;text-decoration:none;padding:14px 22px;border-radius:16px;font-weight:700;">E-postamı Doğrula</a>
+          <p style="margin:14px 0 0;font-size:13px;color:rgba(255,255,255,0.62);">Bağlantı son geçerlilik zamanı: ${expiresAtText}</p>
+          <p style="margin:18px 0 0;color:rgba(255,255,255,0.54);font-size:13px;">Buton çalışmazsa bu bağlantıyı tarayıcıya yapıştırın:</p>
+          <p style="word-break:break-all;font-size:13px;color:#fdba74;">${input.verificationUrl}</p>
         </div>
       </div>
     `,

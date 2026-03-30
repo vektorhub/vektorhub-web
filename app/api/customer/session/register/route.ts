@@ -1,71 +1,70 @@
 import { NextResponse } from "next/server";
 import {
-  completeCustomerInvite,
+  createCustomerRegistration,
   type CustomerOfficialProfile,
 } from "@/lib/customer-accounts";
 import {
-  getCustomerCookieName,
-  getCustomerSessionMaxAge,
-  makeCustomerSessionToken,
-} from "@/lib/customer-session";
-import { getSharedCookieDomain, shouldUseSecureCookies } from "@/lib/session-config";
+  isMailConfigured,
+  sendCustomerRegistrationVerificationMail,
+} from "@/lib/mailer";
 
 export const dynamic = "force-dynamic";
 
+function getBaseUrl(request: Request) {
+  const envBaseUrl = process.env.APP_BASE_URL?.trim();
+  if (envBaseUrl) {
+    return envBaseUrl.replace(/\/$/, "");
+  }
+
+  const forwardedHost = request.headers.get("x-forwarded-host")?.trim();
+  const forwardedProto = request.headers.get("x-forwarded-proto")?.trim();
+
+  if (forwardedHost) {
+    return `${forwardedProto || "https"}://${forwardedHost}`.replace(/\/$/, "");
+  }
+
+  return new URL(request.url).origin.replace(/\/$/, "");
+}
+
 export async function POST(request: Request) {
   try {
+    if (!isMailConfigured()) {
+      return NextResponse.json(
+        { message: "Kayıt için e-posta doğrulama sistemi hazır değil." },
+        { status: 503 }
+      );
+    }
+
     const body = (await request.json()) as {
-      token?: string;
+      email?: string;
       fullName?: string;
       password?: string;
       profile?: CustomerOfficialProfile;
     };
 
-    const account = await completeCustomerInvite(
-      body.token ?? "",
-      body.password ?? "",
-      body.fullName,
-      body.profile
-    );
+    const registration = await createCustomerRegistration({
+      email: body.email ?? "",
+      fullName: body.fullName ?? "",
+      password: body.password ?? "",
+      profile: body.profile as CustomerOfficialProfile,
+    });
 
-    if (account.status === "active") {
-      const token = makeCustomerSessionToken(account.id, account.email);
-      const cookieDomain = getSharedCookieDomain(request.url);
-      const response = NextResponse.json({
-        ok: true,
-        status: account.status,
-        customer: {
-          id: account.id,
-          email: account.email,
-          fullName: account.fullName,
-        },
-      });
+    const verificationUrl = `${getBaseUrl(request)}/api/customer/session/register/verify?token=${registration.token}`;
 
-      response.cookies.set(getCustomerCookieName(), token, {
-        httpOnly: true,
-        secure: shouldUseSecureCookies(request.url),
-        sameSite: "lax",
-        path: "/",
-        maxAge: getCustomerSessionMaxAge(),
-        ...(cookieDomain ? { domain: cookieDomain } : {}),
-      });
-
-      return response;
-    }
+    await sendCustomerRegistrationVerificationMail({
+      to: registration.email,
+      fullName: registration.fullName,
+      verificationUrl,
+      expiresAt: registration.expiresAt,
+    });
 
     return NextResponse.json({
       ok: true,
-      status: account.status,
-      customer: {
-        id: account.id,
-        email: account.email,
-        fullName: account.fullName,
-      },
       message:
-        "Resmi müşteri kaydınız alındı. Yönetici onayı tamamlandıktan sonra portal girişiniz aktifleşecektir.",
+        "Kayıt alındı. E-posta doğrulama bağlantısı gönderildi. Doğrulamadan sonra hesabınız admin onayına düşecektir.",
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Hesap oluşturulamadı.";
+    const message = error instanceof Error ? error.message : "Kayıt oluşturulamadı.";
     return NextResponse.json({ message }, { status: 400 });
   }
 }

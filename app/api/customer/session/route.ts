@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { authenticateCustomer } from "@/lib/customer-accounts";
+import { authenticateCustomerPortal } from "@/lib/customer-accounts";
 import {
   getCustomerCookieName,
   getCustomerSessionMaxAge,
@@ -43,19 +43,49 @@ export async function POST(request: Request) {
       password?: string;
     };
 
-    const account = await authenticateCustomer(body.email ?? "", body.password ?? "");
-    if (!account) {
+    const auth = await authenticateCustomerPortal(body.email ?? "", body.password ?? "");
+    if (!auth) {
       return NextResponse.json({ message: "E-posta veya şifre hatalı." }, { status: 401 });
     }
 
-    const token = makeCustomerSessionToken(account.id, account.email);
+    if (auth.state === "pending_verification") {
+      return NextResponse.json(
+        {
+          message:
+            "E-posta doğrulaması tamamlanmadan giriş yapılamaz. Lütfen e-postanıza gelen bağlantıyı açın.",
+          code: "pending_verification",
+        },
+        { status: 403 }
+      );
+    }
+
+    if (auth.state === "pending_review") {
+      return NextResponse.json(
+        {
+          ok: true,
+          code: "pending_review",
+          customer: auth.account,
+          redirectTo: "/musteri/onay-bekliyor",
+        },
+        { status: 200 }
+      );
+    }
+
+    if (auth.state === "disabled") {
+      return NextResponse.json(
+        { message: "Hesabınız pasif durumda. Lütfen bizimle iletişime geçin." },
+        { status: 403 }
+      );
+    }
+
+    const token = makeCustomerSessionToken(auth.account.id, auth.account.email);
     const cookieDomain = getSharedCookieDomain(request.url);
     const response = NextResponse.json({
       ok: true,
       customer: {
-        id: account.id,
-        email: account.email,
-        fullName: account.fullName,
+        id: auth.account.id,
+        email: auth.account.email,
+        fullName: auth.account.fullName,
       },
     });
 

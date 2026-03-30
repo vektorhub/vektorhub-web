@@ -395,8 +395,8 @@ function AdminApplicationDetailPage() {
   }, [documents, payments]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white p-6">
-      <div className="max-w-5xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 p-6 text-white">
+      <div className="page-content-template">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <button

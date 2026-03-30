@@ -155,32 +155,36 @@ function CustomerProfilePanel({ customer }: { customer: Customer | null }) {
   ];
 
   return (
-    <div className="sticky top-4 z-20 rounded-[32px] border border-emerald-400/15 bg-[linear-gradient(160deg,rgba(8,15,28,0.98),rgba(13,27,35,0.96))] p-5 shadow-[0_24px_60px_rgba(0,0,0,0.28)] backdrop-blur">
+    <div className="rounded-[28px] border border-emerald-400/15 bg-[linear-gradient(160deg,rgba(8,15,28,0.98),rgba(13,27,35,0.96))] p-4 shadow-[0_24px_60px_rgba(0,0,0,0.28)] backdrop-blur">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-200/85">
             Musteri Bilgileri
           </div>
-          <h2 className="mt-2 text-2xl font-black text-white">{customer.fullName}</h2>
-          <p className="mt-2 text-sm text-white/62">
+          <h2 className="mt-2 text-xl font-black text-white">{customer.fullName}</h2>
+          <p className="mt-1.5 text-xs leading-6 text-white/58">
             Portal aktif musteri hesabi. Parola guvenlik nedeniyle gosterilmez.
           </p>
         </div>
-        <div className="rounded-full border border-emerald-400/20 bg-emerald-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-200">
+        <div className="rounded-full border border-emerald-400/20 bg-emerald-500/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-200">
           Aktif Hesap
         </div>
       </div>
 
-      <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+      <div className="mt-4 overflow-hidden rounded-[22px] border border-white/10 bg-white/[0.03]">
         {infoItems.map((item) => (
           <div
             key={item.label}
-            className={`rounded-[24px] border border-white/10 bg-white/[0.03] p-4 ${
-              item.wide ? "md:col-span-2 xl:col-span-3" : ""
+            className={`grid gap-2 border-b border-white/8 px-4 py-3 last:border-b-0 ${
+              item.wide ? "grid-cols-1" : "grid-cols-[112px_minmax(0,1fr)]"
             }`}
           >
-            <div className="text-[11px] uppercase tracking-[0.18em] text-white/40">{item.label}</div>
-            <div className="mt-2 text-sm font-semibold leading-7 text-white/86">{item.value}</div>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/42">
+              {item.label}
+            </div>
+            <div className="text-sm font-semibold leading-6 text-white/86 break-words">
+              {item.value}
+            </div>
           </div>
         ))}
       </div>
@@ -531,10 +535,14 @@ function DetailPageContent() {
   }
 
   return (
-    <div className="page-content-template min-h-[calc(100vh-7rem)] pb-16 pt-5 text-white">
+    <div className="page-content-template min-h-[calc(100vh-7rem)] pb-16 pt-24 text-white sm:pt-28 lg:pt-32">
       <div className="grid gap-5">
-        <CustomerProfilePanel customer={customer} />
-        <div className="rounded-[32px] border border-white/10 bg-[linear-gradient(160deg,rgba(13,19,32,0.98),rgba(11,18,30,0.96))] p-6 shadow-[0_24px_60px_rgba(0,0,0,0.24)]">
+        <div className="grid gap-5 xl:grid-cols-[0.82fr_1.18fr] xl:items-start">
+          <div className="mt-0 self-start xl:sticky xl:top-28 xl:self-start">
+            <CustomerProfilePanel customer={customer} />
+          </div>
+
+          <div className="mt-0 self-start rounded-[32px] border border-white/10 bg-[linear-gradient(160deg,rgba(13,19,32,0.98),rgba(11,18,30,0.96))] p-6 shadow-[0_24px_60px_rgba(0,0,0,0.24)] xl:self-start">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <button
@@ -628,6 +636,7 @@ function DetailPageContent() {
                 )}
               </div>
             </div>
+          </div>
           </div>
         </div>
 

@@ -1526,7 +1526,7 @@ export default function AdminPanelPage() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-7xl px-4 py-8">
+      <main className="px-4 py-8">
         <section className="rounded-3xl border border-white/10 bg-[radial-gradient(circle_at_top_right,rgba(249,115,22,0.18),transparent_35%),linear-gradient(135deg,#0d1424_0%,#0a1220_100%)] p-5">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>

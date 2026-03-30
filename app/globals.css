@@ -36,6 +36,11 @@ a {
   margin-inline: auto;
 }
 
+.layout-main-shell {
+  width: min(1280px, calc(100% - 32px));
+  margin-inline: auto;
+}
+
 .glass-card {
   background: var(--card);
   border: 1px solid var(--border);
@@ -332,7 +337,7 @@ a {
     margin-right: 0;
     max-width: none;
     width: calc(100vw - 1rem);
-    min-width: calc(100vw - 1rem);
+    min-width: 0;
     padding: 1rem;
     border-radius: 1.5rem;
   }

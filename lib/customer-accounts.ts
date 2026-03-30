@@ -7,8 +7,10 @@ const scryptAsync = promisify(crypto.scrypt);
 const ACCOUNTS_COLLECTION = "customer_accounts";
 const INVITES_COLLECTION = "customer_invites";
 const PASSWORD_RESETS_COLLECTION = "customer_password_resets";
+const EMAIL_VERIFICATIONS_COLLECTION = "customer_email_verifications";
 const INVITE_WINDOW_MS = 1000 * 60 * 60 * 24;
 const PASSWORD_RESET_WINDOW_MS = 1000 * 60 * 60 * 2;
+const EMAIL_VERIFICATION_WINDOW_MS = 1000 * 60 * 60 * 24;
 
 export type CustomerAccountStatus = "active" | "pending_review" | "disabled";
 
@@ -59,6 +61,7 @@ type CustomerAccountRecord = {
   billingEmail?: string;
   phone?: string;
   contactTitle?: string;
+  emailVerifiedAt?: string | null;
   onboardingCompletedAt?: string | null;
   reviewedAt?: string | null;
   disabledAt?: string | null;
@@ -68,6 +71,16 @@ type CustomerAccountRecord = {
   updatedAt: string;
   lastLoginAt: string;
   status: CustomerAccountStatus;
+};
+
+type CustomerEmailVerificationRecord = {
+  id: string;
+  tokenHash: string;
+  accountId: string;
+  email: string;
+  createdAt: string;
+  expiresAt: string;
+  usedAt: string | null;
 };
 
 type CustomerInviteRecord = {
@@ -394,6 +407,136 @@ export async function createCustomerInvite(
   };
 }
 
+export async function createCustomerRegistration(input: {
+  email: string;
+  fullName: string;
+  password: string;
+  profile: CustomerOfficialProfile;
+}) {
+  const normalizedEmail = normalizeEmail(input.email);
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+    throw new Error("Geçerli bir e-posta girin.");
+  }
+
+  const cleanedName = input.fullName.trim();
+  if (cleanedName.length < 2) {
+    throw new Error("Ad soyad en az 2 karakter olmalıdır.");
+  }
+
+  validatePassword(input.password);
+  validateOfficialProfile(input.profile);
+
+  const existingByEmail = await getAccountByEmail(normalizedEmail);
+  if (existingByEmail?.status === "active") {
+    throw new Error("Bu e-posta için aktif bir müşteri hesabı zaten bulunuyor.");
+  }
+
+  if (existingByEmail?.status === "disabled") {
+    throw new Error("Bu hesap pasif durumda. Lütfen bizimle iletişime geçin.");
+  }
+
+  const db = getAdminDb();
+  const now = new Date();
+  const nowIso = now.toISOString();
+  const expiresAt = new Date(now.getTime() + EMAIL_VERIFICATION_WINDOW_MS).toISOString();
+  const accountId = existingByEmail?.id ?? crypto.randomUUID();
+  const passwordHash = await hashPassword(input.password);
+
+  const accountRecord: CustomerAccountRecord = {
+    id: accountId,
+    email: normalizedEmail,
+    fullName: cleanedName,
+    passwordHash,
+    companyName: input.profile.companyName.trim(),
+    legalCompanyName: input.profile.legalCompanyName.trim(),
+    taxOffice: input.profile.taxOffice.trim(),
+    taxNumber: normalizeDigits(input.profile.taxNumber),
+    address: input.profile.address.trim(),
+    billingEmail: normalizeEmail(input.profile.billingEmail),
+    phone: normalizeDigits(input.profile.phone),
+    contactTitle: input.profile.contactTitle.trim(),
+    emailVerifiedAt: null,
+    onboardingCompletedAt: nowIso,
+    reviewedAt: existingByEmail?.reviewedAt ?? null,
+    createdAt: existingByEmail?.createdAt ?? nowIso,
+    updatedAt: nowIso,
+    lastLoginAt: existingByEmail?.lastLoginAt ?? nowIso,
+    status: "pending_review",
+  };
+
+  await db.collection(ACCOUNTS_COLLECTION).doc(accountId).set(accountRecord);
+
+  const token = crypto.randomBytes(32).toString("hex");
+  const verification: CustomerEmailVerificationRecord = {
+    id: crypto.randomUUID(),
+    tokenHash: hashToken(token),
+    accountId,
+    email: normalizedEmail,
+    createdAt: nowIso,
+    expiresAt,
+    usedAt: null,
+  };
+
+  await db.collection(EMAIL_VERIFICATIONS_COLLECTION).doc(verification.id).set(verification);
+
+  return {
+    token,
+    email: accountRecord.email,
+    fullName: accountRecord.fullName,
+    expiresAt,
+    accountId,
+  };
+}
+
+export async function verifyCustomerRegistrationEmail(token: string) {
+  const tokenHash = hashToken(token.trim());
+  const db = getAdminDb();
+  const snap = await db
+    .collection(EMAIL_VERIFICATIONS_COLLECTION)
+    .where("tokenHash", "==", tokenHash)
+    .limit(1)
+    .get();
+
+  if (snap.empty) {
+    throw new Error("E-posta doğrulama bağlantısı geçersiz.");
+  }
+
+  const verificationDoc = snap.docs[0]!;
+  const verification = verificationDoc.data() as CustomerEmailVerificationRecord;
+
+  if (verification.usedAt) {
+    throw new Error("Bu e-posta doğrulama bağlantısı daha önce kullanılmış.");
+  }
+
+  if (new Date(verification.expiresAt).getTime() < Date.now()) {
+    throw new Error("E-posta doğrulama bağlantısının süresi dolmuş.");
+  }
+
+  const accountRef = db.collection(ACCOUNTS_COLLECTION).doc(verification.accountId);
+  const accountSnap = await accountRef.get();
+  if (!accountSnap.exists) {
+    throw new Error("Müşteri hesabı bulunamadı.");
+  }
+
+  const nowIso = new Date().toISOString();
+  await accountRef.update({
+    emailVerifiedAt: nowIso,
+    updatedAt: nowIso,
+  });
+
+  await verificationDoc.ref.update({
+    usedAt: nowIso,
+  });
+
+  const account = accountSnap.data() as CustomerAccountRecord;
+  return {
+    id: account.id,
+    email: account.email,
+    fullName: account.fullName,
+    status: account.status,
+  };
+}
+
 export async function completeCustomerInvite(
   token: string,
   password: string,
@@ -707,6 +850,7 @@ export async function approveCustomerAccount(accountId: string) {
 
   await ref.update({
     status: "active",
+    emailVerifiedAt: account.emailVerifiedAt ?? nowIso,
     updatedAt: nowIso,
     reviewedAt: nowIso,
   });
@@ -762,4 +906,66 @@ export async function disableCustomerAccount(
     ...account,
     ...next,
   } as CustomerAccountRecord);
+}
+
+export async function authenticateCustomerPortal(email: string, password: string) {
+  const account = await getAccountByEmail(email);
+
+  if (!account) {
+    return null;
+  }
+
+  const passwordOk = await verifyPassword(password, account.passwordHash);
+  if (!passwordOk) {
+    return null;
+  }
+
+  if (account.status === "disabled") {
+    return {
+      state: "disabled" as const,
+      account: {
+        id: account.id,
+        email: account.email,
+        fullName: account.fullName,
+      },
+    };
+  }
+
+  if (account.status !== "active" && !account.emailVerifiedAt) {
+    return {
+      state: "pending_verification" as const,
+      account: {
+        id: account.id,
+        email: account.email,
+        fullName: account.fullName,
+      },
+    };
+  }
+
+  if (account.status === "pending_review") {
+    return {
+      state: "pending_review" as const,
+      account: {
+        id: account.id,
+        email: account.email,
+        fullName: account.fullName,
+      },
+    };
+  }
+
+  const nowIso = new Date().toISOString();
+  await getAdminDb().collection(ACCOUNTS_COLLECTION).doc(account.id).update({
+    lastLoginAt: nowIso,
+    updatedAt: nowIso,
+  });
+
+  return {
+    state: "active" as const,
+    account: {
+      id: account.id,
+      email: account.email,
+      fullName: account.fullName,
+      lastLoginAt: nowIso,
+    },
+  };
 }

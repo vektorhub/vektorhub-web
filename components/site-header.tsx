@@ -85,6 +85,30 @@ export function SiteHeader() {
     setMobileOpen(false);
   }, [pathname]);
 
+  const brandContent = (
+    <>
+      {!isWorkspaceMode && (
+        <div className="pointer-events-none absolute -left-2 top-1/2 h-14 w-14 -translate-y-1/2 rounded-[1.7rem] bg-[radial-gradient(circle,rgba(255,130,36,0.24),rgba(255,130,36,0.08)_46%,transparent_72%)] blur-xl lg:h-16 lg:w-16" />
+      )}
+      <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.09),rgba(255,255,255,0.03))] p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_16px_36px_rgba(0,0,0,0.28)] sm:h-12 sm:w-12 lg:h-14 lg:w-14">
+        <img
+          src="/logo.png"
+          alt="VektörHUB"
+          className="h-full w-full scale-[1.04] bg-transparent object-contain"
+        />
+      </div>
+
+      <div className="min-w-0 pt-0.5">
+        <div className="truncate text-[1.05rem] font-black leading-none tracking-[-0.045em] text-white sm:text-[1.18rem] lg:text-[1.32rem]">
+          Vektör<span className="text-[#ff6a00]">HUB</span>
+        </div>
+        <div className="mt-1.5 text-[9px] leading-tight tracking-[0.14em] text-white/52 sm:text-[9px] lg:text-[9px]">
+          İş Geliştirme • Dijital Çözümler
+        </div>
+      </div>
+    </>
+  );
+
   return (
     <header className="sticky top-0 z-50">
       <div
@@ -98,7 +122,16 @@ export function SiteHeader() {
           backgroundRepeat: "no-repeat",
           backgroundBlendMode: isWorkspaceMode ? "normal" : "overlay",
         }}
-      >
+        >
+        <Link
+          href="/"
+          className={`absolute top-1/2 z-20 hidden min-w-0 -translate-y-1/2 items-center gap-3 text-left lg:flex ${
+            isWorkspaceMode ? "left-4 xl:left-5" : "left-2"
+          }`}
+        >
+          {brandContent}
+        </Link>
+
         {!isWorkspaceMode && (
           <>
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_14%,rgba(255,147,70,0.16),transparent_22%),radial-gradient(circle_at_79%_16%,rgba(92,163,255,0.11),transparent_24%),radial-gradient(circle_at_58%_110%,rgba(255,119,44,0.09),transparent_32%)]" />
@@ -115,27 +148,11 @@ export function SiteHeader() {
         }`}>
           <Link
             href="/"
-            className="relative z-10 flex min-w-0 items-center gap-3 text-left lg:absolute lg:left-2 lg:top-4"
+            className={`relative z-10 flex min-w-0 items-center gap-3 text-left ${
+              "lg:hidden"
+            }`}
           >
-            {!isWorkspaceMode && (
-              <div className="pointer-events-none absolute -left-2 top-1/2 h-14 w-14 -translate-y-1/2 rounded-[1.7rem] bg-[radial-gradient(circle,rgba(255,130,36,0.24),rgba(255,130,36,0.08)_46%,transparent_72%)] blur-xl lg:h-16 lg:w-16" />
-            )}
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.09),rgba(255,255,255,0.03))] p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_16px_36px_rgba(0,0,0,0.28)] sm:h-12 sm:w-12 lg:h-14 lg:w-14">
-              <img
-                src="/logo.png"
-                alt="VektörHUB"
-                className="h-full w-full scale-[1.04] bg-transparent object-contain"
-              />
-            </div>
-
-            <div className="min-w-0 pt-0.5">
-              <div className="truncate text-[1.05rem] font-black leading-none tracking-[-0.045em] text-white sm:text-[1.18rem] lg:text-[1.32rem]">
-                Vektör<span className="text-[#ff6a00]">HUB</span>
-              </div>
-              <div className="mt-1.5 text-[9px] leading-tight tracking-[0.14em] text-white/52 sm:text-[9px] lg:text-[9px]">
-                İş Geliştirme • Dijital Çözümler
-              </div>
-            </div>
+            {brandContent}
           </Link>
 
           <div className="flex items-center gap-3 self-center lg:items-end lg:self-end">
