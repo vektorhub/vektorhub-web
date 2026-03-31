@@ -12,11 +12,17 @@ export const metadata: Metadata = {
 const references = [
   {
     name: "ANAHTAR EVİ",
-    city: "Ümraniye, İstanbul",
+    city: "Ümraniye / İSTANBUL",
     sector: "Çilingir ve anahtarcılık hizmetleri",
     focus:
       "Tek sayfalık yönlendirici bir web sitesi kurgusu ile firmanın Google üzerinde daha görünür ve daha kolay bulunabilir hale gelmesine yönelik destek.",
-    outcome: "Daha net görünürlük, daha hızlı erişim ve sade dijital anlatım.",
+  },
+  {
+    name: "YZR TESBİH",
+    city: "Körfez / KOCAELİ",
+    sector: "Tesbih ve aksesuar satışı",
+    focus:
+      "Markanın Instagram üzerindeki dijital vitrininin daha düzenli, güven veren ve müşteriye daha net ulaşan bir yapıda konumlanmasına yönelik dijital görünüm desteği.",
   },
 ];
 
@@ -94,15 +100,6 @@ export default function ReferanslarPage() {
                   Sağlanan Katkı
                 </div>
                 <p className="mt-3 text-sm leading-7 text-white/76">{reference.focus}</p>
-              </div>
-            </div>
-
-            <div className="border-t border-white/8 px-6 py-5 sm:px-8">
-              <div className="rounded-[1.35rem] border border-orange-500/15 bg-orange-500/[0.07] px-5 py-4">
-                <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-orange-200">
-                  Sonuç
-                </div>
-                <p className="mt-2 text-sm leading-7 text-white/78">{reference.outcome}</p>
               </div>
             </div>
           </article>
