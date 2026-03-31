@@ -16,6 +16,8 @@ const references = [
     sector: "Çilingir ve anahtarcılık hizmetleri",
     focus:
       "Tek sayfalık yönlendirici bir web sitesi kurgusu ile firmanın Google üzerinde daha görünür ve daha kolay bulunabilir hale gelmesine yönelik destek.",
+    ctaLabel: "Canlı Site",
+    ctaHref: "https://anahtarevi.net",
   },
   {
     name: "YZR TESBİH",
@@ -23,6 +25,8 @@ const references = [
     sector: "Tesbih ve aksesuar satışı",
     focus:
       "Markanın Instagram üzerindeki dijital vitrininin daha düzenli, güven veren ve müşteriye daha net ulaşan bir yapıda konumlanmasına yönelik dijital görünüm desteği.",
+    ctaLabel: "Instagram",
+    ctaHref: "https://www.instagram.com/explore/locations/101387289569587/yzrtesbih/",
   },
 ];
 
@@ -100,6 +104,16 @@ export default function ReferanslarPage() {
                   Sağlanan Katkı
                 </div>
                 <p className="mt-3 text-sm leading-7 text-white/76">{reference.focus}</p>
+                <div className="mt-5">
+                  <a
+                    href={reference.ctaHref}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center rounded-full border border-orange-400/25 bg-orange-500/10 px-4 py-2 text-sm font-semibold text-orange-200 transition hover:border-orange-300/40 hover:bg-orange-500/15"
+                  >
+                    {reference.ctaLabel}
+                  </a>
+                </div>
               </div>
             </div>
           </article>
