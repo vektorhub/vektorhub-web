@@ -37,6 +37,41 @@ const highlights = [
   },
 ];
 
+const serviceScope = [
+  "Kurumsal web sitesi kurgusu",
+  "Hizmet ve içerik akışının düzenlenmesi",
+  "İletişim ve teklif alma alanlarının netleştirilmesi",
+  "Temel teknik SEO yapısının güçlendirilmesi",
+  "Google görünürlüğünü destekleyen sayfa düzeni",
+];
+
+const localFocusAreas = [
+  "Kocaeli",
+  "Körfez",
+  "İzmit",
+  "Başiskele",
+  "Derince",
+  "Gebze",
+];
+
+const processSteps = [
+  {
+    title: "İşletmeyi Anlama",
+    description:
+      "Firmanın sunduğu hizmeti, müşteri profilini ve dijitalde nasıl görünmek istediğini netleştiririz.",
+  },
+  {
+    title: "Sayfa Yapısını Kurma",
+    description:
+      "Ana mesaj, hizmet akışı, güven sinyalleri ve iletişim alanlarını sade ama güçlü bir düzenle yerleştiririz.",
+  },
+  {
+    title: "Görünürlük Temeli",
+    description:
+      "Sayfa başlıkları, içerik hiyerarşisi ve temel SEO düzeniyle Google tarafında daha anlaşılır bir yapı oluştururuz.",
+  },
+];
+
 const faqItems = [
   {
     question: "Kocaeli'de web tasarım hizmeti hangi işletmeler için uygundur?",
@@ -82,6 +117,16 @@ export default function KocaeliWebTasarimPage() {
                 "@type": "Answer",
                 text: item.answer,
               },
+            })),
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            name: "Kocaeli Web Tasarım Hizmet Kapsamı",
+            itemListElement: serviceScope.map((item, index) => ({
+              "@type": "ListItem",
+              position: index + 1,
+              name: item,
             })),
           },
         ]}
@@ -173,6 +218,64 @@ export default function KocaeliWebTasarimPage() {
         </div>
       </div>
 
+      <div className="mt-10 grid gap-8 xl:grid-cols-[0.94fr_1.06fr]">
+        <div className="rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.02))] p-6 sm:p-7">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-orange-300">
+            Hizmet Kapsamı
+          </div>
+          <div className="mt-5 space-y-3">
+            {serviceScope.map((item) => (
+              <div
+                key={item}
+                className="rounded-[18px] border border-white/10 bg-white/[0.03] px-4 py-3 text-sm leading-7 text-white/72 sm:text-[15px]"
+              >
+                {item}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.02))] p-6 sm:p-7">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-orange-300">
+            Çalışma Süreci
+          </div>
+          <div className="mt-5 space-y-4">
+            {processSteps.map((step) => (
+              <article
+                key={step.title}
+                className="rounded-[20px] border border-white/10 bg-white/[0.03] p-4 sm:p-5"
+              >
+                <h2 className="text-lg font-bold text-white">{step.title}</h2>
+                <p className="mt-3 text-sm leading-7 text-white/68 sm:text-[15px]">
+                  {step.description}
+                </p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-10 rounded-[28px] border border-orange-500/15 bg-orange-500/[0.05] p-6 sm:p-7">
+        <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-orange-200">
+          Kocaeli Odaklı Görünürlük
+        </div>
+        <p className="mt-4 max-w-4xl text-base leading-8 text-white/76 sm:text-lg">
+          Bu sayfa Kocaeli web tasarım aramalarını daha doğru karşılamak için hazırlandı. Amaç yalnızca
+          bir şehir adı geçirmek değil; bölgedeki işletmelerin ihtiyaç duyduğu hizmeti daha net, daha
+          güven veren ve daha alakalı bir yapıda anlatmaktır.
+        </p>
+        <div className="mt-5 flex flex-wrap gap-2">
+          {localFocusAreas.map((area) => (
+            <span
+              key={area}
+              className="rounded-full border border-white/10 bg-white/[0.05] px-3 py-1.5 text-xs font-semibold tracking-[0.12em] text-white/68"
+            >
+              {area}
+            </span>
+          ))}
+        </div>
+      </div>
+
       <div className="mt-10 rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.035),rgba(255,255,255,0.015))] p-6 sm:p-7">
         <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-orange-300">
           Sık Sorulan Sorular
@@ -185,6 +288,47 @@ export default function KocaeliWebTasarimPage() {
             </article>
           ))}
         </div>
+      </div>
+
+      <div className="mt-10 grid gap-4 md:grid-cols-3">
+        <Link
+          href="/hizmetler/google-seo-calismalari"
+          className="rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.02))] p-5 transition hover:border-orange-400/25 hover:bg-white/[0.05]"
+        >
+          <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-orange-300">
+            Destek Sayfası
+          </div>
+          <h2 className="mt-4 text-xl font-black text-white">Google ve SEO Çalışmaları</h2>
+          <p className="mt-3 text-sm leading-7 text-white/68">
+            Kocaeli odaklı görünürlüğü güçlendiren teknik ve içerik düzenini inceleyin.
+          </p>
+        </Link>
+
+        <Link
+          href="/referanslar"
+          className="rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.02))] p-5 transition hover:border-orange-400/25 hover:bg-white/[0.05]"
+        >
+          <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-orange-300">
+            Güven Alanı
+          </div>
+          <h2 className="mt-4 text-xl font-black text-white">Referanslar</h2>
+          <p className="mt-3 text-sm leading-7 text-white/68">
+            Çalışma yaklaşımını ve sağlanan katkıları referans sayfasında görün.
+          </p>
+        </Link>
+
+        <Link
+          href="/iletisim"
+          className="rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.02))] p-5 transition hover:border-orange-400/25 hover:bg-white/[0.05]"
+        >
+          <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-orange-300">
+            İletişim
+          </div>
+          <h2 className="mt-4 text-xl font-black text-white">Proje Görüşmesi Başlat</h2>
+          <p className="mt-3 text-sm leading-7 text-white/68">
+            Doğrudan iletişim sayfasına geçip web sitesi ihtiyacınızı net şekilde iletin.
+          </p>
+        </Link>
       </div>
     </section>
   );
