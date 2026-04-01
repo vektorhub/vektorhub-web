@@ -23,6 +23,7 @@ export type PublicRouteConfig = {
 
 export const publicSiteRoutes: PublicRouteConfig[] = [
   { path: "/", changeFrequency: "daily", priority: 1 },
+  { path: "/kocaeli-web-tasarim", changeFrequency: "weekly", priority: 0.88 },
   { path: "/about", changeFrequency: "monthly", priority: 0.8 },
   { path: "/misyon", changeFrequency: "monthly", priority: 0.8 },
   { path: "/vizyon", changeFrequency: "monthly", priority: 0.8 },
