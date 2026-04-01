@@ -24,6 +24,13 @@ export type PublicRouteConfig = {
 export const publicSiteRoutes: PublicRouteConfig[] = [
   { path: "/", changeFrequency: "daily", priority: 1 },
   { path: "/kocaeli-web-tasarim", changeFrequency: "weekly", priority: 0.88 },
+  { path: "/kocaeli-seo", changeFrequency: "weekly", priority: 0.84 },
+  { path: "/kocaeli-kurumsal-web-sitesi", changeFrequency: "weekly", priority: 0.84 },
+  { path: "/kocaeli-mobil-uygulama", changeFrequency: "weekly", priority: 0.78 },
+  { path: "/sakarya-web-tasarim", changeFrequency: "weekly", priority: 0.88 },
+  { path: "/sakarya-seo", changeFrequency: "weekly", priority: 0.84 },
+  { path: "/sakarya-kurumsal-web-sitesi", changeFrequency: "weekly", priority: 0.84 },
+  { path: "/sakarya-mobil-uygulama", changeFrequency: "weekly", priority: 0.78 },
   { path: "/about", changeFrequency: "monthly", priority: 0.8 },
   { path: "/misyon", changeFrequency: "monthly", priority: 0.8 },
   { path: "/vizyon", changeFrequency: "monthly", priority: 0.8 },
