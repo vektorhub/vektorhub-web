@@ -32,12 +32,11 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/icon", type: "image/png", sizes: "512x512" },
-      { url: "/favicon.ico?v=20260324", sizes: "any" },
-      { url: "/favicon.png?v=20260324", type: "image/png", sizes: "512x512" },
+      { url: "/favicon.ico?v=20260401", sizes: "any" },
+      { url: "/favicon.png?v=20260401", type: "image/png", sizes: "512x512" },
     ],
-    apple: [{ url: "/apple-icon", sizes: "512x512", type: "image/png" }],
-    shortcut: ["/favicon.ico?v=20260324"],
+    apple: [{ url: "/apple-touch-icon.png?v=20260401", sizes: "180x180", type: "image/png" }],
+    shortcut: ["/favicon.ico?v=20260401"],
   },
   openGraph: {
     type: "website",
@@ -87,9 +86,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         url: siteUrl,
         logo: {
           "@type": "ImageObject",
-          url: `${siteUrl}/logo.png`,
+          url: `${siteUrl}/search-logo.png?v=20260401`,
         },
-        image: `${siteUrl}/logo.png`,
+        image: `${siteUrl}/search-logo.png?v=20260401`,
         sameAs: [siteUrl],
       },
       {
@@ -100,7 +99,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         email: "info@vektorhub.com",
         telephone: "+90 533 385 05 72",
         areaServed: "TR",
-        image: `${siteUrl}/logo.png`,
+        image: `${siteUrl}/search-logo.png?v=20260401`,
         description:
           "Küçük ve orta ölçekli işletmeler için web sitesi, mobil uygulama ve dijital görünürlük çözümleri sunan dijital hizmet merkezi.",
         brand: {
@@ -123,10 +122,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="tr">
       <head>
-        <link rel="icon" type="image/png" href="/icon" />
-        <link rel="icon" href="/favicon.ico?v=20260324" sizes="any" />
-        <link rel="icon" type="image/png" href="/favicon.png?v=20260324" />
-        <link rel="apple-touch-icon" href="/apple-icon" />
+        <link rel="icon" href="/favicon.ico?v=20260401" sizes="any" />
+        <link rel="icon" type="image/png" href="/favicon.png?v=20260401" sizes="512x512" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=20260401" sizes="180x180" />
       </head>
       <body className="bg-[#0b1220] text-white antialiased">
         <Script
