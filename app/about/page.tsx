@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
+import { SeoJsonLd } from "@/components/seo-json-ld";
+import { createBreadcrumbSchema, createPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createPageMetadata({
   title: "Hakkımızda",
   description:
-    "VektörHUB'un iş geliştirme ve dijital çözümler yaklaşımını, çalışma modelini ve proje vizyonunu inceleyin.",
-  alternates: {
-    canonical: "/about",
-  },
-};
+    "VektörHUB'un iş geliştirme, web tasarım, dijital çözümler ve sürdürülebilir proje yaklaşımını inceleyin.",
+  path: "/about",
+  keywords: ["vektorhub hakkında", "iş geliştirme yaklaşımı", "dijital çözüm ajansı"],
+});
 
 const principles = [
   {
@@ -48,6 +49,12 @@ const focusAreas = [
 export default function AboutPage() {
   return (
     <section className="container-main page-content-template py-16 sm:py-20">
+      <SeoJsonLd
+        data={createBreadcrumbSchema([
+          { name: "Ana Sayfa", path: "/" },
+          { name: "Hakkımızda", path: "/about" },
+        ])}
+      />
       <div className="max-w-5xl">
         <div className="inline-flex rounded-full border border-orange-500/25 bg-orange-500/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-orange-300 sm:text-xs">
           Hakkımızda

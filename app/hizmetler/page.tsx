@@ -1,14 +1,14 @@
 import Link from "next/link";
-import type { Metadata } from "next";
+import { SeoJsonLd } from "@/components/seo-json-ld";
+import { createBreadcrumbSchema, createPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Hizmetler",
+export const metadata = createPageMetadata({
+  title: "Web Tasarım, Google SEO ve Dijital Hizmetler",
   description:
-    "KOBİ'ler için web sitesi, Google ve SEO, sosyal medya, dijital reklam, mobil uygulama, iş geliştirme ve logo tasarımı hizmetleri.",
-  alternates: {
-    canonical: "/hizmetler",
-  },
-};
+    "VektörHUB'un web tasarım, Google SEO, sosyal medya, dijital reklam, mobil uygulama ve iş geliştirme hizmetlerini inceleyin.",
+  path: "/hizmetler",
+  keywords: ["web tasarım hizmeti", "google seo hizmeti", "mobil uygulama geliştirme", "kocaeli web tasarım"],
+});
 
 const servicePages = [
   {
@@ -65,6 +65,12 @@ const servicePages = [
 export default function HizmetlerPage() {
   return (
     <section className="container-main page-content-template py-20">
+      <SeoJsonLd
+        data={createBreadcrumbSchema([
+          { name: "Ana Sayfa", path: "/" },
+          { name: "Hizmetler", path: "/hizmetler" },
+        ])}
+      />
       <div
         className="relative mb-10 overflow-hidden rounded-[32px] border border-white/10 bg-[#131b28] px-6 py-8 shadow-[0_24px_60px_rgba(0,0,0,0.22)] sm:px-8 sm:py-10"
         style={{

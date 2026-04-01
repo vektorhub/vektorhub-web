@@ -1,6 +1,17 @@
+import { SeoJsonLd } from "@/components/seo-json-ld";
+import { createBreadcrumbSchema, createServiceSchema } from "@/lib/seo";
+
 type DetailItem = {
   title: string;
   description: string;
+};
+
+type ServiceSeo = {
+  path: string;
+  name: string;
+  description: string;
+  serviceType: string;
+  keywords?: string[];
 };
 
 type ServiceDetailPageProps = {
@@ -12,6 +23,7 @@ type ServiceDetailPageProps = {
   itemLabel: string;
   items: DetailItem[];
   result: string;
+  seo: ServiceSeo;
 };
 
 export function ServiceDetailPage({
@@ -23,9 +35,26 @@ export function ServiceDetailPage({
   itemLabel,
   items,
   result,
+  seo,
 }: ServiceDetailPageProps) {
   return (
     <section className="container-main page-content-template pb-20 pt-6">
+      <SeoJsonLd
+        data={[
+          createBreadcrumbSchema([
+            { name: "Ana Sayfa", path: "/" },
+            { name: "Hizmetler", path: "/hizmetler" },
+            { name: seo.name, path: seo.path },
+          ]),
+          createServiceSchema({
+            name: seo.name,
+            description: seo.description,
+            path: seo.path,
+            serviceType: seo.serviceType,
+            keywords: seo.keywords,
+          }),
+        ]}
+      />
       <div
         className="relative mb-10 overflow-hidden rounded-[32px] border border-white/10 bg-[#131b28] px-6 py-8 shadow-[0_24px_60px_rgba(0,0,0,0.22)] sm:px-8 sm:py-10"
         style={{

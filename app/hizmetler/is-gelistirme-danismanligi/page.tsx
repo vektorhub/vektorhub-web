@@ -1,4 +1,13 @@
 import { ServiceDetailPage } from "@/components/service-detail-page";
+import { createPageMetadata } from "@/lib/seo";
+
+export const metadata = createPageMetadata({
+  title: "İş Geliştirme Danışmanlığı",
+  description:
+    "Dijital görünürlük, iletişim ve büyüme tarafını birlikte ele alan iş geliştirme danışmanlığı ve uygulanabilir yol haritası hizmeti.",
+  path: "/hizmetler/is-gelistirme-danismanligi",
+  keywords: ["iş geliştirme danışmanlığı", "dijital büyüme", "iş stratejisi"],
+});
 
 const items = [
   {
@@ -29,6 +38,13 @@ export default function IsGelistirmeDanismanligiPage() {
       itemLabel="Danışmanlık Başlığı"
       items={items}
       result="Amaç daha fazla müşteri, daha net görünürlük ve sürdürülebilir büyümeyi destekleyen dijital düzen kurmaktır."
+      seo={{
+        path: "/hizmetler/is-gelistirme-danismanligi",
+        name: "İş Geliştirme Danışmanlığı",
+        description:
+          "İşletmenin büyüme, görünürlük ve dijital düzen tarafını birlikte ele alan uygulanabilir iş geliştirme danışmanlığı.",
+        serviceType: "İş geliştirme danışmanlığı",
+      }}
     />
   );
 }

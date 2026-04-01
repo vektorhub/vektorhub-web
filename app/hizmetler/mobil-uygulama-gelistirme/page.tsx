@@ -1,4 +1,13 @@
 import { ServiceDetailPage } from "@/components/service-detail-page";
+import { createPageMetadata } from "@/lib/seo";
+
+export const metadata = createPageMetadata({
+  title: "Mobil Uygulama Geliştirme",
+  description:
+    "İhtiyaca özel mobil uygulama geliştirme ile işletmenin dijital akışını, operasyonunu ve müşteri deneyimini cebe taşıyan çözümler.",
+  path: "/hizmetler/mobil-uygulama-gelistirme",
+  keywords: ["mobil uygulama geliştirme", "işletme uygulaması", "özel mobil uygulama"],
+});
 
 const items = [
   {
@@ -29,6 +38,13 @@ export default function MobilUygulamaGelistirmePage() {
       itemLabel="Geliştirme Alanı"
       items={items}
       result="Hedef, yalnızca uygulama çıkarmak değil; işletmenin işine gerçekten dokunan, kullanılabilir ve geliştirilebilir bir mobil yapı kurmaktır."
+      seo={{
+        path: "/hizmetler/mobil-uygulama-gelistirme",
+        name: "Mobil Uygulama Geliştirme",
+        description:
+          "İşletmeye özel senaryolara göre kurgulanan, kullanılabilir ve geliştirilebilir mobil uygulama hizmeti.",
+        serviceType: "Mobil uygulama geliştirme",
+      }}
     />
   );
 }

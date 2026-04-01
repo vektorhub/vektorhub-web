@@ -1,4 +1,13 @@
 import { ServiceDetailPage } from "@/components/service-detail-page";
+import { createPageMetadata } from "@/lib/seo";
+
+export const metadata = createPageMetadata({
+  title: "Sosyal Medya Yönetimi",
+  description:
+    "İşletmenin sosyal medya hesaplarını daha düzenli, aktif ve güven veren bir dijital vitrine dönüştüren sosyal medya yönetimi hizmeti.",
+  path: "/hizmetler/sosyal-medya-yonetimi",
+  keywords: ["sosyal medya yönetimi", "kurumsal sosyal medya", "dijital görünüm"],
+});
 
 const items = [
   {
@@ -29,6 +38,13 @@ export default function SosyalMedyaYonetimiPage() {
       itemLabel="Yönetim Alanı"
       items={items}
       result="Amaç, işletmenin sosyal medyada daha net görünmesi, daha düzenli iletişim kurması ve marka algısını güçlendirmesidir."
+      seo={{
+        path: "/hizmetler/sosyal-medya-yonetimi",
+        name: "Sosyal Medya Yönetimi",
+        description:
+          "Sosyal medya hesaplarını aktif, güven veren ve marka algısını destekleyen bir iletişim alanına dönüştüren hizmet.",
+        serviceType: "Sosyal medya yönetimi",
+      }}
     />
   );
 }
