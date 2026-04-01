@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
 import { AnnouncementBar } from "@/components/announcement-bar";
@@ -128,6 +129,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="apple-touch-icon" href="/apple-icon" />
       </head>
       <body className="bg-[#0b1220] text-white antialiased">
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=AW-17981307453"
+          strategy="afterInteractive"
+        />
+        <Script id="google-ads-gtag" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'AW-17981307453');
+          `}
+        </Script>
         <script
           type="application/ld+json"
           // JSON-LD enables rich results and clearer business understanding for search engines.
