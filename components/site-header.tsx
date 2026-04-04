@@ -23,6 +23,7 @@ const navItems = [
       { href: "/hizmetler/logo-tasarimi", label: "Logo Tasarımı" },
     ],
   },
+  { href: "/demo-siteler", label: "Demo Siteler", accent: true },
   { href: "/referanslar", label: "Referanslar" },
   { href: "/iletisim", label: "İletişim" },
 ];
@@ -194,7 +195,11 @@ export function SiteHeader() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="rounded-xl bg-white/5 px-4 py-3 text-white/90 hover:bg-white/10"
+                className={`rounded-xl px-4 py-3 transition ${
+                  item.accent
+                    ? "demo-nav-mobile text-white"
+                    : "bg-white/5 text-white/90 hover:bg-white/10"
+                }`}
                 onClick={() => setMobileOpen(false)}
               >
                 {item.label}
@@ -251,9 +256,13 @@ export function SiteHeader() {
                   <Link
                     href={item.href}
                     className={`w-full rounded-xl px-2.5 py-2 text-left text-[13px] leading-none transition ${
-                      pathname === item.href || (item.href !== "/" && pathname.startsWith(`${item.href}/`))
-                        ? "border border-white/10 bg-white/[0.08] font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
-                        : "border border-transparent bg-transparent font-medium text-white/78 hover:bg-white/[0.045] hover:text-white"
+                      item.accent
+                        ? pathname === item.href || pathname.startsWith(`${item.href}/`)
+                          ? "demo-nav-item demo-nav-item-active"
+                          : "demo-nav-item"
+                        : pathname === item.href || (item.href !== "/" && pathname.startsWith(`${item.href}/`))
+                          ? "border border-white/10 bg-white/[0.08] font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+                          : "border border-transparent bg-transparent font-medium text-white/78 hover:bg-white/[0.045] hover:text-white"
                     }`}
                   >
                     {item.label}
