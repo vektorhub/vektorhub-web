@@ -13,6 +13,13 @@ export const metadata = createPageMetadata({
 
 const demoCards = [
   {
+    href: "/demo-siteler/dogusel",
+    title: "Doğusel",
+    tone: "Kurumsal / endüstriyel",
+    bg: "linear-gradient(135deg,#07131f 0%,#11324a 38%,#6f8797 72%,#eef3f6 100%)",
+    badge: "Grup Vitrini",
+  },
+  {
     href: "/demo-siteler/emlak",
     title: "Emlak",
     tone: "Altın / premium",
