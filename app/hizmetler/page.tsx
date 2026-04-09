@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PricingShowcase } from "@/components/pricing-showcase";
 import { SeoJsonLd } from "@/components/seo-json-ld";
 import { createBreadcrumbSchema, createPageMetadata } from "@/lib/seo";
 
@@ -62,7 +63,7 @@ const servicePages = [
   },
 ];
 
-export default function HizmetlerPage() {
+export default async function HizmetlerPage() {
   return (
     <section className="container-main page-content-template py-20">
       <SeoJsonLd
@@ -86,7 +87,7 @@ export default function HizmetlerPage() {
             Ölçülü ve Uygulanabilir
           </span>
           <h1 className="mt-4 text-3xl font-black leading-tight text-white sm:text-4xl lg:text-[2.8rem]">
-            Web'den mobil uygulamaya, görünürlükten iş geliştirmeye uzanan sade ama güçlü hizmetler.
+            Web&apos;den mobil uygulamaya, görünürlükten iş geliştirmeye uzanan sade ama güçlü hizmetler.
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-8 text-white/72 sm:text-lg">
             VektörHUB, broşür ve saha dilinde anlattığı hizmetleri sitede de aynı açıklıkla sunar.
@@ -138,6 +139,8 @@ export default function HizmetlerPage() {
           </Link>
         ))}
       </div>
+
+      <PricingShowcase className="mt-12 py-0" />
     </section>
   );
 }

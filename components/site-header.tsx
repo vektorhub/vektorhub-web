@@ -10,6 +10,7 @@ const navItems = [
   { href: "/about", label: "Hakkımızda" },
   { href: "/misyon", label: "Misyon" },
   { href: "/vizyon", label: "Vizyon" },
+  { href: "/fiyat-listesi", label: "Fiyat Listesi" },
   {
     href: "/hizmetler",
     label: "Hizmetler",
@@ -225,12 +226,9 @@ export function SiteHeader() {
         style={{ overflow: "visible", top: "calc(92px + 8px)", bottom: "8px" }}
       >
         <div className="flex min-h-0 flex-1 flex-col rounded-[1rem] border border-white/8 bg-[linear-gradient(180deg,rgba(9,19,31,0.92),rgba(7,15,25,0.97))] p-2">
-          <div className="mb-2 flex items-center justify-between">
-            <div>
-              <div className="text-[9px] font-semibold uppercase tracking-[0.18em] text-orange-300/90">
-                Navigasyon
-              </div>
-              <div className="mt-1 text-[11px] font-medium text-white/58">Bölümler</div>
+          <div className="mb-1.5 flex items-center justify-between">
+            <div className="text-[9px] font-semibold uppercase tracking-[0.18em] text-orange-300/90">
+              Menü
             </div>
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -241,7 +239,7 @@ export function SiteHeader() {
             </button>
           </div>
 
-          <nav className="flex flex-col gap-1">
+          <nav className="flex flex-col gap-0.5">
             {navItems.map((item) => (
               <div
                 key={item.href}

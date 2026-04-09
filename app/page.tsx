@@ -1,5 +1,6 @@
 import { CalendarPreview } from "@/components/calendar-preview";
 import { HeroSection } from "@/components/hero-section";
+import { PricingShowcase } from "@/components/pricing-showcase";
 import { SeoJsonLd } from "@/components/seo-json-ld";
 import { ServicePackages } from "@/components/service-packages";
 import {
@@ -16,7 +17,7 @@ export const metadata = createPageMetadata({
   keywords: ["kurumsal web sitesi", "kocaeli seo", "körfez seo", "dijital ofis"],
 });
 
-export default function HomePage() {
+export default async function HomePage() {
   return (
     <>
       <SeoJsonLd
@@ -33,6 +34,7 @@ export default function HomePage() {
         ]}
       />
       <HeroSection />
+      <PricingShowcase />
       <ServicePackages />
       <CalendarPreview />
     </>
