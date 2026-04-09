@@ -13,6 +13,13 @@ export const metadata = createPageMetadata({
 
 const demoCards = [
   {
+    href: "/demo-siteler/matematik-ogretmeni",
+    title: "Matematik Öğretmeni",
+    tone: "Neon / eğitim sahnesi",
+    bg: "linear-gradient(135deg,#140f2f 0%,#2442d6 34%,#22c7f8 70%,#fff6a6 100%)",
+    badge: "Eğitim Akışı",
+  },
+  {
     href: "/demo-siteler/dogusel",
     title: "Doğusel",
     tone: "Kurumsal / endüstriyel",

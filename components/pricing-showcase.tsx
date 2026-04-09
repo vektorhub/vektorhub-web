@@ -1,18 +1,57 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { ArrowRight, Check } from "lucide-react";
 
-import { getPublicPricingSection } from "@/lib/public-pricing";
+import type { PublicPricingSection } from "@/lib/public-pricing";
 
 type PricingShowcaseProps = {
   className?: string;
+};
+
+const FALLBACK_SECTION: PublicPricingSection = {
+  eyebrow: "Guncel Fiyat Listesi",
+  title: "Fiyat tablosu merkez ofisten canli olarak okunur",
+  description:
+    "Bu alan vektorhub_hq tarafindaki fiyat listesini gostermek icin hazirlandi. Liste yayinlandiginda burada otomatik gorunur.",
+  updatedAtLabel: null,
+  items: [],
+  source: "fallback",
 };
 
 function joinClassNames(...values: Array<string | undefined>) {
   return values.filter(Boolean).join(" ");
 }
 
-export async function PricingShowcase({ className }: PricingShowcaseProps) {
-  const section = await getPublicPricingSection();
+export function PricingShowcase({ className }: PricingShowcaseProps) {
+  const [section, setSection] = useState<PublicPricingSection>(FALLBACK_SECTION);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadPricing() {
+      try {
+        const response = await fetch("/api/public/pricing", { cache: "no-store" });
+        if (!response.ok) {
+          return;
+        }
+
+        const data = (await response.json()) as PublicPricingSection;
+        if (!cancelled) {
+          setSection(data);
+        }
+      } catch {
+        // Fallback state stays visible if pricing endpoint cannot be reached.
+      }
+    }
+
+    void loadPricing();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   if (section.items.length === 0) {
     return (
