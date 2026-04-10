@@ -25,6 +25,7 @@ const navItems = [
     ],
   },
   { href: "/demo-siteler", label: "Demo Siteler", accent: true },
+  { href: "/ucretsiz-uygulamalar", label: "Ucretsiz Uygulamalar", accent: true },
   { href: "/referanslar", label: "Referanslar" },
   { href: "/iletisim", label: "İletişim" },
 ];

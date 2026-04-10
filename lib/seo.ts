@@ -48,6 +48,7 @@ export const publicSiteRoutes: PublicRouteConfig[] = [
   { path: "/hizmetler/dijital-tanitim-ve-icerik-destegi", changeFrequency: "weekly", priority: 0.7 },
   { path: "/hizmetler/ihtiyaca-uygun-ozel-calismalar", changeFrequency: "weekly", priority: 0.7 },
   { path: "/demo-siteler", changeFrequency: "weekly", priority: 0.82 },
+  { path: "/ucretsiz-uygulamalar", changeFrequency: "weekly", priority: 0.78 },
   { path: "/demo-siteler/matematik-ogretmeni", changeFrequency: "weekly", priority: 0.76 },
   { path: "/demo-siteler/dogusel", changeFrequency: "weekly", priority: 0.76 },
   { path: "/demo-siteler/emlak", changeFrequency: "weekly", priority: 0.76 },

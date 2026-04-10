@@ -1,4 +1,5 @@
 import { CalendarPreview } from "@/components/calendar-preview";
+import { FreeAppsShowcase } from "@/components/free-apps-showcase";
 import { HeroSection } from "@/components/hero-section";
 import { PricingShowcase } from "@/components/pricing-showcase";
 import { SeoJsonLd } from "@/components/seo-json-ld";
@@ -34,6 +35,7 @@ export default async function HomePage() {
         ]}
       />
       <HeroSection />
+      <FreeAppsShowcase />
       <PricingShowcase />
       <ServicePackages />
       <CalendarPreview />
