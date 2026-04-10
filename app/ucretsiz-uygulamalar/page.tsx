@@ -4,11 +4,11 @@ import { freeApps } from "@/data/free-apps";
 import { createBreadcrumbSchema, createPageMetadata, createServiceSchema } from "@/lib/seo";
 
 export const metadata = createPageMetadata({
-  title: "Ucretsiz Uygulamalar",
+  title: "Ücretsiz Uygulamalar",
   description:
-    "VektorHUB tarafindan yayinlanan ucretsiz masaustu ve mobil uygulamalari indirilebilir paketleriyle inceleyin.",
+    "VektörHUB tarafından yayınlanan ücretsiz masaüstü ve mobil uygulamaları indirilebilir paketleriyle inceleyin.",
   path: "/ucretsiz-uygulamalar",
-  keywords: ["ucretsiz uygulamalar", "windows uygulama indir", "vektorhub araclari"],
+  keywords: ["ücretsiz uygulamalar", "windows uygulama indir", "vektörhub araçları"],
 });
 
 export default function FreeAppsPage() {
@@ -18,15 +18,15 @@ export default function FreeAppsPage() {
         data={[
           createBreadcrumbSchema([
             { name: "Ana Sayfa", path: "/" },
-            { name: "Ucretsiz Uygulamalar", path: "/ucretsiz-uygulamalar" },
+            { name: "Ücretsiz Uygulamalar", path: "/ucretsiz-uygulamalar" },
           ]),
           createServiceSchema({
-            name: "Ucretsiz Uygulamalar",
+            name: "Ücretsiz Uygulamalar",
             description:
-              "VektorHUB tarafindan yayinlanan indirilebilir yardimci uygulamalar ve araclar.",
+              "VektörHUB tarafından yayınlanan indirilebilir yardımcı uygulamalar ve araçlar.",
             path: "/ucretsiz-uygulamalar",
-            serviceType: "Ucretsiz uygulama yayini ve indirme sayfasi",
-            keywords: ["windows utility", "ucretsiz araclar", "indirilebilir uygulamalar"],
+            serviceType: "Ücretsiz uygulama yayını ve indirme sayfası",
+            keywords: ["windows utility", "ücretsiz araçlar", "indirilebilir uygulamalar"],
           }),
         ]}
       />
@@ -35,14 +35,14 @@ export default function FreeAppsPage() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,106,0,0.24),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(59,130,246,0.16),transparent_30%)]" />
         <div className="relative max-w-3xl">
           <span className="inline-flex rounded-full border border-emerald-300/22 bg-emerald-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-emerald-200">
-            Ucretsiz Uygulamalar
+            Ücretsiz Uygulamalar
           </span>
           <h1 className="mt-4 text-3xl font-black leading-tight text-white sm:text-4xl">
-            Hazir uygulamalarimizi indirilebilir paketlerle yayinliyoruz.
+            Hazır uygulamalarımızı indirilebilir paketlerle yayınlıyoruz.
           </h1>
           <p className="mt-4 text-sm leading-7 text-white/68 sm:text-base">
-            Burasi sadece bir indirme alani degil. VektorHUB&apos;un urettigi calisan uygulamalari sergiledigi, marka
-            guvenini ve teknik kapasitesini gosterdigi acik vitrin alani olarak tasarlandi.
+            Burası sadece bir indirme alanı değil. VektörHUB&apos;un ürettiği çalışan uygulamaları sergilediği, marka
+            güvenini ve teknik kapasitesini gösterdiği açık vitrin alanı olarak tasarlandı.
           </p>
         </div>
       </div>
@@ -77,7 +77,7 @@ export default function FreeAppsPage() {
                   <div className="mt-4 flex flex-wrap gap-2 text-[11px] uppercase tracking-[0.16em] text-white/42">
                     <span className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5">{app.platform}</span>
                     <span className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5">
-                      Surum {app.version}
+                      Sürüm {app.version}
                     </span>
                   </div>
 
@@ -92,22 +92,22 @@ export default function FreeAppsPage() {
               </div>
 
               <div className="lg:w-[18rem]">
-                <a
-                  href={app.downloadUrl}
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-orange-500 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-500/25 transition hover:scale-[1.01]"
-                >
-                  <ArrowDownToLine className="h-4 w-4" />
-                  Kurulum Paketini Indir
-                </a>
+                  <a
+                    href={app.downloadUrl}
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-orange-500 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-500/25 transition hover:scale-[1.01]"
+                  >
+                    <ArrowDownToLine className="h-4 w-4" />
+                    Kurulum Paketini İndir
+                  </a>
 
                 <div className="mt-4 rounded-[22px] border border-white/10 bg-white/[0.04] p-4">
                   <div className="flex items-center gap-2 text-sm font-semibold text-white">
                     <Download className="h-4 w-4 text-orange-300" />
-                    Indirme Notu
+                    İndirme Notu
                   </div>
                   <p className="mt-3 text-sm leading-7 text-white/66">
-                    Paket icinde kurulum dosyalari bulunur. Kurulum tamamlandiginda uygulama masaustune ve baslat
-                    menusune kisayol birakir.
+                    Paket içinde kurulum dosyaları bulunur. Kurulum tamamlandığında uygulama masaüstüne ve başlat
+                    menüsüne kısayol bırakır.
                   </p>
                 </div>
               </div>

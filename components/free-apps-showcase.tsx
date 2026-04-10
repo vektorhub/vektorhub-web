@@ -12,14 +12,14 @@ export function FreeAppsShowcase() {
             <div className="max-w-3xl">
               <div className="inline-flex items-center gap-2 rounded-full border border-emerald-300/20 bg-emerald-500/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-200">
                 <Sparkles className="h-3.5 w-3.5" />
-                Ucretsiz Uygulamalar
+                Ücretsiz Uygulamalar
               </div>
               <h2 className="mt-4 text-3xl font-black leading-tight text-white sm:text-4xl">
-                Hazir, indirilebilir ve isletmeye direkt fayda veren uygulamalar.
+                Hazır, indirilebilir ve işletmeye direkt fayda veren uygulamalar.
               </h2>
               <p className="mt-3 max-w-2xl text-sm leading-7 text-white/70 sm:text-base">
-                Bitirdigimiz faydali uygulamalari acik bir vitrine tasiyoruz. Hem marka guveni hem de dogrudan
-                indirme odakli bir reklam alani olarak calisiyor.
+                Bitirdiğimiz faydalı uygulamaları açık bir vitrine taşıyoruz. Hem marka güveni hem de doğrudan
+                indirme odaklı bir reklam alanı olarak çalışıyor.
               </p>
             </div>
 
@@ -27,7 +27,7 @@ export function FreeAppsShowcase() {
               href="/ucretsiz-uygulamalar"
               className="inline-flex items-center justify-center rounded-2xl border border-white/14 bg-white/6 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
             >
-              Tum Uygulamalari Goster
+              Tüm Uygulamaları Göster
             </Link>
           </div>
 
@@ -57,7 +57,7 @@ export function FreeAppsShowcase() {
                       <div className="mt-3 flex flex-wrap gap-2 text-[11px] uppercase tracking-[0.16em] text-white/42">
                         <span className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5">{app.platform}</span>
                         <span className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5">
-                          Surum {app.version}
+                          Sürüm {app.version}
                         </span>
                       </div>
                     </div>
@@ -69,13 +69,13 @@ export function FreeAppsShowcase() {
                       className="inline-flex items-center justify-center gap-2 rounded-2xl bg-orange-500 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-500/25 transition hover:scale-[1.01]"
                     >
                       <ArrowDownToLine className="h-4 w-4" />
-                      Windows Icin Indir
+                      Windows İçin İndir
                     </a>
                     <Link
                       href="/ucretsiz-uygulamalar"
                       className="inline-flex items-center justify-center rounded-2xl border border-white/12 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
                     >
-                      Detaylari Gor
+                      Detayları Gör
                     </Link>
                   </div>
                 </div>

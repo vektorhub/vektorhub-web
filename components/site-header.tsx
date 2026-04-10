@@ -25,7 +25,7 @@ const navItems = [
     ],
   },
   { href: "/demo-siteler", label: "Demo Siteler", accent: true },
-  { href: "/ucretsiz-uygulamalar", label: "Ucretsiz Uygulamalar", accent: true },
+  { href: "/ucretsiz-uygulamalar", label: "Ücretsiz Uygulamalar", accent: true },
   { href: "/referanslar", label: "Referanslar" },
   { href: "/iletisim", label: "İletişim" },
 ];
@@ -125,7 +125,7 @@ export function SiteHeader() {
           backgroundRepeat: "no-repeat",
           backgroundBlendMode: isWorkspaceMode ? "normal" : "overlay",
         }}
-        >
+      >
         <Link
           href="/"
           className={`absolute top-1/2 z-20 hidden min-w-0 -translate-y-1/2 items-center gap-3 text-left lg:flex ${
@@ -144,17 +144,14 @@ export function SiteHeader() {
           </>
         )}
 
-        <div className={`container-main relative z-10 flex items-center justify-between gap-3 ${
-          isWorkspaceMode
-            ? "min-h-[68px] py-2 sm:min-h-[72px] sm:py-2.5 lg:min-h-[76px]"
-            : "min-h-[76px] py-2.5 sm:min-h-[84px] sm:py-3 lg:min-h-[92px] lg:items-end lg:justify-end lg:gap-4"
-        }`}>
-          <Link
-            href="/"
-            className={`relative z-10 flex min-w-0 items-center gap-3 text-left ${
-              "lg:hidden"
-            }`}
-          >
+        <div
+          className={`container-main relative z-10 flex items-center justify-between gap-3 ${
+            isWorkspaceMode
+              ? "min-h-[68px] py-2 sm:min-h-[72px] sm:py-2.5 lg:min-h-[76px]"
+              : "min-h-[76px] py-2.5 pr-28 sm:min-h-[84px] sm:py-3 sm:pr-36 lg:min-h-[92px] lg:items-end lg:justify-end lg:gap-4 lg:pr-[15.5rem]"
+          }`}
+        >
+          <Link href="/" className="relative z-10 flex min-w-0 items-center gap-3 text-left lg:hidden">
             {brandContent}
           </Link>
 
@@ -169,24 +166,35 @@ export function SiteHeader() {
         </div>
 
         {!isWorkspaceMode && (
-        <a
-          href="https://wa.me/905333850572"
-          target="_blank"
-          rel="noreferrer"
-          aria-label="WhatsApp ile iletişime geç"
-          title="WhatsApp"
-          className="whatsapp-header-cta transition duration-300 hover:-translate-y-0.5 hover:scale-[1.04] hover:border-emerald-200/46 hover:shadow-[0_18px_34px_rgba(16,185,129,0.34)]"
-        >
-          <span className="relative z-10 flex h-full w-full items-center justify-center">
-            <MessageCircleMore className="h-[0.92rem] w-[0.92rem]" />
-          </span>
-        </a>
+          <div className="absolute right-2 top-2 z-20 hidden items-center gap-2 md:flex lg:right-3 lg:top-3">
+            <Link
+              href="/musteri-girisi"
+              className="header-login-glow isolate flex h-10 items-center gap-2 overflow-hidden rounded-full border border-orange-300/30 bg-[linear-gradient(135deg,rgba(255,106,0,0.94),rgba(255,140,56,0.84))] px-3.5 text-[11px] font-semibold text-white shadow-[0_16px_36px_rgba(255,106,0,0.28)] transition hover:-translate-y-0.5 hover:border-orange-200/40 hover:shadow-[0_18px_40px_rgba(255,106,0,0.36)]"
+            >
+              <span aria-hidden className="header-login-energy absolute inset-0 rounded-full" />
+              <span className="relative z-10 flex h-6 w-6 items-center justify-center rounded-full border border-white/18 bg-white/14 text-white">
+                <UserCircle2 className="h-3.5 w-3.5" />
+              </span>
+              <span className="relative z-10 whitespace-nowrap tracking-[0.02em]">Müşteri Portalı</span>
+            </Link>
+
+            <a
+              href="https://wa.me/905333850572"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="WhatsApp ile iletişime geç"
+              title="WhatsApp"
+              className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-emerald-300/28 bg-[linear-gradient(135deg,rgba(16,185,129,0.96),rgba(5,150,105,0.88))] text-white shadow-[0_14px_30px_rgba(16,185,129,0.24)] transition duration-300 hover:-translate-y-0.5 hover:scale-[1.04] hover:border-emerald-200/46 hover:shadow-[0_18px_34px_rgba(16,185,129,0.34)]"
+            >
+              <span className="relative z-10 flex h-full w-full items-center justify-center">
+                <MessageCircleMore className="h-[0.92rem] w-[0.92rem]" />
+              </span>
+            </a>
+          </div>
         )}
 
         {!isWorkspaceMode && (
-          <>
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-[linear-gradient(180deg,rgba(7,16,29,0)_0%,rgba(11,18,32,0.1)_22%,rgba(11,18,32,0.24)_44%,rgba(11,18,32,0.45)_66%,rgba(11,18,32,0.7)_84%,rgba(11,18,32,0.96)_100%)] sm:h-16 lg:h-20" />
-          </>
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-[linear-gradient(180deg,rgba(7,16,29,0)_0%,rgba(11,18,32,0.1)_22%,rgba(11,18,32,0.24)_44%,rgba(11,18,32,0.45)_66%,rgba(11,18,32,0.7)_84%,rgba(11,18,32,0.96)_100%)] sm:h-16 lg:h-20" />
         )}
       </div>
 
@@ -198,9 +206,7 @@ export function SiteHeader() {
                 key={item.href}
                 href={item.href}
                 className={`rounded-xl px-4 py-3 transition ${
-                  item.accent
-                    ? "demo-nav-mobile text-white"
-                    : "bg-white/5 text-white/90 hover:bg-white/10"
+                  item.accent ? "demo-nav-mobile text-white" : "bg-white/5 text-white/90 hover:bg-white/10"
                 }`}
                 onClick={() => setMobileOpen(false)}
               >
@@ -220,132 +226,121 @@ export function SiteHeader() {
       )}
 
       {!isWorkspaceMode && (
-      <aside
-        className={`fixed left-2 z-40 hidden w-[9.75rem] flex-col rounded-[1.4rem] border border-white/8 bg-[linear-gradient(180deg,rgba(11,22,36,0.94),rgba(8,17,29,0.98))] p-2 shadow-[0_24px_60px_rgba(0,0,0,0.3)] transition-transform duration-300 ease-in-out lg:flex ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-40"
-        }`}
-        style={{ overflow: "visible", top: "calc(92px + 8px)", bottom: "8px" }}
-      >
-        <div className="flex min-h-0 flex-1 flex-col rounded-[1rem] border border-white/8 bg-[linear-gradient(180deg,rgba(9,19,31,0.92),rgba(7,15,25,0.97))] p-2">
-          <div className="mb-1.5 flex items-center justify-between">
-            <div className="text-[9px] font-semibold uppercase tracking-[0.18em] text-orange-300/90">
-              Menü
-            </div>
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="flex h-6 w-6 items-center justify-center rounded-full border border-white/8 bg-white/[0.04] text-[10px] text-orange-300 transition hover:bg-white/[0.08]"
-              aria-label="Toggle sidebar"
-            >
-              {sidebarOpen ? "‹" : ">"}
-            </button>
-          </div>
-
-          <nav className="flex flex-col gap-0.5">
-            {navItems.map((item) => (
-              <div
-                key={item.href}
-                className="relative"
-                onMouseEnter={() => item.children && setHoveredMenu(item.href)}
-                onMouseLeave={() =>
-                  item.children &&
-                  setHoveredMenu((current) => (current === item.href ? null : current))
-                }
+        <aside
+          className={`fixed left-2 z-40 hidden w-[9.75rem] flex-col rounded-[1.4rem] border border-white/8 bg-[linear-gradient(180deg,rgba(11,22,36,0.94),rgba(8,17,29,0.98))] p-2 shadow-[0_24px_60px_rgba(0,0,0,0.3)] transition-transform duration-300 ease-in-out lg:flex ${
+            sidebarOpen ? "translate-x-0" : "-translate-x-40"
+          }`}
+          style={{ overflow: "visible", top: "calc(92px + 8px)", bottom: "8px" }}
+        >
+          <div className="flex min-h-0 flex-1 flex-col rounded-[1rem] border border-white/8 bg-[linear-gradient(180deg,rgba(9,19,31,0.92),rgba(7,15,25,0.97))] p-2">
+            <div className="mb-1.5 flex items-center justify-between">
+              <div className="text-[9px] font-semibold uppercase tracking-[0.18em] text-orange-300/90">
+                Menü
+              </div>
+              <button
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="flex h-6 w-6 items-center justify-center rounded-full border border-white/8 bg-white/[0.04] text-[10px] text-orange-300 transition hover:bg-white/[0.08]"
+                aria-label="Toggle sidebar"
               >
-                <div className="flex items-center justify-between gap-1.5">
-                  <Link
-                    href={item.href}
-                    className={`w-full rounded-xl px-2.5 py-2 text-left text-[13px] leading-none transition ${
-                      item.accent
-                        ? pathname === item.href || pathname.startsWith(`${item.href}/`)
-                          ? "demo-nav-item demo-nav-item-active"
-                          : "demo-nav-item"
-                        : pathname === item.href || (item.href !== "/" && pathname.startsWith(`${item.href}/`))
-                          ? "border border-white/10 bg-white/[0.08] font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
-                          : "border border-transparent bg-transparent font-medium text-white/78 hover:bg-white/[0.045] hover:text-white"
-                    }`}
-                  >
-                    {item.label}
-                  </Link>
-                  {item.children && (
-                    <span className="rounded-full bg-white/[0.04] p-1 text-orange-300">
-                      <ChevronRight className="h-3.5 w-3.5" />
-                    </span>
-                  )}
-                </div>
+                {sidebarOpen ? "‹" : ">"}
+              </button>
+            </div>
 
-                {item.children && hoveredMenu === item.href && (
-                  <div className="absolute left-full top-0 z-50 w-[13.5rem] pl-2">
-                    <div className="absolute inset-y-0 left-0 w-2" />
-                    <div className="rounded-[1rem] border border-white/10 bg-[#0c1623]/96 p-2 shadow-[0_18px_40px_rgba(0,0,0,0.32)] backdrop-blur-md">
-                      <div className="mb-1 px-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-orange-300">
-                        Hizmetler
-                      </div>
-                      <div className="flex flex-col gap-1">
-                        {item.children.map((ch) => (
-                          <Link
-                            key={ch.href}
-                            href={ch.href}
-                            className="rounded-xl bg-white/[0.03] px-2.5 py-2 text-[11px] leading-tight text-white/82 transition hover:bg-white/[0.08] hover:text-white"
-                          >
-                            {ch.label}
-                          </Link>
-                        ))}
+            <nav className="flex flex-col gap-0.5">
+              {navItems.map((item) => (
+                <div
+                  key={item.href}
+                  className="relative"
+                  onMouseEnter={() => item.children && setHoveredMenu(item.href)}
+                  onMouseLeave={() =>
+                    item.children &&
+                    setHoveredMenu((current) => (current === item.href ? null : current))
+                  }
+                >
+                  <div className="flex items-center justify-between gap-1.5">
+                    <Link
+                      href={item.href}
+                      className={`w-full rounded-xl px-2.5 py-2 text-left text-[13px] leading-none transition ${
+                        item.accent
+                          ? pathname === item.href || pathname.startsWith(`${item.href}/`)
+                            ? "demo-nav-item demo-nav-item-active"
+                            : "demo-nav-item"
+                          : pathname === item.href || (item.href !== "/" && pathname.startsWith(`${item.href}/`))
+                            ? "border border-white/10 bg-white/[0.08] font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+                            : "border border-transparent bg-transparent font-medium text-white/78 hover:bg-white/[0.045] hover:text-white"
+                      }`}
+                    >
+                      {item.label}
+                    </Link>
+                    {item.children && (
+                      <span className="rounded-full bg-white/[0.04] p-1 text-orange-300">
+                        <ChevronRight className="h-3.5 w-3.5" />
+                      </span>
+                    )}
+                  </div>
+
+                  {item.children && hoveredMenu === item.href && (
+                    <div className="absolute left-full top-0 z-50 w-[13.5rem] pl-2">
+                      <div className="absolute inset-y-0 left-0 w-2" />
+                      <div className="rounded-[1rem] border border-white/10 bg-[#0c1623]/96 p-2 shadow-[0_18px_40px_rgba(0,0,0,0.32)] backdrop-blur-md">
+                        <div className="mb-1 px-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-orange-300">
+                          Hizmetler
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          {item.children.map((ch) => (
+                            <Link
+                              key={ch.href}
+                              href={ch.href}
+                              className="rounded-xl bg-white/[0.03] px-2.5 py-2 text-[11px] leading-tight text-white/82 transition hover:bg-white/[0.08] hover:text-white"
+                            >
+                              {ch.label}
+                            </Link>
+                          ))}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            ))}
-          </nav>
-        </div>
-
-        <Link
-          href="/musteri-girisi"
-          className="header-login-glow mt-3 isolate flex items-center justify-center gap-2 overflow-hidden rounded-[1rem] border border-orange-300/30 bg-[linear-gradient(135deg,rgba(255,106,0,0.92),rgba(255,140,56,0.82))] px-3 py-2 text-[11px] font-semibold text-white shadow-[0_16px_36px_rgba(255,106,0,0.28)] transition hover:scale-[1.01] hover:border-orange-200/40 hover:shadow-[0_18px_40px_rgba(255,106,0,0.36)]"
-        >
-          <span aria-hidden className="header-login-energy absolute inset-0 rounded-[1rem]" />
-          <span className="relative z-10 flex h-6 w-6 items-center justify-center rounded-full border border-white/18 bg-white/14 text-white">
-            <UserCircle2 className="h-3.5 w-3.5" />
-          </span>
-          <span className="relative z-10 tracking-[0.02em]">Müşteri Portalı</span>
-        </Link>
-
-        <div className="mt-3 rounded-[1rem] border border-white/8 bg-[linear-gradient(180deg,rgba(8,17,29,0.96),rgba(7,14,23,0.98))] p-2">
-          <div className="mb-2">
-            <div className="text-[9px] font-semibold uppercase tracking-[0.16em] text-orange-300/85">
-              Takvim
-            </div>
-            <div className="mt-1 text-[10px] font-medium capitalize text-white/72">{monthLabel}</div>
-          </div>
-          <div className="grid grid-cols-7 gap-1 text-center text-[8px] text-white/34">
-            {weekDays.map((day) => (
-              <div key={day} className="py-0">
-                {day}
-              </div>
-            ))}
-          </div>
-          <div className="mt-1.5 grid grid-cols-7 gap-1 text-center text-[8px]">
-            {calendarDays.map((day, index) => {
-              const isToday = day === today.getDate();
-
-              return (
-                <div
-                  key={`${day ?? "empty"}-${index}`}
-                  className={`flex h-4.5 items-center justify-center rounded-md ${
-                    day
-                      ? isToday
-                        ? "bg-orange-500 text-white shadow-[0_6px_14px_rgba(255,106,0,0.28)]"
-                        : "bg-white/[0.04] text-white/68"
-                      : "bg-transparent text-transparent"
-                  }`}
-                >
-                  {day ?? "."}
+                  )}
                 </div>
-              );
-            })}
+              ))}
+            </nav>
           </div>
-        </div>
-      </aside>
+
+          <div className="mt-3 rounded-[1rem] border border-white/8 bg-[linear-gradient(180deg,rgba(8,17,29,0.96),rgba(7,14,23,0.98))] p-2">
+            <div className="mb-2">
+              <div className="text-[9px] font-semibold uppercase tracking-[0.16em] text-orange-300/85">
+                Takvim
+              </div>
+              <div className="mt-1 text-[10px] font-medium capitalize text-white/72">{monthLabel}</div>
+            </div>
+            <div className="grid grid-cols-7 gap-1 text-center text-[8px] text-white/34">
+              {weekDays.map((day) => (
+                <div key={day} className="py-0">
+                  {day}
+                </div>
+              ))}
+            </div>
+            <div className="mt-1.5 grid grid-cols-7 gap-1 text-center text-[8px]">
+              {calendarDays.map((day, index) => {
+                const isToday = day === today.getDate();
+
+                return (
+                  <div
+                    key={`${day ?? "empty"}-${index}`}
+                    className={`flex h-4.5 items-center justify-center rounded-md ${
+                      day
+                        ? isToday
+                          ? "bg-orange-500 text-white shadow-[0_6px_14px_rgba(255,106,0,0.28)]"
+                          : "bg-white/[0.04] text-white/68"
+                        : "bg-transparent text-transparent"
+                    }`}
+                  >
+                    {day ?? "."}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </aside>
       )}
 
       {!isWorkspaceMode && !sidebarOpen && (
