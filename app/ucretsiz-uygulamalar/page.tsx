@@ -1,4 +1,5 @@
 import { ArrowDownToLine, BadgeCheck, Download, MonitorSmartphone } from "lucide-react";
+import { FreeAppDownloadCount } from "@/components/free-app-download-count";
 import { SeoJsonLd } from "@/components/seo-json-ld";
 import { freeApps } from "@/data/free-apps";
 import { createBreadcrumbSchema, createPageMetadata, createServiceSchema } from "@/lib/seo";
@@ -68,6 +69,7 @@ export default function FreeAppsPage() {
                       <BadgeCheck className="h-3.5 w-3.5" />
                       {app.status}
                     </span>
+                    <FreeAppDownloadCount slug={app.slug} />
                   </div>
 
                   <h2 className="mt-4 text-2xl font-black text-white">{app.name}</h2>
@@ -93,7 +95,7 @@ export default function FreeAppsPage() {
 
               <div className="lg:w-[18rem]">
                   <a
-                    href={app.downloadUrl}
+                    href={`/api/free-apps/${app.slug}/download`}
                     className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-orange-500 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-500/25 transition hover:scale-[1.01]"
                   >
                     <ArrowDownToLine className="h-4 w-4" />

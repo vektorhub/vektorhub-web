@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowDownToLine, BadgeCheck, MonitorSmartphone, Sparkles } from "lucide-react";
+import { FreeAppDownloadCount } from "@/components/free-app-download-count";
 import { freeApps } from "@/data/free-apps";
 
 export function FreeAppsShowcase() {
@@ -51,6 +52,7 @@ export function FreeAppsShowcase() {
                           <BadgeCheck className="h-3.5 w-3.5" />
                           {app.status}
                         </span>
+                        <FreeAppDownloadCount slug={app.slug} />
                       </div>
                       <h3 className="mt-3 text-2xl font-black text-white">{app.name}</h3>
                       <p className="mt-2 text-sm leading-7 text-white/66">{app.description}</p>
@@ -65,7 +67,7 @@ export function FreeAppsShowcase() {
 
                   <div className="flex flex-col gap-3 lg:w-[18rem]">
                     <a
-                      href={app.downloadUrl}
+                      href={`/api/free-apps/${app.slug}/download`}
                       className="inline-flex items-center justify-center gap-2 rounded-2xl bg-orange-500 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-500/25 transition hover:scale-[1.01]"
                     >
                       <ArrowDownToLine className="h-4 w-4" />
