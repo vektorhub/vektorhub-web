@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChevronRight, Menu, MessageCircleMore, UserCircle2, X } from "lucide-react";
 
 const navItems = [
@@ -36,6 +36,8 @@ export function SiteHeader() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [hoveredMenu, setHoveredMenu] = useState<string | null>(null);
+  const [mobileMenuTop, setMobileMenuTop] = useState(96);
+  const headerBarRef = useRef<HTMLDivElement | null>(null);
   const pathname = usePathname();
   const isCustomerWorkspace =
     pathname.startsWith("/musteri/panel") || pathname.startsWith("/musteri/yeni-talep");
@@ -88,6 +90,38 @@ export function SiteHeader() {
     setMobileOpen(false);
   }, [pathname]);
 
+  useEffect(() => {
+    if (!mobileOpen) {
+      delete document.body.dataset.mobileMenu;
+      document.body.style.overflow = "";
+      return;
+    }
+
+    document.body.dataset.mobileMenu = "open";
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      delete document.body.dataset.mobileMenu;
+      document.body.style.overflow = "";
+    };
+  }, [mobileOpen]);
+
+  useEffect(() => {
+    const updateMobileMenuTop = () => {
+      const nextTop = headerBarRef.current?.getBoundingClientRect().height;
+      if (nextTop) {
+        setMobileMenuTop(Math.ceil(nextTop));
+      }
+    };
+
+    updateMobileMenuTop();
+    window.addEventListener("resize", updateMobileMenuTop);
+
+    return () => {
+      window.removeEventListener("resize", updateMobileMenuTop);
+    };
+  }, []);
+
   const brandContent = (
     <>
       {!isWorkspaceMode && (
@@ -115,6 +149,7 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-50">
       <div
+        ref={headerBarRef}
         className="relative overflow-hidden border-b border-white/8 backdrop-blur-md"
         style={{
           backgroundImage: isWorkspaceMode
@@ -146,16 +181,16 @@ export function SiteHeader() {
 
         <div
           className={`container-main relative z-10 flex items-center justify-between gap-3 ${
-            isWorkspaceMode
-              ? "min-h-[68px] py-2 sm:min-h-[72px] sm:py-2.5 lg:min-h-[76px]"
-              : "min-h-[76px] py-2.5 pr-28 sm:min-h-[84px] sm:py-3 sm:pr-36 lg:min-h-[92px] lg:items-end lg:justify-end lg:gap-4 lg:pr-[15.5rem]"
-          }`}
-        >
+             isWorkspaceMode
+               ? "min-h-[68px] py-2 sm:min-h-[72px] sm:py-2.5 lg:min-h-[76px]"
+               : "min-h-[76px] py-2.5 sm:min-h-[84px] sm:py-3 md:pr-36 lg:min-h-[92px] lg:items-end lg:justify-end lg:gap-4 lg:pr-[15.5rem]"
+           }`}
+         >
           <Link href="/" className="relative z-10 flex min-w-0 items-center gap-3 text-left lg:hidden">
             {brandContent}
           </Link>
 
-          <div className="flex items-center gap-3 self-center lg:items-end lg:self-end">
+          <div className="ml-auto flex items-center gap-3 self-center lg:items-end lg:self-end">
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
               className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-[#08101c]/90 text-white shadow-[0_12px_28px_rgba(0,0,0,0.22)] lg:hidden"
@@ -199,15 +234,16 @@ export function SiteHeader() {
       </div>
 
       {mobileOpen && (
-        <div className="border-t border-white/10 bg-[#07101d]/95 backdrop-blur-md lg:hidden">
-          <div className="container-main flex flex-col gap-2 py-4">
+        <div
+          className="fixed inset-x-0 bottom-0 z-[60] border-t border-white/10 bg-[#07101d]/95 backdrop-blur-md lg:hidden"
+          style={{ top: `${mobileMenuTop}px` }}
+        >
+          <div className="container-main flex h-full flex-col gap-2 overflow-y-auto overscroll-contain py-4 pb-24">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`rounded-xl px-4 py-3 transition ${
-                  item.accent ? "demo-nav-mobile text-white" : "bg-white/5 text-white/90 hover:bg-white/10"
-                }`}
+                className="rounded-xl bg-white/5 px-4 py-3 text-white/90 transition hover:bg-white/10"
                 onClick={() => setMobileOpen(false)}
               >
                 {item.label}

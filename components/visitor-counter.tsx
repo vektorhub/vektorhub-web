@@ -120,9 +120,32 @@ export function VisitorCounterInline() {
 
 export function VisitorCounter() {
   const count = useVisitorCount();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const syncMobileMenuState = () => {
+      setMobileMenuOpen(document.body.dataset.mobileMenu === "open");
+    };
+
+    syncMobileMenuState();
+
+    const observer = new MutationObserver(syncMobileMenuState);
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ["data-mobile-menu"],
+    });
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
 
   return (
-    <div className="pointer-events-none fixed bottom-3 right-2 z-[55] w-[8.35rem] lg:hidden sm:bottom-4 sm:right-4">
+    <div
+      className={`pointer-events-none fixed bottom-3 right-2 z-[55] w-[8.35rem] transition-opacity duration-200 lg:hidden sm:bottom-4 sm:right-4 ${
+        mobileMenuOpen ? "opacity-0" : "opacity-100"
+      }`}
+    >
       <VisitorCounterCard count={count} />
     </div>
   );
