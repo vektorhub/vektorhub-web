@@ -13,12 +13,13 @@ type SocialItem = {
 export const metadata: Metadata = {
   title: "İletişim",
   description:
-    "VektörHUB iletişim bilgileri, dijital ofis yaklaşımı ve proje görüşmeleri için resmi erişim kanalları.",
+    "VektörHUB iletişim bilgileri, fiziki ofis adresi ve proje görüşmeleri için resmi erişim kanalları.",
   alternates: {
     canonical: "/iletisim",
   },
 };
 
+const officeAddress = "Hacı Osman, Bağdat Cd. No:270/A, 41780 Körfez/Kocaeli";
 const contactItems = [
   {
     label: "Web sitesi",
@@ -100,13 +101,13 @@ export default function IletisimPage() {
 
         <h1 className="mt-5 max-w-4xl text-4xl font-black leading-[1.04] tracking-tight text-white sm:text-5xl lg:text-6xl">
           Görüşme, planlama ve
-          <span className="brand-gradient block pt-2">dijital ofis iletişimi için buradayız.</span>
+          <span className="brand-gradient block pt-2">ofis buluşmaları için buradayız.</span>
         </h1>
 
         <p className="mt-6 max-w-3xl text-base leading-8 text-white/72 sm:text-lg">
           VektörHUB ile yeni proje görüşmeleri, dijital yapı planlaması ve genel iletişim için
-          aşağıdaki resmi kanalları kullanabilirsiniz. Amacımız hızlı görünmek değil; düzenli,
-          net ve ulaşılabilir bir iletişim kurmaktır.
+          aşağıdaki resmi kanalları kullanabilirsiniz. Dijital iletişim altyapımızı korurken artık
+          fiziki ofisimizde de planlı görüşmeler gerçekleştiriyoruz.
         </p>
       </div>
 
@@ -125,20 +126,36 @@ export default function IletisimPage() {
         ))}
       </div>
 
-      <div className="mt-10 grid gap-8 xl:grid-cols-[0.92fr_1.08fr]">
+      <div className="mt-10 grid gap-8 xl:grid-cols-[1.02fr_0.98fr]">
         <div className="rounded-[2rem] border border-orange-500/15 bg-orange-500/[0.07] p-6 sm:p-7">
           <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-orange-300">
-            Dijital Ofis
+            Fiziki Ofis
           </div>
-          <p className="mt-4 text-base leading-8 text-white/74">
-            VektörHUB için web sitesi ve müşteri portalı, klasik bir ofisin dijital karşılığı gibi
-            çalışır. İletişim, planlama, doküman paylaşımı, süreç takibi ve proje koordinasyonu bu
-            yapı üzerinden düzenli ve erişilebilir şekilde yürütülür.
+          <h2 className="mt-4 text-2xl font-bold text-white sm:text-[2rem]">
+            Körfez / Kocaeli ofisimizde yüz yüze görüşebiliriz.
+          </h2>
+          <p className="mt-4 max-w-2xl text-base leading-8 text-white/74">
+            Proje değerlendirmesi, iş akışı planlaması ve kurumsal görüşmeler için artık fiziki
+            ofisimiz de aktif. Açık adres bilgimiz aşağıda yer alıyor.
           </p>
-          <p className="mt-4 text-base leading-8 text-white/74">
-            Bu nedenle bizim için iletişim yalnızca bir mesajlaşma kanalı değil; güven veren,
-            sürdürülebilir bir çalışma düzeninin parçasıdır.
-          </p>
+
+          <div className="mt-6 rounded-[1.5rem] border border-white/10 bg-black/10 p-5">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/45">
+              Adres
+            </div>
+            <div className="mt-3 text-lg font-semibold leading-8 text-white">{officeAddress}</div>
+          </div>
+
+          <div className="mt-5 flex flex-wrap gap-3">
+            <a
+              href="https://wa.me/905333850572"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/[0.05] px-5 py-3 text-sm font-semibold text-white/80 transition hover:border-white/20 hover:bg-white/[0.08]"
+            >
+              Görüşme Planla
+            </a>
+          </div>
         </div>
 
         <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.035),rgba(255,255,255,0.015))] p-6 sm:p-8">
