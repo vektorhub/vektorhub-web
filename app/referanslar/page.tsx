@@ -11,6 +11,15 @@ export const metadata: Metadata = {
 
 const references = [
   {
+    name: "DIFIKI",
+    city: "Türkiye",
+    sector: "Kitap ve dizi topluluğu",
+    focus:
+      "Kitap ve dizi odaklı topluluk yapısı için kullanıcıların içeriğe daha kolay ulaşabildiği, sade ve erişilebilir bir web sitesi yapısı hazırlandı.",
+    ctaLabel: "Canlı Site",
+    ctaHref: "https://difiki.com.tr/",
+  },
+  {
     name: "ANAHTAR EVİ",
     city: "Ümraniye / İSTANBUL",
     sector: "Çilingir ve anahtarcılık hizmetleri",
