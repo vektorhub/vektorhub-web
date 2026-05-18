@@ -104,7 +104,7 @@ export default async function HizmetlerPage() {
         <p className="mt-5 max-w-3xl text-base leading-8 text-white/70 sm:text-lg">
           Küçük ve orta ölçekli işletmeler için profesyonel web sitesi, Google görünürlüğü, sosyal
           medya yönetimi, dijital reklam, mobil uygulama, iş geliştirme ve logo tasarımı gibi
-          alanlarda uygulanabilir hizmetler sunuyoruz.
+          alanlarda uygulanabilir hizmet yapısı.
         </p>
         <p className="mt-4 max-w-3xl text-base leading-8 text-white/64 sm:text-lg">
           Hedefimiz işletmeleri gereksiz teknoloji yüküne değil, gerçekten ihtiyaç duydukları

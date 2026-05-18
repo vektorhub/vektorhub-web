@@ -1,14 +1,14 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0b1220;
-  --foreground: #f7f8fb;
-  --card: rgba(255, 255, 255, 0.06);
-  --border: rgba(255, 255, 255, 0.1);
-  --muted: rgba(255, 255, 255, 0.72);
-  --brand: #ff6a00;
-  --brand-2: #ff8a33;
-  --navy-soft: #121c2f;
+  --background: #f7f4ee;
+  --foreground: #242424;
+  --card: rgba(255, 255, 255, 0.78);
+  --border: #e4dbcf;
+  --muted: #6b665f;
+  --brand: #f47a20;
+  --brand-2: #15a6a6;
+  --navy-soft: #242424;
 }
 
 * {
@@ -32,12 +32,12 @@ a {
 }
 
 .container-main {
-  width: min(1280px, calc(100% - 32px));
+  width: min(1180px, calc(100% - 32px));
   margin-inline: auto;
 }
 
 .layout-main-shell {
-  width: min(1280px, calc(100% - 32px));
+  width: min(1180px, calc(100% - 32px));
   margin-inline: auto;
 }
 
@@ -45,7 +45,7 @@ a {
   background: var(--card);
   border: 1px solid var(--border);
   backdrop-filter: blur(16px);
-  border-radius: 24px;
+  border-radius: 8px;
 }
 
 .section-title {
@@ -77,6 +77,47 @@ a {
   color: var(--muted);
   font-size: 13px;
   line-height: 1.7;
+}
+
+.page-content-template {
+  color: #242424;
+}
+
+.page-content-template :where(.text-white, [class*="text-white/"]) {
+  color: #2b2926 !important;
+}
+
+.page-content-template :where(.text-orange-300, .text-orange-200) {
+  color: #c85f13 !important;
+}
+
+.page-content-template :where(.border-white\/10, .border-white\/8, .border-white\/12) {
+  border-color: #e4dbcf !important;
+}
+
+.page-content-template :where(.bg-white\/\[0\.03\], .bg-white\/\[0\.04\], .bg-white\/\[0\.05\]) {
+  background-color: rgba(255, 255, 255, 0.72) !important;
+}
+
+.page-content-template :where(.bg-orange-500\/10, .bg-orange-500\/\[0\.07\]) {
+  background-color: #fff0e3 !important;
+}
+
+.page-content-template :where(.brand-gradient) {
+  -webkit-text-fill-color: transparent !important;
+}
+
+.page-content-template :where(.bg-orange-500, .bg-emerald-500, .bg-blue-600) {
+  color: #ffffff !important;
+}
+
+.page-content-template :where(.bg-\[\#131b28\]) {
+  background: linear-gradient(135deg, #fffaf2, #f2fbfa) !important;
+  box-shadow: 0 22px 60px rgba(57, 47, 35, 0.08) !important;
+}
+
+.page-content-template :where(.bg-\[radial-gradient\(circle_at_top_right\2c rgba\(255\2c 106\2c 0\2c 0\.24\)\2c transparent_32\%\)\2c radial-gradient\(circle_at_bottom_left\2c rgba\(59\2c 130\2c 246\2c 0\.16\)\2c transparent_30\%\)\]) {
+  opacity: 0.16 !important;
 }
 
 .layout-main-shell > .container-main:first-child,

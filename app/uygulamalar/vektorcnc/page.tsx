@@ -27,7 +27,7 @@ export default function VektorCncPage() {
           </div>
           <div className="max-w-2xl">
             <p className="mt-4 text-xl font-black leading-tight text-white sm:text-2xl">
-              VektörCNC, üretim ve CNC odaklı akışları daha düzenli sunmak için geliştirilen mobil
+              VektörCNC, üretim ve CNC odaklı akışlar için geliştirilen düzenli mobil
               uygulama yapısıdır.
             </p>
           </div>
@@ -75,7 +75,7 @@ export default function VektorCncPage() {
 
             <span className="min-w-0">
               <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-white/55">
-                Google Play'de
+                Google Play&apos;de
               </span>
               <span className="mt-1 block text-base font-black text-white group-hover:text-orange-100">
                 İndirme Sayfası
@@ -89,7 +89,7 @@ export default function VektorCncPage() {
       <div className="page-body mt-4 max-w-3xl space-y-3 text-white/76">
         <p>Üretim odaklı yapıların dijitalde daha düzenli görünmesini sağlamak.</p>
         <p>Bilgi, akış ve kullanıcı deneyimini gereksiz karmaşıklık oluşturmadan sadeleştirmek.</p>
-        <p>Mobil kullanım için daha pratik, erişilebilir ve anlaşılır bir yapı sunmak.</p>
+        <p>Mobil kullanım için daha pratik, erişilebilir ve anlaşılır bir yapı.</p>
       </div>
 
       <p className="section-text mt-8 max-w-3xl">

@@ -136,8 +136,7 @@ export default function IletisimPage() {
             yapı üzerinden düzenli ve erişilebilir şekilde yürütülür.
           </p>
           <p className="mt-4 text-base leading-8 text-white/74">
-            Bu nedenle bizim için iletişim yalnızca bir mesajlaşma kanalı değil; güven veren,
-            sürdürülebilir bir çalışma düzeninin parçasıdır.
+            İletişim, güven veren ve sürdürülebilir bir çalışma düzeninin parçasıdır.
           </p>
         </div>
 
@@ -146,8 +145,8 @@ export default function IletisimPage() {
             Sosyal Bağlantılar
           </div>
           <p className="mt-4 text-sm leading-7 text-white/64 sm:text-[15px]">
-            Sosyal medya alanını da kurumsal iletişimin uzantısı olarak konumlandırıyoruz. Aktif
-            profiller ve hızlı temas kanalları aşağıda doğrudan erişime açık durumda.
+            Sosyal medya alanı kurumsal iletişimin uzantısıdır. Aktif profiller ve hızlı temas
+            kanalları aşağıda doğrudan erişime açık durumdadır.
           </p>
 
           <div className="mt-5 space-y-3">

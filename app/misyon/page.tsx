@@ -3,12 +3,12 @@ export default function MisyonPage() {
     {
       title: "İşe yarayan dijital düzen",
       body:
-        "Misyonumuz, işletmeler için gösterişli ama boş yapılar kurmak değil; gerçekten kullanılan, güven veren ve işi kolaylaştıran dijital sistemler oluşturmaktır.",
+        "İşletmeler için gösterişli ama boş yapılar yerine; gerçekten kullanılan, güven veren ve işi kolaylaştıran dijital sistemler.",
     },
     {
       title: "İşletmeye uygun çözüm ölçeği",
       body:
-        "Her işletmenin ihtiyacı farklıdır. Bu yüzden hazır kalıplar sunmak yerine, işletmenin ritmine ve hedeflerine uygun ölçekte çözümler geliştiririz.",
+        "Her işletmenin ihtiyacı farklıdır. Hazır kalıplar yerine işletmenin ritmine ve hedeflerine uygun çözüm ölçeği.",
     },
     {
       title: "Uzun vadeli gelişim odağı",
@@ -62,9 +62,8 @@ export default function MisyonPage() {
             Çalışma Modeli
           </div>
           <p className="mt-4 text-base leading-8 text-white/74">
-            Yaklaşımımız hazır kalıplar sunmak değildir. Önce işletmenin yapısını, ihtiyaçlarını ve
-            hedeflediği ilerleme alanını anlamaya çalışırız. Sonrasında buna uygun, sürdürülebilir
-            ve uygulanabilir bir yapı kurarız.
+            Hazır kalıplar yerine önce işletmenin yapısı, ihtiyaçları ve hedeflediği ilerleme alanı
+            değerlendirilir. Sonrasında sürdürülebilir ve uygulanabilir yapı belirlenir.
           </p>
           <p className="mt-4 text-base leading-8 text-white/74">
             Böylece kurulan sistem yalnızca bugünün ihtiyacını karşılamaz; işletmenin yarın daha
@@ -74,16 +73,15 @@ export default function MisyonPage() {
 
         <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.035),rgba(255,255,255,0.015))] p-6 sm:p-8">
           <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-orange-300">
-            Bizim İçin Misyon
+            Misyon
           </div>
           <p className="mt-4 text-base leading-8 text-white/72 sm:text-lg">
-            Misyon, yalnızca iyi görünen işler üretmek değildir. Bizim için misyon; işletmenin daha
-            verimli çalışmasına, müşterisiyle daha güçlü ilişki kurmasına ve dijitalde daha olgun bir
-            yapı haline gelmesine katkı sunmaktır.
+            Misyon, yalnızca iyi görünen işler üretmek değildir. İşletmenin daha verimli çalışması,
+            müşterisiyle daha güçlü ilişki kurması ve dijitalde daha olgun bir yapıya ulaşmasıdır.
           </p>
           <p className="mt-4 text-base leading-8 text-white/72 sm:text-lg">
             Bu yüzden VektörHUB, teknoloji ile iş geliştirme disiplinlerini bir araya getirerek
-            kurumlara yalnızca hizmet sağlayıcısı olarak değil, çözüm ve gelişim ortağı olarak yaklaşır.
+            kurumlar için çözüm ve gelişim odağı oluşturur.
           </p>
         </div>
       </div>

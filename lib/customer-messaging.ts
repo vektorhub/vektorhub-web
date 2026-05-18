@@ -706,58 +706,103 @@ export async function sendWhatsAppMessage(input: {
   const credentials = Buffer.from(
     `${config.accountSid}:${config.authToken}`,
   ).toString("base64");
+  const sendViaTwilio = async (
+    mode: "messaging_service" | "from_number",
+  ) => {
+    const payload = new URLSearchParams({
+      To: `whatsapp:${normalizedPhone}`,
+    });
 
-  const payload = new URLSearchParams({
-    To: `whatsapp:${normalizedPhone}`,
-  });
-  if (config.messagingServiceSid) {
-    payload.set("MessagingServiceSid", config.messagingServiceSid);
-  } else {
-    payload.set("From", config.whatsappFrom);
-  }
-  payload.set(
-    "StatusCallback",
-    `${getMessagingBaseUrl()}/api/twilio/whatsapp/status`,
-  );
+    if (mode === "messaging_service") {
+      payload.set("MessagingServiceSid", config.messagingServiceSid);
+    } else {
+      payload.set("From", config.whatsappFrom);
+    }
 
-  if (input.contentSid) {
-    payload.set("ContentSid", input.contentSid);
     payload.set(
-      "ContentVariables",
-      stringifyTemplateVariables(input.contentVariables ?? {}),
+      "StatusCallback",
+      `${getMessagingBaseUrl()}/api/twilio/whatsapp/status`,
     );
-  } else {
-    payload.set("Body", input.body);
-  }
 
-  const response = await fetch(
-    `https://api.twilio.com/2010-04-01/Accounts/${config.accountSid}/Messages.json`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Basic ${credentials}`,
-        "Content-Type": "application/x-www-form-urlencoded",
+    if (input.contentSid) {
+      payload.set("ContentSid", input.contentSid);
+      payload.set(
+        "ContentVariables",
+        stringifyTemplateVariables(input.contentVariables ?? {}),
+      );
+    } else {
+      payload.set("Body", input.body);
+    }
+
+    const response = await fetch(
+      `https://api.twilio.com/2010-04-01/Accounts/${config.accountSid}/Messages.json`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Basic ${credentials}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: payload.toString(),
+        cache: "no-store",
       },
-      body: payload.toString(),
-      cache: "no-store",
-    },
-  );
+    );
 
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`Twilio WhatsApp gönderimi başarısız: ${text}`);
-  }
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(text);
+    }
 
-  const result = (await response.json()) as {
-    sid?: string;
-    status?: string;
+    return (await response.json()) as {
+      sid?: string;
+      status?: string;
+    };
   };
+
+  let result:
+    | {
+        sid?: string;
+        status?: string;
+      }
+    | undefined;
+  let senderUsed = config.messagingServiceSid || config.whatsappFrom;
+
+  if (config.messagingServiceSid) {
+    try {
+      result = await sendViaTwilio("messaging_service");
+      senderUsed = config.messagingServiceSid;
+    } catch (error) {
+      if (!config.whatsappFrom) {
+        throw new Error(
+          `Twilio WhatsApp gönderimi başarısız: ${error instanceof Error ? error.message : String(error)}`,
+        );
+      }
+
+      result = await sendViaTwilio("from_number").catch((fallbackError) => {
+        throw new Error(
+          `Twilio WhatsApp gönderimi başarısız. Messaging Service hatası: ${
+            error instanceof Error ? error.message : String(error)
+          }. From fallback hatası: ${
+            fallbackError instanceof Error
+              ? fallbackError.message
+              : String(fallbackError)
+          }`,
+        );
+      });
+      senderUsed = config.whatsappFrom;
+    }
+  } else {
+    result = await sendViaTwilio("from_number").catch((error) => {
+      throw new Error(
+        `Twilio WhatsApp gönderimi başarısız: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    });
+  }
 
   await logWhatsAppDeliveryAttempt({
     applicationId: input.applicationId,
     eventType: input.eventType,
     toPhone: normalizedPhone,
-    sender: config.messagingServiceSid || config.whatsappFrom,
+    sender: senderUsed,
     messageSid: result.sid ?? null,
     status: result.status ?? "queued",
     bodyPreview: buildBodyPreview({

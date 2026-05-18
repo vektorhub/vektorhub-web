@@ -55,8 +55,8 @@ export function ServicePackages() {
         </h2>
         <p className="section-text mt-3">
           Her işletmenin ihtiyacı aynı değil. Kiminin web sitesi eksik, kiminin Google görünürlüğü
-          zayıf, kiminin sosyal medya düzeni oturmamış oluyor. Biz ihtiyacı netleştirip doğru
-          hizmet alanına odaklanan, uygulanabilir ve takip edilebilir dijital destek sunuyoruz.
+          zayıf, kiminin sosyal medya düzeni oturmamış oluyor. İhtiyaca göre uygulanabilir ve
+          takip edilebilir dijital destek yapısı belirlenir.
         </p>
       </div>
 

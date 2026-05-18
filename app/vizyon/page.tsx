@@ -8,7 +8,7 @@ export default function VizyonPage() {
     {
       title: "Fikri çalışır modele dönüştürmek",
       body:
-        "İyi fikirlerin yalnızca konuşulan değil, ürüne, hizmete ve işleyen sisteme dönüşebildiği bir üretim yapısı kurmak istiyoruz.",
+        "İyi fikirlerin yalnızca konuşulan değil, ürüne, hizmete ve işleyen sisteme dönüşebildiği üretim yapısı.",
     },
     {
       title: "Dijitalde olgun markalar üretmek",
@@ -62,7 +62,7 @@ export default function VizyonPage() {
             Gelecek Perspektifi
           </div>
           <p className="mt-4 text-base leading-8 text-white/74">
-            Amacımız yalnızca hizmet sunan bir yapı olmak değil; fikirlerin ürüne, projelerin
+            Hedef yalnızca hizmet veren bir yapı olmak değil; fikirlerin ürüne, projelerin
             sürdürülebilir iş modellerine ve teknolojinin gerçek ekonomik değere dönüşmesini sağlayan
             bir merkez haline gelmektir.
           </p>
@@ -83,8 +83,8 @@ export default function VizyonPage() {
             yaratan bir marka olmak temel vizyonumuzdur.
           </p>
           <p className="mt-4 text-base leading-8 text-white/72 sm:text-lg">
-            Bizim için vizyon yalnızca büyümek değildir; doğru sistemler kurarak, daha nitelikli işler
-            üretmek ve işletmelerin dijitalde daha güçlü bir geleceğe hazırlanmasına katkı sunmaktır.
+            Vizyon yalnızca büyüme değildir; doğru sistemler, nitelikli işler ve işletmeler için daha
+            güçlü bir dijital gelecek anlamına gelir.
           </p>
         </div>
       </div>

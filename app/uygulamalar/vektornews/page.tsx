@@ -36,11 +36,11 @@ export default function VektorNewsPage() {
 
       <h1 className="section-title">VektörNEWS</h1>
       <p className="section-text mt-6 max-w-3xl">
-        VektörNEWS, haber, duyuru ve içerik akışlarını daha mobil odaklı bir yapıda sunmak üzere
+        VektörNEWS, haber, duyuru ve içerik akışları için mobil odaklı yapıda
         geliştirilen uygulama projelerimizden biridir.
       </p>
       <p className="section-text mt-4 max-w-3xl">
-        Bu projede temel hedef, kullanıcıya yoğun ve karmaşık bir deneyim sunmak değil; içeriklerin
+        Bu projede temel hedef, kullanıcıya yoğun ve karmaşık bir deneyim vermek değil; içeriklerin
         daha rahat takip edilebildiği, daha sade ve daha akıcı bir mobil yapı ortaya koymaktır.
       </p>
 
@@ -76,7 +76,7 @@ export default function VektorNewsPage() {
 
             <span className="min-w-0">
               <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-white/55">
-                Google Play'de
+                Google Play&apos;de
               </span>
               <span className="mt-1 block text-base font-black text-white group-hover:text-orange-100">
                 Test Bağlantısını Aç

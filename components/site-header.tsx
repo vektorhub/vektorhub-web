@@ -1,359 +1,211 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ChevronRight, Menu, MessageCircleMore, UserCircle2, X } from "lucide-react";
+import { ChevronDown, Menu, MessageCircleMore, X } from "lucide-react";
+
+const services = [
+  { href: "/hizmetler/web-sitesi-tasarimi", label: "Web Sitesi" },
+  { href: "/hizmetler/google-seo-calismalari", label: "Google & SEO" },
+  { href: "/hizmetler/mobil-uygulama-gelistirme", label: "Özel Yazılım" },
+  { href: "/hizmetler/ihtiyaca-uygun-ozel-calismalar", label: "Teknik Destek" },
+];
 
 const navItems = [
   { href: "/", label: "Ana Sayfa" },
-  { href: "/about", label: "Hakkımızda" },
-  { href: "/misyon", label: "Misyon" },
-  { href: "/vizyon", label: "Vizyon" },
-  { href: "/fiyat-listesi", label: "Fiyat Listesi" },
-  {
-    href: "/hizmetler",
-    label: "Hizmetler",
-    children: [
-      { href: "/hizmetler/web-sitesi-tasarimi", label: "Web Sitesi Tasarımı" },
-      { href: "/hizmetler/google-seo-calismalari", label: "Google & SEO Çalışmaları" },
-      { href: "/hizmetler/sosyal-medya-yonetimi", label: "Sosyal Medya Yönetimi" },
-      { href: "/hizmetler/dijital-reklam-yonetimi", label: "Dijital Reklam Yönetimi" },
-      { href: "/hizmetler/mobil-uygulama-gelistirme", label: "Mobil Uygulama Geliştirme" },
-      { href: "/hizmetler/is-gelistirme-danismanligi", label: "İş Geliştirme Danışmanlığı" },
-      { href: "/hizmetler/logo-tasarimi", label: "Logo Tasarımı" },
-    ],
-  },
-  { href: "/demo-siteler", label: "Demo Siteler", accent: true },
-  { href: "/ucretsiz-uygulamalar", label: "Ücretsiz Uygulamalar", accent: true },
+  { href: "/hizmetler", label: "Hizmetler", children: services },
+  { href: "/demo-siteler", label: "Demo Siteler" },
+  { href: "/ucretsiz-uygulamalar", label: "Araçlar" },
   { href: "/referanslar", label: "Referanslar" },
+  { href: "/fiyat-listesi", label: "Fiyat Listesi" },
+  { href: "/about", label: "Hakkımızda" },
   { href: "/iletisim", label: "İletişim" },
 ];
 
-const weekDays = ["Pt", "Sa", "Ça", "Pe", "Cu", "Ct", "Pa"];
+function isActive(pathname: string, href: string) {
+  return pathname === href || (href !== "/" && pathname.startsWith(`${href}/`));
+}
 
 export function SiteHeader() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [hoveredMenu, setHoveredMenu] = useState<string | null>(null);
+  const [servicesOpen, setServicesOpen] = useState(false);
   const pathname = usePathname();
   const isCustomerWorkspace =
     pathname.startsWith("/musteri/panel") || pathname.startsWith("/musteri/yeni-talep");
   const isAdminWorkspace = pathname.startsWith("/admin") && pathname !== "/admin/giris";
   const isWorkspaceMode = isCustomerWorkspace || isAdminWorkspace;
-  const today = new Date();
-  const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-  const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-  const monthLabel = new Intl.DateTimeFormat("tr-TR", {
-    month: "long",
-    year: "numeric",
-  }).format(today);
-  const startOffset = (firstDayOfMonth.getDay() + 6) % 7;
-  const daysInMonth = lastDayOfMonth.getDate();
-  const calendarDays = [
-    ...Array.from({ length: startOffset }, () => null),
-    ...Array.from({ length: daysInMonth }, (_, index) => index + 1),
-  ];
-
-  while (calendarDays.length % 7 !== 0) {
-    calendarDays.push(null);
-  }
 
   useEffect(() => {
-    if (isWorkspaceMode) {
-      document.body.dataset.portalWorkspace = "active";
-      document.body.dataset.leftSidebar = "collapsed";
-      window.dispatchEvent(
-        new CustomEvent("left-sidebar-change", {
-          detail: { open: false },
-        })
-      );
-    } else {
-      delete document.body.dataset.portalWorkspace;
-      document.body.dataset.leftSidebar = sidebarOpen ? "open" : "collapsed";
-      window.dispatchEvent(
-        new CustomEvent("left-sidebar-change", {
-          detail: { open: sidebarOpen },
-        })
-      );
+    if (!mobileOpen) {
+      document.body.style.overflow = "";
+      return;
     }
 
+    document.body.style.overflow = "hidden";
+
     return () => {
-      delete document.body.dataset.leftSidebar;
-      delete document.body.dataset.portalWorkspace;
+      document.body.style.overflow = "";
     };
-  }, [isWorkspaceMode, sidebarOpen]);
+  }, [mobileOpen]);
 
-  useEffect(() => {
-    setMobileOpen(false);
-  }, [pathname]);
-
-  const brandContent = (
-    <>
-      {!isWorkspaceMode && (
-        <div className="pointer-events-none absolute -left-2 top-1/2 h-14 w-14 -translate-y-1/2 rounded-[1.7rem] bg-[radial-gradient(circle,rgba(255,130,36,0.24),rgba(255,130,36,0.08)_46%,transparent_72%)] blur-xl lg:h-16 lg:w-16" />
-      )}
-      <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.09),rgba(255,255,255,0.03))] p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_16px_36px_rgba(0,0,0,0.28)] sm:h-12 sm:w-12 lg:h-14 lg:w-14">
-        <img
-          src="/logo.png"
-          alt="VektörHUB"
-          className="h-full w-full scale-[1.04] bg-transparent object-contain"
-        />
-      </div>
-
-      <div className="min-w-0 pt-0.5">
-        <div className="truncate text-[1.05rem] font-black leading-none tracking-[-0.045em] text-white sm:text-[1.18rem] lg:text-[1.32rem]">
-          Vektör<span className="text-[#ff6a00]">HUB</span>
+  if (isWorkspaceMode) {
+    return (
+      <header className="sticky top-0 z-50 border-b border-[#e4dbcf] bg-[#fffaf2]/95 backdrop-blur-xl">
+        <div className="container-main flex min-h-16 items-center justify-between">
+          <Link href="/" className="flex items-center gap-3">
+            <Image
+              src="/logo.png"
+              alt="VektörHUB"
+              width={40}
+              height={40}
+              className="h-10 w-10 rounded-lg border border-[#e4dbcf] bg-white object-contain"
+            />
+            <span className="text-sm font-black text-[#242424]">VektörHUB</span>
+          </Link>
+          <Link href="/" className="text-sm font-semibold text-[#6b665f]">
+            Siteye dön
+          </Link>
         </div>
-        <div className="mt-1.5 text-[9px] leading-tight tracking-[0.14em] text-white/52 sm:text-[9px] lg:text-[9px]">
-          İş Geliştirme • Dijital Çözümler
-        </div>
-      </div>
-    </>
-  );
+      </header>
+    );
+  }
 
   return (
-    <header className="sticky top-0 z-50">
-      <div
-        className="relative overflow-hidden border-b border-white/8 backdrop-blur-md"
-        style={{
-          backgroundImage: isWorkspaceMode
-            ? "linear-gradient(180deg, rgba(9,16,28,0.96), rgba(10,17,29,0.92))"
-            : "linear-gradient(rgba(7,16,29,0.55), rgba(7,16,29,0.55)), url('/header-flow.png')",
-          backgroundSize: isWorkspaceMode ? "auto" : "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-          backgroundBlendMode: isWorkspaceMode ? "normal" : "overlay",
-        }}
-      >
-        <Link
-          href="/"
-          className={`absolute top-1/2 z-20 hidden min-w-0 -translate-y-1/2 items-center gap-3 text-left lg:flex ${
-            isWorkspaceMode ? "left-4 xl:left-5" : "left-2"
-          }`}
-        >
-          {brandContent}
+    <header className="sticky top-0 z-50 border-b border-[#e4dbcf] bg-[#f7f4ee]/92 backdrop-blur-xl">
+      <div className="container-main flex min-h-[72px] items-center justify-between gap-5">
+        <Link href="/" className="flex min-w-[220px] items-center gap-3">
+          <Image
+            src="/logo.png"
+            alt="VektörHUB"
+            width={44}
+            height={44}
+            className="h-11 w-11 shrink-0 rounded-xl border border-[#e4dbcf] bg-white object-contain p-1"
+          />
+          <span className="min-w-0">
+            <span className="block truncate text-lg font-black leading-none text-[#222]">
+              Vektör<span className="text-[#f47a20]">HUB</span>
+            </span>
+            <span className="mt-1 block truncate text-xs font-medium text-[#746d64]">
+              Web, SEO ve özel yazılım
+            </span>
+          </span>
         </Link>
 
-        {!isWorkspaceMode && (
-          <>
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_14%,rgba(255,147,70,0.16),transparent_22%),radial-gradient(circle_at_79%_16%,rgba(92,163,255,0.11),transparent_24%),radial-gradient(circle_at_58%_110%,rgba(255,119,44,0.09),transparent_32%)]" />
-            <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-[linear-gradient(180deg,rgba(255,255,255,0.16),rgba(255,255,255,0.04)_40%,rgba(255,255,255,0)_100%)] opacity-70" />
-            <div className="pointer-events-none absolute left-[10%] top-[-42%] h-44 w-44 rounded-full bg-orange-400/14 blur-3xl" />
-            <div className="pointer-events-none absolute right-[8%] bottom-[-48%] h-52 w-72 rounded-full bg-sky-400/12 blur-3xl" />
-          </>
-        )}
+        <nav className="hidden items-center gap-0.5 lg:flex">
+          {navItems.map((item) =>
+            item.children ? (
+              <div
+                key={item.href}
+                className="relative"
+                onMouseEnter={() => setServicesOpen(true)}
+                onMouseLeave={() => setServicesOpen(false)}
+              >
+                <Link
+                  href={item.href}
+                  className={`inline-flex h-10 items-center gap-1 rounded-full px-3 text-sm font-bold whitespace-nowrap transition ${
+                    isActive(pathname, item.href)
+                      ? "bg-white text-[#222] shadow-sm"
+                      : "text-[#5f5a53] hover:bg-white/72 hover:text-[#222]"
+                  }`}
+                >
+                  {item.label}
+                  <ChevronDown className="h-3.5 w-3.5" />
+                </Link>
+                {servicesOpen ? (
+                  <div className="absolute left-0 top-full w-56 pt-3">
+                    <div className="rounded-xl border border-[#e4dbcf] bg-white p-2 shadow-[0_18px_50px_rgba(57,47,35,0.12)]">
+                      {item.children.map((child) => (
+                        <Link
+                          key={child.href}
+                          href={child.href}
+                          onClick={() => setServicesOpen(false)}
+                          className="block rounded-lg px-3 py-2.5 text-sm font-semibold text-[#5f5a53] transition hover:bg-[#fff0e3] hover:text-[#222]"
+                        >
+                          {child.label}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            ) : (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`inline-flex h-10 items-center rounded-full px-3 text-sm font-bold whitespace-nowrap transition ${
+                  isActive(pathname, item.href)
+                    ? "bg-white text-[#222] shadow-sm"
+                    : "text-[#5f5a53] hover:bg-white/72 hover:text-[#222]"
+                }`}
+              >
+                {item.label}
+              </Link>
+            ),
+          )}
+        </nav>
 
-        <div
-          className={`container-main relative z-10 flex items-center justify-between gap-3 ${
-            isWorkspaceMode
-              ? "min-h-[68px] py-2 sm:min-h-[72px] sm:py-2.5 lg:min-h-[76px]"
-              : "min-h-[76px] py-2.5 pr-28 sm:min-h-[84px] sm:py-3 sm:pr-36 lg:min-h-[92px] lg:items-end lg:justify-end lg:gap-4 lg:pr-[15.5rem]"
-          }`}
-        >
-          <Link href="/" className="relative z-10 flex min-w-0 items-center gap-3 text-left lg:hidden">
-            {brandContent}
+        <div className="hidden items-center gap-2 lg:flex">
+          <a
+            href="https://wa.me/905333850572"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex h-11 items-center gap-2 whitespace-nowrap rounded-full border border-[#d4ebe8] bg-[#f2fbfa] px-4 text-sm font-bold text-[#0f7777] transition hover:-translate-y-0.5"
+          >
+            <MessageCircleMore className="h-4 w-4" />
+            WhatsApp
+          </a>
+          <Link
+            href="/iletisim"
+            className="inline-flex h-11 min-w-[90px] items-center justify-center whitespace-nowrap rounded-full bg-[#f47a20] px-5 text-sm font-bold text-white shadow-[0_14px_30px_rgba(244,122,32,0.22)] transition hover:-translate-y-0.5 hover:bg-[#e96d16]"
+          >
+            Teklif Al
           </Link>
-
-          <div className="flex items-center gap-3 self-center lg:items-end lg:self-end">
-            <button
-              onClick={() => setMobileOpen(!mobileOpen)}
-              className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-[#08101c]/90 text-white shadow-[0_12px_28px_rgba(0,0,0,0.22)] lg:hidden"
-            >
-              {mobileOpen ? <X /> : <Menu />}
-            </button>
-          </div>
         </div>
 
-        {!isWorkspaceMode && (
-          <div className="absolute right-2 top-2 z-20 hidden items-center gap-2 md:flex lg:right-3 lg:top-3">
-            <Link
-              href="/musteri-girisi"
-              className="header-login-glow isolate flex h-10 items-center gap-2 overflow-hidden rounded-full border border-orange-300/30 bg-[linear-gradient(135deg,rgba(255,106,0,0.94),rgba(255,140,56,0.84))] px-3.5 text-[11px] font-semibold text-white shadow-[0_16px_36px_rgba(255,106,0,0.28)] transition hover:-translate-y-0.5 hover:border-orange-200/40 hover:shadow-[0_18px_40px_rgba(255,106,0,0.36)]"
-            >
-              <span aria-hidden className="header-login-energy absolute inset-0 rounded-full" />
-              <span className="relative z-10 flex h-6 w-6 items-center justify-center rounded-full border border-white/18 bg-white/14 text-white">
-                <UserCircle2 className="h-3.5 w-3.5" />
-              </span>
-              <span className="relative z-10 whitespace-nowrap tracking-[0.02em]">Müşteri Portalı</span>
-            </Link>
-
-            <a
-              href="https://wa.me/905333850572"
-              target="_blank"
-              rel="noreferrer"
-              aria-label="WhatsApp ile iletişime geç"
-              title="WhatsApp"
-              className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-emerald-300/28 bg-[linear-gradient(135deg,rgba(16,185,129,0.96),rgba(5,150,105,0.88))] text-white shadow-[0_14px_30px_rgba(16,185,129,0.24)] transition duration-300 hover:-translate-y-0.5 hover:scale-[1.04] hover:border-emerald-200/46 hover:shadow-[0_18px_34px_rgba(16,185,129,0.34)]"
-            >
-              <span className="relative z-10 flex h-full w-full items-center justify-center">
-                <MessageCircleMore className="h-[0.92rem] w-[0.92rem]" />
-              </span>
-            </a>
-          </div>
-        )}
-
-        {!isWorkspaceMode && (
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-[linear-gradient(180deg,rgba(7,16,29,0)_0%,rgba(11,18,32,0.1)_22%,rgba(11,18,32,0.24)_44%,rgba(11,18,32,0.45)_66%,rgba(11,18,32,0.7)_84%,rgba(11,18,32,0.96)_100%)] sm:h-16 lg:h-20" />
-        )}
+        <button
+          type="button"
+          onClick={() => setMobileOpen((open) => !open)}
+          className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#e4dbcf] bg-white text-[#242424] lg:hidden"
+          aria-label="Menüyü aç"
+        >
+          {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </button>
       </div>
 
-      {mobileOpen && (
-        <div className="border-t border-white/10 bg-[#07101d]/95 backdrop-blur-md lg:hidden">
-          <div className="container-main flex flex-col gap-2 py-4">
+      {mobileOpen ? (
+        <div className="fixed inset-x-0 top-[72px] z-50 max-h-[calc(100vh-72px)] overflow-y-auto border-t border-[#e4dbcf] bg-[#f7f4ee] px-4 py-4 shadow-[0_24px_60px_rgba(57,47,35,0.12)] lg:hidden">
+          <nav className="grid gap-2">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`rounded-xl px-4 py-3 transition ${
-                  item.accent ? "demo-nav-mobile text-white" : "bg-white/5 text-white/90 hover:bg-white/10"
-                }`}
                 onClick={() => setMobileOpen(false)}
+                className={`rounded-xl px-4 py-3 text-base font-bold ${
+                  isActive(pathname, item.href) ? "bg-white text-[#222]" : "bg-[#fffaf2] text-[#5f5a53]"
+                }`}
               >
                 {item.label}
               </Link>
             ))}
-
-            <Link
-              href="/musteri-girisi"
-              className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-orange-500 px-4 py-3 font-semibold text-white"
+            <a
+              href="https://wa.me/905333850572"
+              target="_blank"
+              rel="noreferrer"
+              className="mt-2 rounded-xl bg-[#e3f6f4] px-4 py-3 text-center text-base font-bold text-[#0f7777]"
             >
-              <UserCircle2 className="h-4 w-4" />
-              Müşteri Portalı
+              WhatsApp ile görüş
+            </a>
+            <Link
+              href="/iletisim"
+              className="rounded-xl bg-[#f47a20] px-4 py-3 text-center text-base font-bold text-white"
+            >
+              Teklif Al
             </Link>
-          </div>
+          </nav>
         </div>
-      )}
-
-      {!isWorkspaceMode && (
-        <aside
-          className={`fixed left-2 z-40 hidden w-[9.75rem] flex-col rounded-[1.4rem] border border-white/8 bg-[linear-gradient(180deg,rgba(11,22,36,0.94),rgba(8,17,29,0.98))] p-2 shadow-[0_24px_60px_rgba(0,0,0,0.3)] transition-transform duration-300 ease-in-out lg:flex ${
-            sidebarOpen ? "translate-x-0" : "-translate-x-40"
-          }`}
-          style={{ overflow: "visible", top: "calc(92px + 8px)", bottom: "8px" }}
-        >
-          <div className="flex min-h-0 flex-1 flex-col rounded-[1rem] border border-white/8 bg-[linear-gradient(180deg,rgba(9,19,31,0.92),rgba(7,15,25,0.97))] p-2">
-            <div className="mb-1.5 flex items-center justify-between">
-              <div className="text-[9px] font-semibold uppercase tracking-[0.18em] text-orange-300/90">
-                Menü
-              </div>
-              <button
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="flex h-6 w-6 items-center justify-center rounded-full border border-white/8 bg-white/[0.04] text-[10px] text-orange-300 transition hover:bg-white/[0.08]"
-                aria-label="Toggle sidebar"
-              >
-                {sidebarOpen ? "‹" : ">"}
-              </button>
-            </div>
-
-            <nav className="flex flex-col gap-0.5">
-              {navItems.map((item) => (
-                <div
-                  key={item.href}
-                  className="relative"
-                  onMouseEnter={() => item.children && setHoveredMenu(item.href)}
-                  onMouseLeave={() =>
-                    item.children &&
-                    setHoveredMenu((current) => (current === item.href ? null : current))
-                  }
-                >
-                  <div className="flex items-center justify-between gap-1.5">
-                    <Link
-                      href={item.href}
-                      className={`w-full rounded-xl px-2.5 py-2 text-left text-[13px] leading-none transition ${
-                        item.accent
-                          ? pathname === item.href || pathname.startsWith(`${item.href}/`)
-                            ? "demo-nav-item demo-nav-item-active"
-                            : "demo-nav-item"
-                          : pathname === item.href || (item.href !== "/" && pathname.startsWith(`${item.href}/`))
-                            ? "border border-white/10 bg-white/[0.08] font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
-                            : "border border-transparent bg-transparent font-medium text-white/78 hover:bg-white/[0.045] hover:text-white"
-                      }`}
-                    >
-                      {item.label}
-                    </Link>
-                    {item.children && (
-                      <span className="rounded-full bg-white/[0.04] p-1 text-orange-300">
-                        <ChevronRight className="h-3.5 w-3.5" />
-                      </span>
-                    )}
-                  </div>
-
-                  {item.children && hoveredMenu === item.href && (
-                    <div className="absolute left-full top-0 z-50 w-[13.5rem] pl-2">
-                      <div className="absolute inset-y-0 left-0 w-2" />
-                      <div className="rounded-[1rem] border border-white/10 bg-[#0c1623]/96 p-2 shadow-[0_18px_40px_rgba(0,0,0,0.32)] backdrop-blur-md">
-                        <div className="mb-1 px-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-orange-300">
-                          Hizmetler
-                        </div>
-                        <div className="flex flex-col gap-1">
-                          {item.children.map((ch) => (
-                            <Link
-                              key={ch.href}
-                              href={ch.href}
-                              className="rounded-xl bg-white/[0.03] px-2.5 py-2 text-[11px] leading-tight text-white/82 transition hover:bg-white/[0.08] hover:text-white"
-                            >
-                              {ch.label}
-                            </Link>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </nav>
-          </div>
-
-          <div className="mt-3 rounded-[1rem] border border-white/8 bg-[linear-gradient(180deg,rgba(8,17,29,0.96),rgba(7,14,23,0.98))] p-2">
-            <div className="mb-2">
-              <div className="text-[9px] font-semibold uppercase tracking-[0.16em] text-orange-300/85">
-                Takvim
-              </div>
-              <div className="mt-1 text-[10px] font-medium capitalize text-white/72">{monthLabel}</div>
-            </div>
-            <div className="grid grid-cols-7 gap-1 text-center text-[8px] text-white/34">
-              {weekDays.map((day) => (
-                <div key={day} className="py-0">
-                  {day}
-                </div>
-              ))}
-            </div>
-            <div className="mt-1.5 grid grid-cols-7 gap-1 text-center text-[8px]">
-              {calendarDays.map((day, index) => {
-                const isToday = day === today.getDate();
-
-                return (
-                  <div
-                    key={`${day ?? "empty"}-${index}`}
-                    className={`flex h-4.5 items-center justify-center rounded-md ${
-                      day
-                        ? isToday
-                          ? "bg-orange-500 text-white shadow-[0_6px_14px_rgba(255,106,0,0.28)]"
-                          : "bg-white/[0.04] text-white/68"
-                        : "bg-transparent text-transparent"
-                    }`}
-                  >
-                    {day ?? "."}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </aside>
-      )}
-
-      {!isWorkspaceMode && !sidebarOpen && (
-        <button
-          type="button"
-          onClick={() => setSidebarOpen(true)}
-          className="fixed left-2 z-40 hidden h-10 w-10 items-center justify-center rounded-full border border-orange-300/20 bg-orange-500 text-white shadow-lg shadow-orange-500/30 transition hover:scale-[1.04] lg:flex"
-          style={{ top: "calc(92px + 16px)" }}
-          aria-label="Menüyü tekrar göster"
-        >
-          <ChevronRight className="h-5 w-5" />
-        </button>
-      )}
+      ) : null}
     </header>
   );
 }

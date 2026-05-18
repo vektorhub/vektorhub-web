@@ -178,7 +178,7 @@ export async function sendApplicationDeletedMail(input: ApplicationDeletedMailIn
       "Silinme açıklaması:",
       input.reason,
       "",
-      "Detay veya yeniden başvuru için bizimle iletişime geçebilirsiniz.",
+      "Detay veya yeniden başvuru için destek ekibiyle iletişime geçebilirsiniz.",
     ].join("\n"),
     html: `
       <div style="font-family:Arial,sans-serif;background:#0b1220;color:#ffffff;padding:32px;line-height:1.6;">
@@ -190,7 +190,7 @@ export async function sendApplicationDeletedMail(input: ApplicationDeletedMailIn
             <div style="font-size:12px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.18em;">Silinme açıklaması</div>
             <p style="margin-top:10px;font-size:15px;color:#ffffff;word-break:break-word;">${input.reason}</p>
           </div>
-          <p style="margin:0;color:rgba(255,255,255,0.62);font-size:13px;">Detay veya yeniden başvuru için bizimle iletişime geçebilirsiniz.</p>
+          <p style="margin:0;color:rgba(255,255,255,0.62);font-size:13px;">Detay veya yeniden başvuru için destek ekibiyle iletişime geçebilirsiniz.</p>
         </div>
       </div>
     `,

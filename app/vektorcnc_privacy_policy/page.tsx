@@ -64,10 +64,10 @@ export default function VektorCncPrivacyPolicyPage() {
         <div>
           <h2 className="section-subtitle text-white">2. Verileri Hangi Amaçlarla İşliyoruz?</h2>
           <ul className="mt-3 list-disc space-y-2 pl-6">
-            <li>Uygulamanın temel özelliklerini sunmak ve sürekliliğini sağlamak.</li>
+            <li>Uygulamanın temel özelliklerine erişim ve süreklilik sağlamak.</li>
             <li>Kullanıcı hesaplarının oluşturulması, doğrulanması ve güvenli yönetimi.</li>
             <li>Hata tespiti, performans iyileştirmesi ve teknik kalite süreçleri.</li>
-            <li>Kullanıcı taleplerine dönüş yapmak ve destek hizmeti sunmak.</li>
+            <li>Kullanıcı taleplerine dönüş yapmak ve destek hizmeti sağlamak.</li>
             <li>Yasal yükümlülüklerin yerine getirilmesi, denetim ve güvenlik kontrolleri.</li>
           </ul>
         </div>

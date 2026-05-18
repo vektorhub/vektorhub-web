@@ -29,7 +29,7 @@ export default function VektorNewsPrivacyPolicyPage() {
         <p>
           Bu Gizlilik Politikası, Google Play üzerinden yayınlanan VektorNEWS mobil uygulamasını kullanan
           tüm kullanıcılar için hazırlanmıştır. VektorNEWS, haber, gündem, içerik ve duyuru akışlarını daha
-          düzenli sunmak amacıyla VektorHUB tarafından geliştirilen bir mobil uygulamadır.
+          düzenli erişim sağlamak amacıyla VektorHUB tarafından geliştirilen bir mobil uygulamadır.
         </p>
         <p>
           Uygulamayı indirmeniz, kurmanız veya kullanmanız halinde bu politikada açıklanan veri işleme
@@ -68,7 +68,7 @@ export default function VektorNewsPrivacyPolicyPage() {
         <div>
           <h2 className="section-subtitle text-white">2. Verileri Hangi Amaçlarla İşliyoruz?</h2>
           <ul className="mt-3 list-disc space-y-2 pl-6">
-            <li>Haber, gündem ve içerik akışını kullanıcıya düzenli biçimde sunmak.</li>
+            <li>Haber, gündem ve içerik akışına düzenli erişim sağlamak.</li>
             <li>İçeriklerin kategorize edilmesi, listelenmesi ve kullanıcı deneyiminin iyileştirilmesi.</li>
             <li>Bildirim tercihlerini yönetmek ve kullanıcıya ilgili güncellemeleri iletmek.</li>
             <li>Uygulama performansını, hata kayıtlarını ve teknik kalite süreçlerini izlemek.</li>

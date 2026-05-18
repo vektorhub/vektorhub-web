@@ -1,0 +1,10 @@
+.git
+.github
+.vscode
+.next
+node_modules
+backups
+design-options
+.tmp*
+*.log
+.codex-backup-*.patch

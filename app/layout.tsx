@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Script from "next/script";
-import { AnnouncementBar } from "@/components/announcement-bar";
+import { FloatingContactButtons } from "@/components/floating-contact-buttons";
 import { ScrollToTop } from "@/components/scroll-to-top";
 import { SiteHeader } from "@/components/site-header";
-import { VisitorCounter } from "@/components/visitor-counter";
+import { SiteFooter } from "@/components/site-footer";
 import { absoluteUrl, siteUrl } from "@/lib/seo";
 import "./globals.css";
 
@@ -78,7 +78,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const organizationSchema = {
     "@context": "https://schema.org",
     "@graph": [
@@ -186,7 +186,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="icon" type="image/png" href="/favicon.png?v=20260401" sizes="512x512" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=20260401" sizes="180x180" />
       </head>
-      <body className="bg-[#0b1220] text-white antialiased">
+      <body className="bg-[#f7f4ee] text-[#242424] antialiased">
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=AW-17981307453"
           strategy="afterInteractive"
@@ -203,16 +203,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
         />
-        <VisitorCounter />
         <ScrollToTop />
-        <div className="min-h-screen bg-[radial-gradient(circle_at_top,rgba(255,106,0,0.15),transparent_30%),linear-gradient(180deg,#0b1220_0%,#09101c_100%)]">
+        <FloatingContactButtons />
+        <div className="min-h-screen bg-[#f7f4ee]">
           <SiteHeader />
-          <AnnouncementBar />
-          <main className="layout-main relative flex justify-center lg:pl-0 lg:pr-0">
-            <div className="layout-main-shell mt-0 mb-10 w-full rounded-2xl bg-[#181c22]/80 p-6 shadow-2xl">
-              {children}
-            </div>
+          <main className="layout-main relative">
+            {children}
           </main>
+          <SiteFooter />
         </div>
       </body>
     </html>

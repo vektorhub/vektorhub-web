@@ -2,90 +2,102 @@
 
 import { useEffect, useState } from "react";
 
-const LOCAL_COUNTER_KEY = "vektorhub-local-visit-count";
-const TAB_VISIT_FLAG = "vektorhub-tab-visit-counted";
-const TAB_LAST_COUNT = "vektorhub-tab-last-count";
+const VISITOR_ID_KEY = "vektorhub-visitor-id";
+const LAST_COUNT_KEY = "vektorhub-last-visit-count";
 
 type CountApiResponse = {
   value?: number;
 };
 
+let sharedCount: number | null | undefined;
+let sharedCountPromise: Promise<number | null> | null = null;
+
 function formatCount(value: number) {
   return Math.max(0, Math.trunc(value)).toString().padStart(4, "0");
 }
 
-function useVisitorCount() {
-  const [count, setCount] = useState<number | null>(null);
+function getStoredCount() {
+  const stored = Number(localStorage.getItem(LAST_COUNT_KEY) ?? "0");
+  return Number.isFinite(stored) && stored > 0 ? Math.trunc(stored) : null;
+}
+
+function getOrCreateVisitorId() {
+  const stored = localStorage.getItem(VISITOR_ID_KEY)?.trim();
+  if (stored) {
+    return stored;
+  }
+
+  const nextId =
+    typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+      ? crypto.randomUUID()
+      : `vh_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+
+  localStorage.setItem(VISITOR_ID_KEY, nextId);
+  return nextId;
+}
+
+async function resolveVisitorCount() {
+  if (sharedCount !== undefined) {
+    return sharedCount;
+  }
+
+  if (sharedCountPromise) {
+    return sharedCountPromise;
+  }
+
+  sharedCountPromise = (async () => {
+    try {
+      const visitorId = getOrCreateVisitorId();
+      const response = await fetch("/api/visit", {
+        cache: "no-store",
+        headers: {
+          "x-visitor-id": visitorId,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("visit-api-not-ok");
+      }
+
+      const data = (await response.json()) as CountApiResponse;
+      const nextCount = typeof data.value === "number" ? Math.trunc(data.value) : getStoredCount();
+
+      sharedCount = nextCount;
+
+      if (typeof nextCount === "number" && nextCount > 0) {
+        localStorage.setItem(LAST_COUNT_KEY, String(nextCount));
+      }
+
+      return nextCount;
+    } catch {
+      const fallback = getStoredCount();
+      sharedCount = fallback;
+      return fallback;
+    } finally {
+      sharedCountPromise = null;
+    }
+  })();
+
+  return sharedCountPromise;
+}
+
+function useVisitorCount(initialCount?: number | null) {
+  if (sharedCount === undefined && typeof initialCount === "number") {
+    sharedCount = initialCount;
+  }
+
+  const [count, setCount] = useState<number | null>(() => sharedCount ?? initialCount ?? null);
 
   useEffect(() => {
     let isActive = true;
 
-    const getLocalCounter = () => {
-      const current = Number(localStorage.getItem(LOCAL_COUNTER_KEY) ?? "0");
-      return Number.isFinite(current) && current > 0 ? Math.trunc(current) : 0;
-    };
+    if (typeof initialCount === "number" && initialCount > 0) {
+      localStorage.setItem(LAST_COUNT_KEY, String(initialCount));
+    }
 
-    const increaseLocalCounter = () => {
-      const next = getLocalCounter() + 1;
-      localStorage.setItem(LOCAL_COUNTER_KEY, String(next));
-      return next;
-    };
-
-    const updateCounter = async () => {
-      const alreadyCountedInThisTab = sessionStorage.getItem(TAB_VISIT_FLAG) === "1";
-
-      if (alreadyCountedInThisTab) {
-        const tabCachedCount = Number(sessionStorage.getItem(TAB_LAST_COUNT) ?? "0");
-
-        if (!isActive) {
-          return;
-        }
-
-        if (Number.isFinite(tabCachedCount) && tabCachedCount > 0) {
-          setCount(Math.trunc(tabCachedCount));
-          return;
-        }
-
-        setCount(getLocalCounter() || null);
-        return;
-      }
-
-      try {
-        const response = await fetch("/api/visit", {
-          cache: "no-store",
-        });
-
-        if (!response.ok) {
-          throw new Error("visit-api-not-ok");
-        }
-
-        const data = (await response.json()) as CountApiResponse;
-
-        if (!isActive) {
-          return;
-        }
-
-        const resolvedCount =
-          typeof data.value === "number" ? data.value : increaseLocalCounter();
-
-        setCount(resolvedCount);
-        sessionStorage.setItem(TAB_VISIT_FLAG, "1");
-        sessionStorage.setItem(TAB_LAST_COUNT, String(resolvedCount));
-      } catch {
-        if (!isActive) {
-          return;
-        }
-
-        const fallbackCount = increaseLocalCounter();
-        setCount(fallbackCount);
-        sessionStorage.setItem(TAB_VISIT_FLAG, "1");
-        sessionStorage.setItem(TAB_LAST_COUNT, String(fallbackCount));
-      }
-    };
-
-    updateCounter().catch(() => {
+    resolveVisitorCount().then((nextCount) => {
       if (isActive) {
-        setCount(null);
+        setCount(nextCount);
       }
     });
 
@@ -112,17 +124,40 @@ function VisitorCounterCard({ count }: { count: number | null }) {
   );
 }
 
-export function VisitorCounterInline() {
-  const count = useVisitorCount();
+export function VisitorCounterInline({ initialCount }: { initialCount?: number | null }) {
+  const count = useVisitorCount(initialCount);
 
   return <VisitorCounterCard count={count} />;
 }
 
-export function VisitorCounter() {
-  const count = useVisitorCount();
+export function VisitorCounter({ initialCount }: { initialCount?: number | null }) {
+  const count = useVisitorCount(initialCount);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const syncMobileMenuState = () => {
+      setMobileMenuOpen(document.body.dataset.mobileMenu === "open");
+    };
+
+    syncMobileMenuState();
+
+    const observer = new MutationObserver(syncMobileMenuState);
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ["data-mobile-menu"],
+    });
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
 
   return (
-    <div className="pointer-events-none fixed bottom-3 right-2 z-[55] w-[8.35rem] lg:hidden sm:bottom-4 sm:right-4">
+    <div
+      className={`pointer-events-none fixed bottom-3 right-2 z-[55] w-[8.35rem] transition-opacity duration-200 lg:hidden sm:bottom-4 sm:right-4 ${
+        mobileMenuOpen ? "opacity-0" : "opacity-100"
+      }`}
+    >
       <VisitorCounterCard count={count} />
     </div>
   );

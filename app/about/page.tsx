@@ -19,7 +19,7 @@ const principles = [
   {
     title: "Abartısız ama güçlü sistemler",
     body:
-      "Amacımız büyük görünen ama içi boş vitrinler kurmak değil; gerçekten kullanılan, sürdürülebilen ve işi kolaylaştıran dijital düzenler oluşturmaktır.",
+      "Büyük görünen ama içi boş vitrinler yerine; gerçekten kullanılan, sürdürülebilen ve işi kolaylaştıran dijital düzenler.",
   },
   {
     title: "Uzun vadeli iş ortağı yaklaşımı",
@@ -68,7 +68,7 @@ export default function AboutPage() {
         <p className="mt-6 max-w-3xl text-base leading-8 text-white/72 sm:text-lg">
           VektörHUB, işletmelerin daha net görünmesi, daha güven veren bir dijital yapı kurması
           ve müşterileriyle daha kontrollü çalışabilmesi için geliştirilmiş bir iş geliştirme ve
-          dijital çözüm yapısıdır. Bizim için teknoloji, yalnızca araçtır; asıl hedef işletmenin
+          dijital çözüm yapısıdır. Teknoloji burada yalnızca araçtır; asıl hedef işletmenin
           dijitalde daha olgun, daha planlı ve daha sürdürülebilir hareket etmesidir.
         </p>
       </div>
@@ -91,8 +91,8 @@ export default function AboutPage() {
             Yaklaşımımız
           </div>
           <p className="mt-4 text-base leading-8 text-white/74">
-            Her işletmenin ihtiyacı aynı değildir. Bu yüzden hazır kalıplar sunmak yerine,
-            işletmenin ölçeğine, ritmine ve hedeflerine uygun bir dijital yapı kurmayı tercih ederiz.
+            Her işletmenin ihtiyacı aynı değildir. Hazır kalıplar yerine işletmenin ölçeğine,
+            ritmine ve hedeflerine uygun dijital yapı gerekir.
           </p>
           <p className="mt-4 text-base leading-8 text-white/74">
             Web sitesi, içerik dili, ürün yapısı ve müşteri süreci birlikte düşünüldüğünde,
@@ -130,8 +130,8 @@ export default function AboutPage() {
           ekosistemini kapsar.
         </p>
         <p className="mt-4 text-base leading-8 text-white/72 sm:text-lg">
-          Her proje bizim için yalnızca bir ürün değil, aynı zamanda doğru iş modeli, doğru anlatım
-          ve sürdürülebilir dijital düzen fikrinin pratikteki karşılığıdır.
+          Her proje; doğru iş modeli, doğru anlatım ve sürdürülebilir dijital düzen fikrinin
+          pratik karşılığıdır.
         </p>
       </div>
     </section>

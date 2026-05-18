@@ -58,7 +58,7 @@ export const locationLandingConfigs: LocationLandingConfig[] = [
       {
         question: "Kocaeli web tasarım hizmeti kimler için uygundur?",
         answer:
-          "Kurumsal görünümünü güçlendirmek, müşterisine daha profesyonel dijital temas sunmak ve Google'da daha net görünmek isteyen işletmeler için uygundur.",
+          "Kurumsal görünüm, profesyonel dijital temas ve Google'da daha net görünürlük isteyen işletmeler için uygundur.",
       },
       {
         question: "Web sitesi sadece tasarım işi midir?",
@@ -83,7 +83,7 @@ export const locationLandingConfigs: LocationLandingConfig[] = [
       {
         href: "/referanslar",
         label: "Referanslar",
-        description: "Çalışma yaklaşımını ve sağlanan katkıları referans sayfasında görün.",
+        description: "Referanslar ve sağlanan katkılar tek sayfada.",
       },
       {
         href: "/iletisim",
@@ -145,7 +145,7 @@ export const locationLandingConfigs: LocationLandingConfig[] = [
       {
         href: "/about",
         label: "Hakkımızda",
-        description: "VektörHUB'un iş geliştirme ve dijital görünürlük yaklaşımını görün.",
+        description: "VektörHUB'un iş geliştirme ve dijital görünürlük yaklaşımı.",
       },
       {
         href: "/iletisim",
@@ -202,7 +202,7 @@ export const locationLandingConfigs: LocationLandingConfig[] = [
       {
         href: "/referanslar",
         label: "Referanslar",
-        description: "Firmanız için nasıl bir güven ve görünüm yapısı kurulabileceğini referanslardan görün.",
+        description: "Referanslar üzerinden güven ve görünüm yapısı.",
       },
       {
         href: "/hizmetler/google-seo-calismalari",
@@ -306,7 +306,7 @@ export const locationLandingConfigs: LocationLandingConfig[] = [
       {
         question: "Sakarya web tasarım hizmeti kimler için uygundur?",
         answer:
-          "Müşterisine daha güven veren bir dijital yüz oluşturmak, hizmetini daha net anlatmak ve düzenli görünmek isteyen işletmeler için uygundur.",
+          "Daha güven veren dijital yüz, net hizmet anlatımı ve düzenli görünüm isteyen işletmeler için uygundur.",
       },
       {
         question: "Web sitesi ile Google görünürlüğü birlikte düşünülür mü?",
@@ -331,7 +331,7 @@ export const locationLandingConfigs: LocationLandingConfig[] = [
       {
         href: "/referanslar",
         label: "Referanslar",
-        description: "Çalışma yaklaşımını ve örnek katkıları referans sayfasında inceleyin.",
+        description: "Referanslar ve örnek katkılar tek sayfada.",
       },
       {
         href: "/iletisim",
@@ -410,7 +410,7 @@ export const locationLandingConfigs: LocationLandingConfig[] = [
     description:
       "Sakarya'daki firmalar için daha güven veren, daha anlaşılır ve daha profesyonel kurumsal web sitesi kurulumu.",
     intro:
-      "Sakarya kurumsal web sitesi ihtiyacında önemli olan işletmenin sunduğu hizmeti dağınık değil, net ve güven üreten bir düzenle anlatmaktır.",
+      "Sakarya kurumsal web sitesi ihtiyacında önemli olan, hizmetin dağınık değil net ve güven üreten bir düzende yer almasıdır.",
     serviceType: "Sakarya kurumsal web sitesi hizmeti",
     keywords: ["sakarya kurumsal web sitesi", "sakarya firma sitesi", "kurumsal site sakarya"],
     highlights: ["Kurumsal sunum", "Güven sinyalleri", "Profesyonel hizmet akışı"],
@@ -450,7 +450,7 @@ export const locationLandingConfigs: LocationLandingConfig[] = [
       {
         href: "/referanslar",
         label: "Referanslar",
-        description: "Çalışma yaklaşımımızı ve sağlanan katkıları referans sayfasında görün.",
+        description: "Referanslar ve sağlanan katkılar tek sayfada.",
       },
       {
         href: "/hizmetler/google-seo-calismalari",

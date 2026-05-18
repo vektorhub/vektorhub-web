@@ -73,7 +73,7 @@ export async function POST(request: Request) {
 
     if (auth.state === "disabled") {
       return NextResponse.json(
-        { message: "Hesabınız pasif durumda. Lütfen bizimle iletişime geçin." },
+        { message: "Hesabınız pasif durumda. Lütfen destek ekibiyle iletişime geçin." },
         { status: 403 }
       );
     }

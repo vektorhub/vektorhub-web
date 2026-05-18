@@ -133,7 +133,7 @@ const projectApps = [
   },
 ];
 
-export function AnnouncementBar() {
+export function AnnouncementBar({ initialVisitorCount }: { initialVisitorCount?: number | null }) {
   const pathname = usePathname();
   const isCustomerWorkspace =
     pathname.startsWith("/musteri/panel") || pathname.startsWith("/musteri/yeni-talep");
@@ -487,7 +487,7 @@ export function AnnouncementBar() {
           </div>
 
           <div className="mt-auto pt-3">
-            <VisitorCounterInline />
+            <VisitorCounterInline initialCount={initialVisitorCount} />
           </div>
         </div>
       </aside>

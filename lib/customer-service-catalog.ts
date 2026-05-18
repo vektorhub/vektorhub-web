@@ -52,9 +52,9 @@ export const CUSTOMER_SERVICE_CATALOG: CustomerServiceItem[] = [
     slug: "mobil-uygulama-gelistirme",
     title: "Mobil Uygulama Geliştirme",
     summary:
-      "Saha ekipleri, müşteriler veya operasyon için daha hızlı ve kontrollü kullanım sunan özel mobil uygulama çözümleri geliştirilir.",
+      "Saha ekipleri, müşteriler veya operasyon için daha hızlı ve kontrollü özel mobil uygulama çözümleri.",
     description:
-      "Bazı ihtiyaçlar web tarafında çözülse de, bazı süreçler mobil kullanım gerektirir. Mobil uygulama burada yalnızca teknoloji değil, günlük işi kolaylaştıran pratik bir araç olarak ele alınır. Hedef; müşteriye, saha ekibine veya iç operasyona daha hızlı, daha kontrollü ve daha akıcı bir kullanım deneyimi sunmaktır.",
+      "Bazı ihtiyaçlar web tarafında çözülse de, bazı süreçler mobil kullanım gerektirir. Mobil uygulama burada yalnızca teknoloji değil, günlük işi kolaylaştıran pratik bir araç olarak ele alınır. Hedef; müşteri, saha ekibi veya iç operasyon için daha hızlı, daha kontrollü ve daha akıcı kullanım deneyimidir.",
     image: "/vizyon_banner.png",
     tone: "from-indigo-500/18 to-blue-400/8",
   },

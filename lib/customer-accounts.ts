@@ -432,7 +432,7 @@ export async function createCustomerRegistration(input: {
   }
 
   if (existingByEmail?.status === "disabled") {
-    throw new Error("Bu hesap pasif durumda. Lütfen bizimle iletişime geçin.");
+    throw new Error("Bu hesap pasif durumda. Lütfen destek ekibiyle iletişime geçin.");
   }
 
   const db = getAdminDb();
@@ -645,7 +645,7 @@ export async function authenticateCustomer(email: string, password: string) {
   }
 
   if (account.status === "disabled") {
-    throw new Error("Hesabınız pasif durumda. Lütfen bizimle iletişime geçin.");
+    throw new Error("Hesabınız pasif durumda. Lütfen destek ekibiyle iletişime geçin.");
   }
 
   const passwordOk = await verifyPassword(password, account.passwordHash);

@@ -57,12 +57,10 @@ export default function ReferanslarPage() {
             Seçilmiş Referanslar
           </span>
           <h1 className="mt-4 text-3xl font-black leading-tight text-white sm:text-4xl lg:text-[2.8rem]">
-            Referanslarımızı firma adı, sektör ve sağlanan katkı net biçimde görülecek bir düzenle
-            sunuyoruz.
+            Seçilmiş işler, sektör bilgisi ve sağlanan katkı tek ekranda.
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-8 text-white/72 sm:text-lg">
-            Bu sayfa, birlikte çalıştığımız işletmeleri gösterişli bir vitrin olarak değil; kısa,
-            anlaşılır ve güven veren vaka kartları olarak sunmak için tasarlandı.
+            Gerçek bağlantılar, kısa proje özeti ve işletmeye sağlanan dijital katkı.
           </p>
         </div>
       </div>
@@ -72,9 +70,7 @@ export default function ReferanslarPage() {
           Referans Vitrini
         </div>
         <p className="mt-5 max-w-3xl text-base leading-8 text-white/70 sm:text-lg">
-          VektörHUB ile çalışan firmaları; nerede oldukları, hangi alanda faaliyet gösterdikleri
-          ve dijital tarafta hangi ihtiyaca cevap verdiğimiz üzerinden kısa ama seçici biçimde
-          anlatıyoruz.
+          Firma, konum, sektör ve dijital çalışma kapsamı sade bir referans düzeninde listelenir.
         </p>
       </div>
 

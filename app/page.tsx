@@ -1,9 +1,5 @@
-import { CalendarPreview } from "@/components/calendar-preview";
-import { FreeAppsShowcase } from "@/components/free-apps-showcase";
-import { HeroSection } from "@/components/hero-section";
-import { PricingShowcase } from "@/components/pricing-showcase";
+import { HomeStudioPage } from "@/components/home-studio-page";
 import { SeoJsonLd } from "@/components/seo-json-ld";
-import { ServicePackages } from "@/components/service-packages";
 import {
   createBreadcrumbSchema,
   createPageMetadata,
@@ -34,11 +30,7 @@ export default async function HomePage() {
           }),
         ]}
       />
-      <HeroSection />
-      <FreeAppsShowcase />
-      <PricingShowcase />
-      <ServicePackages />
-      <CalendarPreview />
+      <HomeStudioPage />
     </>
   );
 }
