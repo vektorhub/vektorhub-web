@@ -262,7 +262,7 @@ export default function MusteriPanelPage() {
               <p className="mt-4 max-w-3xl text-sm leading-7 text-white/68 sm:text-[15px]">
                 Bu alan sadece taleplerinizi görmek için değil; hizmetlerinizi planlamak, süreçlerinizi
                 takip etmek, teklif hazırlıklarını izlemek ve operasyonunuzun dijital tarafını tek yerden
-                yönetmek için tasarlandı.
+                yönetmek için düzenlenmiştir.
               </p>
             </div>
 

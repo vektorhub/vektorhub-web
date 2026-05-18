@@ -48,7 +48,7 @@ export function FreeAppDownloadCount({ slug }: Props) {
   }, [slug]);
 
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-sky-300/18 bg-sky-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-sky-100">
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-[#b7dbe8] bg-[#f3fbff] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#26708c]">
       <Download className="h-3.5 w-3.5" />
       {count === null ? "Yukleniyor" : `${formatCount(count)} indirme`}
     </span>
