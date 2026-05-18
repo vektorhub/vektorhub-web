@@ -11,6 +11,15 @@ export const metadata: Metadata = {
 
 const references = [
   {
+    name: "SOYANIM.COM",
+    city: "Türkiye",
+    sector: "Dijital aile ağacı ve anı arşivi",
+    focus:
+      "Aile kökleri, hatıralar, fotoğraflar ve kişisel anlatılar için ürün fikrini netleştiren, erken erişim ve tanıtım odaklı web sitesi yapısı.",
+    ctaLabel: "Canlı Site",
+    ctaHref: "https://soyanim.com/",
+  },
+  {
     name: "DIFIKI",
     city: "Türkiye",
     sector: "Kitap ve dizi topluluğu",

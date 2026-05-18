@@ -49,6 +49,12 @@ const processSteps = [
 
 const works = [
   {
+    title: "SOYANIM.COM",
+    type: "Dijital aile ağacı ve anı arşivi",
+    href: "https://soyanim.com/",
+    image: "/brand-flow.png",
+  },
+  {
     title: "DIFIKI",
     type: "Topluluk ve içerik sitesi",
     href: "https://difiki.com.tr/",
