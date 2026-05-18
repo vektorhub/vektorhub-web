@@ -24,6 +24,7 @@ const officeAddress = "Hacıosman Mahallesi, Bağdat Caddesi, No: 270/A Körfez 
 const encodedAddress = encodeURIComponent(officeAddress);
 const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
 const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodedAddress}`;
+const mapEmbedUrl = `https://www.google.com/maps?q=${encodedAddress}&output=embed`;
 
 const contactItems = [
   {
@@ -208,20 +209,34 @@ export default function IletisimPage() {
         </div>
       </div>
 
-      <a
-        href={mapsUrl}
-        target="_blank"
-        rel="noreferrer"
-        className="mt-8 flex min-h-[220px] items-center justify-center rounded-[2rem] border border-[#e4dbcf] bg-[linear-gradient(135deg,#f7f4ee,#fffaf2)] p-6 text-center shadow-[0_18px_42px_rgba(57,47,35,0.06)] transition hover:border-[#f4b37f]"
-      >
-        <span>
-          <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-[#f47a20] shadow-[0_12px_28px_rgba(57,47,35,0.08)]">
-            <ExternalLink className="h-6 w-6" />
-          </span>
-          <span className="mt-4 block text-lg font-black text-[#242424]">Google Haritalar Üzerinden Aç</span>
-          <span className="mt-2 block text-sm leading-6 text-[#5f5a53]">{officeAddress}</span>
-        </span>
-      </a>
+      <div className="mt-8 overflow-hidden rounded-[2rem] border border-[#e4dbcf] bg-[#fffaf2] shadow-[0_18px_42px_rgba(57,47,35,0.06)]">
+        <div className="flex flex-col gap-4 border-b border-[#e4dbcf] px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+          <div>
+            <div className="text-[11px] font-bold uppercase tracking-[0.22em] text-[#c95f14]">
+              Harita Önizlemesi
+            </div>
+            <div className="mt-2 text-lg font-black text-[#242424]">VektörHUB Ofis Konumu</div>
+            <div className="mt-1 text-sm leading-6 text-[#5f5a53]">{officeAddress}</div>
+          </div>
+          <a
+            href={mapsUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[#e4dbcf] bg-white px-5 py-3 text-sm font-bold text-[#242424] transition hover:border-[#f4b37f] hover:text-[#c95f14]"
+          >
+            <ExternalLink className="h-4 w-4" />
+            Google Haritalar
+          </a>
+        </div>
+        <iframe
+          title="VektörHUB ofis haritası"
+          src={mapEmbedUrl}
+          className="h-[320px] w-full border-0 sm:h-[380px]"
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+          allowFullScreen
+        />
+      </div>
     </section>
   );
 }
