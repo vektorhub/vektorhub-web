@@ -63,6 +63,8 @@ export const publicSiteRoutes: PublicRouteConfig[] = [
   { path: "/uygulamalar/vektornews", changeFrequency: "monthly", priority: 0.6 },
   { path: "/vektorcnc_privacy_policy", changeFrequency: "monthly", priority: 0.3 },
   { path: "/vektornews_privacy_policy", changeFrequency: "monthly", priority: 0.3 },
+  { path: "/sniper-gizlilik-politikasi", changeFrequency: "monthly", priority: 0.3 },
+  { path: "/sniper-kullanim-kosullari", changeFrequency: "monthly", priority: 0.3 },
 ];
 
 export type MetadataInput = {
