@@ -4,7 +4,7 @@ import { FloatingContactButtons } from "@/components/floating-contact-buttons";
 import { ScrollToTop } from "@/components/scroll-to-top";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { absoluteUrl, defaultOgImage, siteUrl } from "@/lib/seo";
+import { absoluteUrl, siteUrl } from "@/lib/seo";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -51,11 +51,10 @@ export const metadata: Metadata = {
       "KOBİ'ler için web sitesi, mobil uygulama ve dijital görünürlük çözümlerini tek çatı altında sunan dijital ofis yaklaşımı.",
     images: [
       {
-        url: defaultOgImage,
-        width: 1536,
-        height: 850,
-        type: "image/png",
-        alt: "VektörHUB ofis ön cephesi",
+        url: "/brand-flow.png",
+        width: 1200,
+        height: 630,
+        alt: "VektörHUB dijital hizmetler",
       },
     ],
   },
@@ -64,7 +63,7 @@ export const metadata: Metadata = {
     title: "VektörHUB | İş Geliştirme ve Dijital Çözümler",
     description:
       "Web sitesi, mobil uygulama ve dijital görünürlük desteği ile işletmelere ölçülü ve güçlü dijital yapı kurar.",
-    images: [defaultOgImage],
+    images: ["/brand-flow.png"],
   },
   robots: {
     index: true,
