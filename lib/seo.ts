@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const siteUrl = "https://www.vektorhub.com";
-export const defaultOgImage = "/brand-flow.png";
+export const defaultOgImage = "/og-office-front-20260918.png";
 
 const defaultKeywords = [
   "VektörHUB",
@@ -127,8 +127,9 @@ export function createPageMetadata({
       images: [
         {
           url: image,
-          width: 1200,
-          height: 630,
+          width: 1536,
+          height: 850,
+          type: "image/png",
           alt: title,
         },
       ],
